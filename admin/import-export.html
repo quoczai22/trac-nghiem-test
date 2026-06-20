@@ -33,6 +33,7 @@
           Môn học
           <select id="importSubject">
             <option value="he-dieu-hanh" selected>Hệ điều hành</option>
+            <option value="co-so-du-lieu-demo">Cơ sở dữ liệu - Demo</option>
           </select>
         </label>
 
@@ -95,6 +96,7 @@
           Môn học
           <select id="exportSubject">
             <option value="he-dieu-hanh" selected>Hệ điều hành</option>
+            <option value="co-so-du-lieu-demo">Cơ sở dữ liệu - Demo</option>
           </select>
         </label>
 
@@ -123,6 +125,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://unpkg.com/mammoth@1.7.2/mammoth.browser.min.js"></script>
   <script src="../subjects/he-dieu-hanh/questions.js"></script>
+  <script>window.__SUBJECT_DEFAULT_DATA__ = { "he-dieu-hanh": window.__QUIZ_DATA__ };</script>
+  <script src="../subjects/co-so-du-lieu-demo/questions.js"></script>
+  <script>window.__SUBJECT_DEFAULT_DATA__["co-so-du-lieu-demo"] = window.__QUIZ_DATA__;</script>
   <script src="./admin.js"></script>
 </body>
 </html>

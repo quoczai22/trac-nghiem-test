@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cơ sở dữ liệu - Môn Demo</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <a class="back-home" href="../../index.html">← Trang chủ</a>
+          <h1>🗃️ Cơ sở dữ liệu - Demo</h1>
+          <p>24 câu mẫu, dùng để kiểm thử mô hình nhiều môn</p>
+        </div>
+
+        <div class="stats-card">
+          <div class="stat"><span class="label">Tổng câu</span><strong id="totalCount">0</strong></div>
+          <div class="stat"><span class="label">Đã chọn</span><strong id="answeredCount">0</strong></div>
+          <div class="stat"><span class="label">Còn trống</span><strong id="remainingCount">0</strong></div>
+        </div>
+
+        <div class="progress-block">
+          <div class="progress-meta"><span>Tiến độ</span><span id="progressText">0%</span></div>
+          <div class="progress-bar"><div id="progressFill"></div></div>
+        </div>
+
+        <div class="timer-card">
+          <div class="navigator-head"><strong>Thời gian</strong><span>Tự nộp khi hết giờ</span></div>
+          <div id="timerText" class="timer-text">60:00</div>
+        </div>
+
+        <div class="filters">
+          <button class="chip active" data-filter="all">Đề hiện tại</button>
+          <button class="chip" data-filter="1">Chương 1</button>
+          <button class="chip" data-filter="2">Chương 2</button>
+          <button class="chip" data-filter="3">Chương 3</button>
+          <button class="chip" data-filter="tong-on">Tổng ôn</button>
+          <button class="chip" data-filter="unanswered">Chưa làm</button>
+        </div>
+
+        <div class="random-card">
+          <div class="navigator-head"><strong>Tạo đề random</strong><span>Trộn các chương</span></div>
+          <div class="random-controls">
+            <label for="randomCount">Số câu</label>
+            <select id="randomCount">
+              <option value="20" selected>20 câu</option>
+              <option value="10">10 câu</option>
+              <option value="24">Toàn bộ 24 câu</option>
+            </select>
+            <button id="newRandomBtn" class="primary-btn small-btn">Tạo đề mới</button>
+          </div>
+        </div>
+
+        <div class="history-card">
+          <div class="navigator-head"><strong>Lịch sử làm bài</strong><span>Lưu các lần nộp</span></div>
+          <div id="historyList" class="history-list"></div>
+          <button id="clearHistoryBtn" class="ghost-btn small-btn history-clear">Xóa lịch sử</button>
+        </div>
+
+        <div class="navigator-card">
+          <div class="navigator-head"><strong>Đi nhanh tới câu</strong><span>Bấm số để nhảy</span></div>
+          <div id="questionNavigator" class="question-navigator"></div>
+        </div>
+
+        <button id="submitBtn" class="primary-btn">Nộp bài</button>
+        <button id="resetBtn" class="ghost-btn">Làm lại từ đầu</button>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <div>
+            <h2 id="quizTitle">Đang tải đề...</h2>
+            <p>Ngân hàng demo để kiểm thử khả năng mở rộng nhiều môn.</p>
+          </div>
+          <div class="legend">
+            <span><i class="dot unanswered"></i>Chưa chọn</span>
+            <span><i class="dot answered"></i>Đã chọn</span>
+            <span id="resultLegend" class="hidden"><i class="dot correct"></i>Đúng <i class="dot wrong"></i>Sai</span>
+          </div>
+        </header>
+
+        <section id="resultPanel" class="result-panel hidden"></section>
+        <section class="nav-panel">
+          <div class="nav-left">
+            <button id="prevBtn" class="ghost-btn small-btn">Câu trước</button>
+            <button id="nextBtn" class="ghost-btn small-btn">Câu sau</button>
+          </div>
+          <div class="nav-right">
+            <label for="jumpInput">Nhảy tới câu</label>
+            <input id="jumpInput" type="number" min="1" value="1" />
+            <button id="jumpBtn" class="primary-btn small-btn">Đi</button>
+          </div>
+        </section>
+        <section id="questionHost" class="question-host"></section>
+      </main>
+    </div>
+
+    <template id="questionTemplate">
+      <article class="question-card">
+        <div class="question-head"><span class="chapter-badge"></span><span class="question-index"></span></div>
+        <h3 class="question-text"></h3>
+        <div class="options"></div>
+        <div class="explain hidden"></div>
+      </article>
+    </template>
+
+    <script src="./questions.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

@@ -10,8 +10,15 @@ const SUBJECTS = {
     title: "Ngân hàng trắc nghiệm Hệ điều hành",
     localKey: "quiz_subject_he-dieu-hanh_data",
     batchesKey: "quiz_subject_he-dieu-hanh_import_batches",
-    defaultData: () => window.__QUIZ_DATA__,
+    defaultData: () => window.__SUBJECT_DEFAULT_DATA__["he-dieu-hanh"],
     outputBase: "questions_he_dieu_hanh",
+  },
+  "co-so-du-lieu-demo": {
+    title: "Ngân hàng trắc nghiệm Cơ sở dữ liệu - Demo",
+    localKey: "quiz_subject_co-so-du-lieu-demo_data",
+    batchesKey: "quiz_subject_co-so-du-lieu-demo_import_batches",
+    defaultData: () => window.__SUBJECT_DEFAULT_DATA__["co-so-du-lieu-demo"],
+    outputBase: "questions_co_so_du_lieu_demo",
   },
 };
 

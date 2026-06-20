@@ -27,3 +27,4 @@ function renderSubjects() {
 }
 
 renderSubjects();
+window.addEventListener("pageshow", renderSubjects);

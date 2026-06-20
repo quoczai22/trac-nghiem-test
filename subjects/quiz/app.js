@@ -649,4 +649,3 @@ loadQuiz().catch((error) => {
   els.quizTitle.textContent = "Không tải được đề";
   els.questionHost.innerHTML = `<p>Lỗi: ${error.message}</p>`;
 });
-

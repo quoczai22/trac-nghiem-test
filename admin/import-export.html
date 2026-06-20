@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Import / Export câu hỏi</title>
+  <link rel="stylesheet" href="./admin.css" />
+</head>
+<body>
+  <main class="admin-shell">
+    <header class="admin-header">
+      <a href="../index.html" class="back-link">← Trang chủ</a>
+      <h1>Import / Export câu hỏi</h1>
+      <p>
+        Bản hiện tại chạy local trên GitHub Pages. Import chỉ <strong>thêm vào bộ đề</strong>,
+        không thay thế toàn bộ để tránh mất dữ liệu. Backend/cloud/phân quyền để trong demo nghiên cứu sau.
+      </p>
+    </header>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Nhập file</h2>
+          <p>
+            Chọn môn, chương, thả một hoặc nhiều file PDF/DOCX/TXT/JSON/JS.
+            Hệ thống parse thành câu hỏi và lưu thành các batch import tạm trong trình duyệt.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <label>
+          Môn học
+          <select id="importSubject">
+            <option value="he-dieu-hanh" selected>Hệ điều hành</option>
+          </select>
+        </label>
+
+        <label>
+          Chương
+          <select id="importChapter">
+            <option value="tong-on" selected>Tất cả / Tổng ôn / Không chọn chương</option>
+            <option value="1">Chương 1</option>
+            <option value="2">Chương 2</option>
+            <option value="3">Chương 3</option>
+            <option value="4">Chương 4</option>
+            <option value="5">Chương 5</option>
+            <option value="6">Chương 6</option>
+            <option value="7">Chương 7</option>
+            <option value="8">Chương 8</option>
+          </select>
+        </label>
+
+        <label>
+          Cách nhập
+          <select id="importMode" disabled>
+            <option value="append" selected>Chỉ thêm vào bộ đề đang có</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="dropzone" id="dropzone">
+        <input id="fileInput" type="file" accept=".pdf,.docx,.txt,.json,.js" multiple />
+        <span>Thả file vào đây hoặc bấm để chọn file</span>
+        <small>
+          Hỗ trợ tốt nhất: PDF/DOCX có dạng Câu 1 + A/B/C/D + đáp án cuối file.
+          Nhiều file sẽ được cộng dồn thành nhiều batch.
+        </small>
+      </label>
+
+      <div class="actions">
+        <button id="parseBtn" class="primary-btn">Import thêm vào bộ đề</button>
+        <button id="saveLocalBtn" class="ghost-btn" disabled>Lưu tạm để test trên web</button>
+        <button id="downloadJsBtn" class="ghost-btn" disabled>Tải bộ vừa import .js</button>
+        <button id="downloadJsonBtn" class="ghost-btn" disabled>Tải bộ vừa import .json</button>
+      </div>
+
+      <div id="importStatus" class="status-box">Chưa có file.</div>
+      <pre id="previewBox" class="preview hidden"></pre>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Xuất file</h2>
+          <p>
+            Xuất theo nguồn bạn chọn. Mặc định nên dùng
+            <strong>Gộp mặc định + tất cả file đã import</strong> để lấy đủ dữ liệu.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <label>
+          Môn học
+          <select id="exportSubject">
+            <option value="he-dieu-hanh" selected>Hệ điều hành</option>
+          </select>
+        </label>
+
+        <label>
+          Nguồn xuất
+          <select id="exportSource">
+            <option value="merged" selected>Gộp mặc định + tất cả file đã import</option>
+            <option value="default">Chỉ bộ đề mặc định trong questions.js</option>
+            <option value="imported">Chỉ các file đã import</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="actions">
+        <button id="exportJsBtn" class="primary-btn">Xuất questions.js</button>
+        <button id="exportJsonBtn" class="ghost-btn">Xuất questions.json</button>
+        <button id="exportDocBtn" class="ghost-btn">Xuất Word .doc</button>
+        <button id="exportPdfBtn" class="ghost-btn">Xuất PDF</button>
+        <button id="clearLocalBtn" class="danger-btn">Xóa tất cả import tạm</button>
+      </div>
+
+      <div id="exportStatus" class="status-box">Sẵn sàng xuất file.</div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://unpkg.com/mammoth@1.7.2/mammoth.browser.min.js"></script>
+  <script src="../subjects/he-dieu-hanh/questions.js"></script>
+  <script src="./admin.js"></script>
+</body>
+</html>

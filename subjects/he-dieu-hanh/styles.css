@@ -540,3 +540,20 @@ body {
   margin-top: 10px;
   width: 100%;
 }
+
+.back-home,
+.admin-link {
+  display: inline-flex;
+  margin-bottom: 8px;
+  color: var(--blue);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.admin-link {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--blue-soft);
+}

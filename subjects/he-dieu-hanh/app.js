@@ -1,3 +1,27 @@
+const SUBJECT_KEY = "he-dieu-hanh";
+const IMPORTED_DATA_KEY = `quiz_subject_${SUBJECT_KEY}_data`;
+
+function getDataSignature(data) {
+  const questions = Array.isArray(data?.questions) ? data.questions : [];
+  return `${data?.title || "quiz"}__${questions.length}__${questions[0]?.question || ""}__${questions[questions.length - 1]?.question || ""}`;
+}
+
+function getQuizDataSource() {
+  const imported = localStorage.getItem(IMPORTED_DATA_KEY);
+  if (imported) {
+    try {
+      const parsed = JSON.parse(imported);
+      if (parsed && Array.isArray(parsed.questions) && parsed.questions.length) {
+        parsed.count = parsed.questions.length;
+        return parsed;
+      }
+    } catch (error) {
+      console.warn("Không đọc được bộ đề import:", error);
+    }
+  }
+  return window.__QUIZ_DATA__;
+}
+
 const state = {
   bank: [],
   questions: [],
@@ -108,6 +132,11 @@ const PHRASE_REPLACEMENTS = [
 
 function prettifyText(text) {
   return String(text);
+}
+
+function formatChapterBadge(chapter) {
+  const value = String(chapter ?? "").trim();
+  return value === "tong-on" || value === "all" || value === "0" || !value ? "Tổng ôn" : `Chương ${chapter}`;
 }
 
 function normalizeSavedQuestion(question) {
@@ -386,7 +415,7 @@ function renderQuestions() {
   const optionsWrap = fragment.querySelector(".options");
   const explain = fragment.querySelector(".explain");
 
-  chapterBadge.textContent = `Chương ${question.chapter}`;
+  chapterBadge.textContent = formatChapterBadge(question.chapter);
   questionIndex.textContent = `Câu ${actualIndex + 1} / ${state.questions.length}`;
   questionText.textContent = prettifyText(question.question);
 
@@ -431,9 +460,22 @@ function renderQuestions() {
 }
 
 async function loadQuiz() {
-  const data = window.__QUIZ_DATA__;
+  const data = getQuizDataSource();
   if (!data) throw new Error("Không tìm thấy dữ liệu câu hỏi.");
   state.bank = data.questions;
+  const sourceSignature = getDataSignature(data);
+  const oldSignature = localStorage.getItem("quiz_ch1_8_random_source_signature");
+  const sourceChanged = oldSignature && oldSignature !== sourceSignature;
+  if (sourceChanged) {
+    state.answers = {};
+    state.submitted = false;
+    state.autoSubmitted = false;
+    state.attemptRecorded = false;
+    state.currentIndex = 0;
+    state.deadline = 0;
+    localStorage.removeItem("quiz_ch1_8_random_questions");
+  }
+  localStorage.setItem("quiz_ch1_8_random_source_signature", sourceSignature);
   const savedQuestions = JSON.parse(localStorage.getItem("quiz_ch1_8_random_questions") || "null");
   state.questions = Array.isArray(savedQuestions) && savedQuestions.length ? savedQuestions : pickRandomQuestions(40);
   state.questions = state.questions.map(normalizeSavedQuestion);
@@ -472,7 +514,8 @@ function createNewRandomQuiz() {
   state.currentIndex = 0;
   state.filter = "all";
   document.querySelectorAll(".chip").forEach((chip) => chip.classList.toggle("active", chip.dataset.filter === "all"));
-  els.quizTitle.textContent = `${window.__QUIZ_DATA__.title} (${window.__QUIZ_DATA__.count} câu, đề hiện tại ${state.questions.length} câu)`;
+  const sourceData = getQuizDataSource();
+  els.quizTitle.textContent = `${sourceData.title} (${sourceData.questions.length} câu, đề hiện tại ${state.questions.length} câu)`;
   saveState();
   startTimer(true);
   updateStats();

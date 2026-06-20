@@ -1,0 +1,37 @@
+:root {
+  --bg: #f4f6fb;
+  --panel: #fff;
+  --text: #182230;
+  --muted: #627086;
+  --line: #dbe3f0;
+  --blue: #2962ff;
+  --blue-soft: #e8efff;
+  --red: #c7384f;
+  --shadow: 0 14px 35px rgba(23, 37, 84, 0.08);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); }
+.admin-shell { width: min(1050px, calc(100% - 32px)); margin: 0 auto; padding: 34px 0; }
+.admin-header { margin-bottom: 20px; }
+.back-link { color: var(--blue); text-decoration: none; font-weight: 800; }
+h1 { margin: 14px 0 8px; font-size: clamp(32px, 5vw, 52px); letter-spacing: -0.04em; }
+p { color: var(--muted); line-height: 1.55; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 22px; box-shadow: var(--shadow); margin-bottom: 20px; }
+.panel-head h2 { margin: 0 0 6px; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 18px 0; }
+label { display: grid; gap: 8px; font-weight: 800; }
+select, input[type="file"] { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: white; }
+.dropzone { cursor: pointer; min-height: 150px; display: grid; place-items: center; text-align: center; padding: 20px; border: 2px dashed #aebde0; border-radius: 16px; background: #f8faff; color: var(--text); }
+.dropzone input { display: none; }
+.dropzone span { font-size: 18px; }
+.dropzone small { color: var(--muted); font-weight: 400; }
+.dropzone.dragover { border-color: var(--blue); background: var(--blue-soft); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+button { border: 0; border-radius: 10px; padding: 11px 14px; cursor: pointer; font-weight: 800; }
+button:disabled { cursor: not-allowed; opacity: .55; }
+.primary-btn { background: var(--blue); color: white; }
+.ghost-btn { background: white; color: var(--text); border: 1px solid var(--line); }
+.danger-btn { background: #fff0f3; color: var(--red); border: 1px solid #f3b3c0; }
+.status-box { margin-top: 16px; padding: 14px; border-radius: 12px; background: #f8faff; border: 1px solid var(--line); color: var(--muted); }
+.preview { white-space: pre-wrap; max-height: 360px; overflow: auto; padding: 14px; border-radius: 12px; background: #111827; color: #e5e7eb; }
+.hidden { display: none; }

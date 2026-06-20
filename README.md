@@ -2,7 +2,7 @@
 
 Web trắc nghiệm local/publish cho ngân hàng câu hỏi.
 
-GitHub Pages:
+GitHub Pages:https://quoczai22.github.io/trac-nghiem-test/
 
 ```text
 https://quoczai22.github.io/trac-nghiem-test/

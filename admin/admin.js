@@ -5,22 +5,27 @@
 // - Không cho "replace toàn bộ" trong UI để tránh người dùng import nhầm làm mất bộ đề.
 // - Sau này khi có Node.js + database, phần này có thể chuyển sang API thật.
 
-const SUBJECTS = {
-  "he-dieu-hanh": {
-    title: "Ngân hàng trắc nghiệm Hệ điều hành",
-    localKey: "quiz_subject_he-dieu-hanh_data",
-    batchesKey: "quiz_subject_he-dieu-hanh_import_batches",
-    defaultData: () => window.__SUBJECT_DEFAULT_DATA__["he-dieu-hanh"],
-    outputBase: "questions_he_dieu_hanh",
-  },
-  "co-so-du-lieu-demo": {
-    title: "Ngân hàng trắc nghiệm Cơ sở dữ liệu - Demo",
-    localKey: "quiz_subject_co-so-du-lieu-demo_data",
-    batchesKey: "quiz_subject_co-so-du-lieu-demo_import_batches",
-    defaultData: () => window.__SUBJECT_DEFAULT_DATA__["co-so-du-lieu-demo"],
-    outputBase: "questions_co_so_du_lieu_demo",
-  },
-};
+function getSubjectInfo(subjectId) {
+  const subject = window.QuizSubjects.get(subjectId);
+  if (!subject) throw new Error("Không tìm thấy môn học.");
+
+  return {
+    ...subject,
+    title: `Ngân hàng trắc nghiệm ${subject.title}`,
+    localKey: `quiz_subject_${subject.id}_data`,
+    batchesKey: `quiz_subject_${subject.id}_import_batches`,
+    outputBase: `questions_${subject.id.replace(/-/g, "_")}`,
+    defaultData: () => {
+      const defaultData = window.__SUBJECT_DEFAULT_DATA__?.[subject.id];
+      return defaultData || {
+        title: `Ngân hàng trắc nghiệm ${subject.title}`,
+        count: 0,
+        sourceCounts: { default: 0 },
+        questions: [],
+      };
+    },
+  };
+}
 
 const els = {
   fileInput: document.getElementById("fileInput"),
@@ -42,20 +47,94 @@ const els = {
   exportPdfBtn: document.getElementById("exportPdfBtn"),
   clearLocalBtn: document.getElementById("clearLocalBtn"),
   exportStatus: document.getElementById("exportStatus"),
+  newSubjectTitle: document.getElementById("newSubjectTitle"),
+  newSubjectIcon: document.getElementById("newSubjectIcon"),
+  newSubjectUnitType: document.getElementById("newSubjectUnitType"),
+  newSubjectUnitCount: document.getElementById("newSubjectUnitCount"),
+  newSubjectDescription: document.getElementById("newSubjectDescription"),
+  createSubjectBtn: document.getElementById("createSubjectBtn"),
+  createSubjectStatus: document.getElementById("createSubjectStatus"),
 };
 
 let importedData = null;
 let importedBatch = null;
 
+function populateSubjectSelect(select, selectedId) {
+  const subjects = window.QuizSubjects.list();
+  select.innerHTML = "";
+  subjects.forEach((subject) => {
+    const option = document.createElement("option");
+    option.value = subject.id;
+    option.textContent = `${subject.icon} ${subject.title}`;
+    option.selected = subject.id === selectedId;
+    select.appendChild(option);
+  });
+}
+
+function renderChapterOptions(subjectId, selectedValue = "tong-on") {
+  const subject = getSubjectInfo(subjectId);
+  els.importChapter.innerHTML = "";
+
+  const all = document.createElement("option");
+  all.value = "tong-on";
+  all.textContent = "Tất cả / Tổng ôn / Không chọn chương-bài";
+  els.importChapter.appendChild(all);
+
+  subject.units.forEach((unit) => {
+    const option = document.createElement("option");
+    option.value = unit.id;
+    option.textContent = unit.label;
+    els.importChapter.appendChild(option);
+  });
+
+  els.importChapter.value = Array.from(els.importChapter.options).some((option) => option.value === String(selectedValue))
+    ? String(selectedValue)
+    : "tong-on";
+}
+
+function refreshSubjectControls(preferredSubjectId) {
+  const currentImport = preferredSubjectId || els.importSubject.value || "he-dieu-hanh";
+  const currentExport = preferredSubjectId || els.exportSubject.value || currentImport;
+  const importChapter = els.importChapter.value || "tong-on";
+
+  populateSubjectSelect(els.importSubject, currentImport);
+  populateSubjectSelect(els.exportSubject, currentExport);
+  renderChapterOptions(els.importSubject.value, importChapter);
+}
+
+function createSubject() {
+  try {
+    const subject = window.QuizSubjects.create({
+      title: els.newSubjectTitle.value,
+      icon: els.newSubjectIcon.value,
+      description: els.newSubjectDescription.value,
+      unitType: els.newSubjectUnitType.value,
+      unitCount: els.newSubjectUnitCount.value,
+    });
+
+    refreshSubjectControls(subject.id);
+    els.newSubjectTitle.value = "";
+    els.newSubjectIcon.value = "📚";
+    els.newSubjectDescription.value = "";
+    els.newSubjectUnitCount.value = "8";
+    els.createSubjectStatus.textContent = `Đã tạo ${subject.icon} ${subject.title}. Bây giờ chọn file và Import thêm câu hỏi.`;
+  } catch (error) {
+    els.createSubjectStatus.textContent = `Lỗi: ${error.message}`;
+  }
+}
+
 function normalizeChapterValue(value) {
   const raw = String(value ?? "").trim();
   if (!raw || raw === "tong-on" || raw.toLowerCase() === "all") return "tong-on";
   const number = Number(raw);
-  return Number.isFinite(number) && number >= 1 && number <= 8 ? number : "tong-on";
+  return Number.isFinite(number) && number >= 1 ? number : "tong-on";
 }
 
-function formatChapterLabel(value) {
-  return normalizeChapterValue(value) === "tong-on" ? "Tổng ôn" : `Chương ${value}`;
+function formatChapterLabel(value, subjectId) {
+  const normalized = normalizeChapterValue(value);
+  if (normalized === "tong-on") return "Tổng ôn";
+  const unit = subjectId ? getSubjectInfo(subjectId).units.find((item) => item.id === String(normalized)) : null;
+  return unit?.label || `Chương ${normalized}`;
 }
 
 function cleanText(value) {
@@ -157,7 +236,7 @@ function parseJsData(text) {
 }
 
 function normalizeData(data, subject, chapter) {
-  const subjectInfo = SUBJECTS[subject];
+  const subjectInfo = getSubjectInfo(subject);
   const questions = (data.questions || data || []).map((q) => ({
     chapter: normalizeChapterValue(q.chapter || chapter),
     question: String(q.question || "").trim(),
@@ -214,7 +293,7 @@ async function readFileToData(file, subject, chapter) {
   else text = await file.text();
 
   const questions = parseQuestionsFromText(text, chapter);
-  return normalizeData({ title: SUBJECTS[subject].title, questions }, subject, chapter);
+  return normalizeData({ title: getSubjectInfo(subject).title, questions }, subject, chapter);
 }
 
 function structuredCloneSafe(value) {
@@ -222,25 +301,25 @@ function structuredCloneSafe(value) {
 }
 
 function getDefaultData(subject) {
-  const data = SUBJECTS[subject].defaultData();
+  const data = getSubjectInfo(subject).defaultData();
   if (!data) throw new Error("Không tìm thấy bộ đề mặc định.");
   return structuredCloneSafe(data);
 }
 
 function getBatches(subject) {
-  const raw = localStorage.getItem(SUBJECTS[subject].batchesKey);
+  const raw = localStorage.getItem(getSubjectInfo(subject).batchesKey);
   return raw ? JSON.parse(raw) : [];
 }
 
 function saveBatches(subject, batches) {
-  localStorage.setItem(SUBJECTS[subject].batchesKey, JSON.stringify(batches));
+  localStorage.setItem(getSubjectInfo(subject).batchesKey, JSON.stringify(batches));
 }
 
 function getImportedOnlyData(subject) {
   const batches = getBatches(subject);
   const questions = batches.flatMap((batch) => batch.questions || []);
   return {
-    title: `${SUBJECTS[subject].title} - Bộ đã import`,
+    title: `${getSubjectInfo(subject).title} - Bộ đã import`,
     count: questions.length,
     sourceCounts: { imported: questions.length },
     questions,
@@ -277,13 +356,13 @@ function getMergedData(subject) {
 }
 
 function getLocalData(subject) {
-  const raw = localStorage.getItem(SUBJECTS[subject].localKey);
+  const raw = localStorage.getItem(getSubjectInfo(subject).localKey);
   return raw ? JSON.parse(raw) : null;
 }
 
 function saveMergedForQuiz(subject) {
   const data = getMergedData(subject);
-  localStorage.setItem(SUBJECTS[subject].localKey, toQuestionsJson(data));
+  localStorage.setItem(getSubjectInfo(subject).localKey, toQuestionsJson(data));
   return data;
 }
 
@@ -419,7 +498,7 @@ async function handleParse() {
 
     saveBatches(subject, batches);
     importedData = normalizeData({
-      title: `${SUBJECTS[subject].title} - Batch import mới`,
+      title: `${getSubjectInfo(subject).title} - Batch import mới`,
       questions: parsedQuestions,
     }, subject, chapter);
 
@@ -431,7 +510,7 @@ async function handleParse() {
     els.downloadJsonBtn.disabled = false;
 
     setImportStatus(
-      `Đã import thêm ${parsedQuestions.length} câu từ ${files.length} file (${formatChapterLabel(chapter)}). ` +
+      `Đã import thêm ${parsedQuestions.length} câu từ ${files.length} file (${formatChapterLabel(chapter, subject)}). ` +
       `Tổng import tạm: ${getImportedOnlyData(subject).questions.length} câu. ` +
       `Bản gộp hiện có: ${merged.questions.length} câu.`
     );
@@ -448,7 +527,8 @@ async function handleParse() {
 function saveImportedLocal() {
   const subject = els.importSubject.value;
   const data = saveMergedForQuiz(subject);
-  setImportStatus(`Đã lưu tạm bản gộp ${data.questions.length} câu vào trình duyệt. Vào môn Hệ điều hành để test ngay.`);
+  const subjectInfo = getSubjectInfo(subject);
+  setImportStatus(`Đã lưu tạm bản gộp ${data.questions.length} câu vào trình duyệt. Vào môn ${subjectInfo.title.replace("Ngân hàng trắc nghiệm ", "")} để test ngay.`);
 }
 
 function getExportData() {
@@ -469,6 +549,8 @@ function getExportData() {
 
 els.parseBtn.addEventListener("click", handleParse);
 els.saveLocalBtn.addEventListener("click", saveImportedLocal);
+els.createSubjectBtn.addEventListener("click", createSubject);
+els.importSubject.addEventListener("change", () => renderChapterOptions(els.importSubject.value));
 
 els.downloadJsBtn.addEventListener("click", () => {
   if (!importedData) return;
@@ -523,8 +605,8 @@ els.exportPdfBtn.addEventListener("click", () => {
 els.clearLocalBtn.addEventListener("click", () => {
   const subject = els.exportSubject.value;
   if (!confirm("Xóa tất cả batch import tạm trong trình duyệt? Bộ đề mặc định không bị ảnh hưởng.")) return;
-  localStorage.removeItem(SUBJECTS[subject].batchesKey);
-  localStorage.removeItem(SUBJECTS[subject].localKey);
+  localStorage.removeItem(getSubjectInfo(subject).batchesKey);
+  localStorage.removeItem(getSubjectInfo(subject).localKey);
   els.exportStatus.textContent = "Đã xóa tất cả import tạm trong trình duyệt.";
 });
 
@@ -555,3 +637,6 @@ els.fileInput.addEventListener("change", () => {
   const files = Array.from(els.fileInput.files || []);
   setImportStatus(files.length ? `Đã chọn ${files.length} file: ${files.map((f) => f.name).join(", ")}` : "Chưa có file.");
 });
+
+const requestedSubject = new URLSearchParams(window.location.search).get("subject");
+refreshSubjectControls(window.QuizSubjects.get(requestedSubject) ? requestedSubject : "he-dieu-hanh");

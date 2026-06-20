@@ -11,50 +11,18 @@
     <section class="hero">
       <p class="eyebrow">HUIT Practice Test</p>
       <h1>Chọn môn để thi thử</h1>
-      <p class="subtitle">Trang luyện trắc nghiệm local/GitHub Pages. Hiện có Hệ điều hành và một môn demo để kiểm thử đa môn.</p>
+      <p class="subtitle">Tạo môn local, thêm câu hỏi theo từng chương/bài và làm đề ngay trên trình duyệt.</p>
       <div class="hero-actions">
         <a class="primary-btn" href="./subjects/he-dieu-hanh/index.html">Bắt đầu Hệ điều hành</a>
-        <a class="ghost-btn" href="./admin/import-export.html">Import / Export câu hỏi</a>
+        <a class="ghost-btn" href="./admin/import-export.html">Quản lý môn &amp; câu hỏi</a>
       </div>
     </section>
 
-    <section class="subject-grid" aria-label="Danh sách môn học">
-      <a class="subject-card active" href="./subjects/he-dieu-hanh/index.html">
-        <span class="icon">💻</span>
-        <div>
-          <h2>Hệ điều hành</h2>
-          <p>Ngân hàng câu hỏi chương 1-8, random đề, lưu lịch sử làm bài.</p>
-          <strong>Đang có sẵn</strong>
-        </div>
-      </a>
-
-      <a class="subject-card active" href="./subjects/co-so-du-lieu-demo/index.html">
-        <span class="icon">🗃️</span>
-        <div>
-          <h2>Cơ sở dữ liệu</h2>
-          <p>Môn demo 24 câu, có timer, random đề và lịch sử làm bài riêng.</p>
-          <strong>Demo đang hoạt động</strong>
-        </div>
-      </a>
-
-      <div class="subject-card disabled">
-        <span class="icon">📊</span>
-        <div>
-          <h2>Xác suất thống kê</h2>
-          <p>Sắp bổ sung.</p>
-          <strong>Coming soon</strong>
-        </div>
-      </div>
-
-      <div class="subject-card disabled">
-        <span class="icon">🤖</span>
-        <div>
-          <h2>Trí tuệ nhân tạo</h2>
-          <p>Sắp bổ sung.</p>
-          <strong>Coming soon</strong>
-        </div>
-      </div>
+    <section id="subjectGrid" class="subject-grid" aria-label="Danh sách môn học">
     </section>
   </main>
+
+  <script src="./shared/subjects-registry.js"></script>
+  <script src="./home.js"></script>
 </body>
 </html>

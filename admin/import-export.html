@@ -19,6 +19,45 @@
 
     <section class="panel">
       <div class="panel-head">
+        <h2>Tạo môn local</h2>
+        <p>Tạo vỏ môn trước, sau đó chỉ cần Import thêm câu hỏi theo từng chương hoặc bài. Dữ liệu chỉ lưu trong trình duyệt hiện tại.</p>
+      </div>
+
+      <div class="form-grid">
+        <label>
+          Tên môn
+          <input id="newSubjectTitle" type="text" placeholder="Ví dụ: Lập trình hướng đối tượng" maxlength="80" />
+        </label>
+        <label>
+          Icon
+          <input id="newSubjectIcon" type="text" value="📚" maxlength="8" />
+        </label>
+        <label>
+          Phân loại nội dung
+          <select id="newSubjectUnitType">
+            <option value="Chương" selected>Theo chương</option>
+            <option value="Bài">Theo bài</option>
+          </select>
+        </label>
+        <label>
+          Số chương/bài
+          <input id="newSubjectUnitCount" type="number" min="1" max="30" value="8" />
+        </label>
+      </div>
+
+      <label>
+        Mô tả ngắn
+        <input id="newSubjectDescription" type="text" placeholder="Môn học local, chờ thêm câu hỏi." maxlength="160" />
+      </label>
+
+      <div class="actions">
+        <button id="createSubjectBtn" class="primary-btn">Tạo môn</button>
+      </div>
+      <div id="createSubjectStatus" class="status-box">Chưa tạo môn local nào.</div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
         <div>
           <h2>Nhập file</h2>
           <p>
@@ -31,10 +70,7 @@
       <div class="form-grid">
         <label>
           Môn học
-          <select id="importSubject">
-            <option value="he-dieu-hanh" selected>Hệ điều hành</option>
-            <option value="co-so-du-lieu-demo">Cơ sở dữ liệu - Demo</option>
-          </select>
+          <select id="importSubject"></select>
         </label>
 
         <label>
@@ -94,10 +130,7 @@
       <div class="form-grid">
         <label>
           Môn học
-          <select id="exportSubject">
-            <option value="he-dieu-hanh" selected>Hệ điều hành</option>
-            <option value="co-so-du-lieu-demo">Cơ sở dữ liệu - Demo</option>
-          </select>
+          <select id="exportSubject"></select>
         </label>
 
         <label>
@@ -124,10 +157,9 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://unpkg.com/mammoth@1.7.2/mammoth.browser.min.js"></script>
+  <script src="../shared/subjects-registry.js"></script>
   <script src="../subjects/he-dieu-hanh/questions.js"></script>
   <script>window.__SUBJECT_DEFAULT_DATA__ = { "he-dieu-hanh": window.__QUIZ_DATA__ };</script>
-  <script src="../subjects/co-so-du-lieu-demo/questions.js"></script>
-  <script>window.__SUBJECT_DEFAULT_DATA__["co-so-du-lieu-demo"] = window.__QUIZ_DATA__;</script>
   <script src="./admin.js"></script>
 </body>
 </html>

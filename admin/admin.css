@@ -20,7 +20,7 @@ p { color: var(--muted); line-height: 1.55; }
 .panel-head h2 { margin: 0 0 6px; }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 18px 0; }
 label { display: grid; gap: 8px; font-weight: 800; }
-select, input[type="file"] { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: white; }
+select, input[type="file"], input[type="text"], input[type="number"] { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: white; font: inherit; }
 .dropzone { cursor: pointer; min-height: 150px; display: grid; place-items: center; text-align: center; padding: 20px; border: 2px dashed #aebde0; border-radius: 16px; background: #f8faff; color: var(--text); }
 .dropzone input { display: none; }
 .dropzone span { font-size: 18px; }

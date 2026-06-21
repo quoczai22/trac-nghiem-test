@@ -2,6 +2,20 @@
 setlocal
 cd /d "%~dp0"
 
+set "OLLAMA=%LOCALAPPDATA%\Programs\Ollama\ollama.exe"
+if not exist "%OLLAMA%" (
+  echo Khong tim thay Ollama. Hay cai Ollama truoc khi chay AI Import.
+  pause
+  exit /b 1
+)
+
+powerShell -NoProfile -Command "try { Invoke-WebRequest -UseBasicParsing http://localhost:11434/api/tags -TimeoutSec 2 ^| Out-Null; exit 0 } catch { exit 1 }"
+if errorlevel 1 (
+  echo Dang khoi dong Ollama/Qwen...
+  start "Ollama" /min "%OLLAMA%" serve
+  timeout /t 3 /nobreak >nul
+)
+
 set "NODE=node"
 where node >nul 2>nul
 if errorlevel 1 (
@@ -30,7 +44,7 @@ start "Ollama helper" /min "%NODE%" "tools\ollama-helper\server.js"
 timeout /t 2 /nobreak >nul
 
 :open-admin
-echo Ollama helper da san sang.
+echo Ollama va helper da san sang.
 
 start "" "https://quoczai22.github.io/trac-nghiem-test/admin/import-export.html"
 echo Da mo trang Admin. Giu cua so Ollama helper chay trong nen khi Import AI.

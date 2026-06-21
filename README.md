@@ -76,4 +76,5 @@ Lưu ý: AI chỉ gợi ý đáp án, không tự merge và không replace bộ 
 ## Mở AI Import một chạm trên Windows
 
 Nhấp đúp [Chay-AI-Import.cmd](./Chay-AI-Import.cmd). Script sẽ kiểm tra helper có hỗ trợ AI parse fallback,
-thay helper cũ ở cổng `3100` nếu cần, rồi mở trang Admin. Ollama (`http://localhost:11434`) vẫn cần được cài và chạy trên máy.
+thay helper cũ ở cổng `3100` nếu cần, tự chạy Ollama tại `http://localhost:11434` nếu đang tắt, rồi mở trang Admin.
+Model `qwen2.5:7b` vẫn cần được tải về trước bằng `ollama pull qwen2.5:7b`.

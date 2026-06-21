@@ -180,6 +180,7 @@ const server = http.createServer(async (req, res) => {
       message: "Ollama helper is running.",
       ollamaUrl: OLLAMA_URL,
       defaultModel: DEFAULT_MODEL,
+      features: ["resolve-answers", "parse-questions"],
     });
   }
 

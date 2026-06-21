@@ -75,5 +75,5 @@ Lưu ý: AI chỉ gợi ý đáp án, không tự merge và không replace bộ 
 
 ## Mở AI Import một chạm trên Windows
 
-Nhấp đúp [Chay-AI-Import.cmd](./Chay-AI-Import.cmd). Script sẽ kiểm tra `http://localhost:3100`,
-khởi động Ollama helper nếu cần và mở trang Admin. Ollama (`http://localhost:11434`) vẫn cần được cài và chạy trên máy.
+Nhấp đúp [Chay-AI-Import.cmd](./Chay-AI-Import.cmd). Script sẽ kiểm tra helper có hỗ trợ AI parse fallback,
+thay helper cũ ở cổng `3100` nếu cần, rồi mở trang Admin. Ollama (`http://localhost:11434`) vẫn cần được cài và chạy trên máy.

@@ -9,7 +9,8 @@ File PDF/DOCX/TXT/JSON/JS
     ↓
 Rule-based parser
     ↓
-Nếu nhận diện được đáp án: giữ lại
+Nếu parser tách được câu: giữ lại
+Nếu parser tách được 0 câu: gửi raw text sang Ollama local để tách câu hỏi
 Nếu thiếu đáp án: đưa vào draft thiếu đáp án
     ↓
 Ollama local gợi ý đáp án thiếu

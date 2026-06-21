@@ -52,3 +52,23 @@ git push
 ```
 
 Nếu GitHub Pages dùng GitHub Actions, workflow sẽ tự deploy.
+
+
+## AI Import Workflow
+
+Đã thêm workflow import an toàn:
+
+```text
+Phân tích file -> tạo draft -> Ollama gợi ý đáp án thiếu -> preview -> merge
+```
+
+File liên quan:
+
+```text
+admin/import-export.html
+admin/admin.js
+tools/ollama-helper/server.js
+docs/AI_IMPORT_WORKFLOW.md
+```
+
+Lưu ý: AI chỉ gợi ý đáp án, không tự merge và không replace bộ đề gốc.

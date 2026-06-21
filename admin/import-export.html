@@ -100,16 +100,29 @@
         <input id="fileInput" type="file" accept=".pdf,.docx,.txt,.json,.js" multiple />
         <span>Thả file vào đây hoặc bấm để chọn file</span>
         <small>
-          Hỗ trợ tốt nhất: PDF/DOCX có dạng Câu 1 + A/B/C/D + đáp án cuối file.
-          Nhiều file sẽ được cộng dồn thành nhiều batch.
+          Hỗ trợ: PDF/DOCX/TXT/JSON/JS. DOCX có đáp án in đậm sẽ được nhận diện bằng rule.
+          Nếu không thấy đáp án, dùng nút Ollama để AI gợi ý rồi bạn duyệt trước khi Merge.
         </small>
       </label>
 
+      <div class="ai-config">
+        <label>
+          Ollama helper URL
+          <input id="ollamaHelperUrl" type="text" value="http://localhost:3100" />
+        </label>
+        <label>
+          Model
+          <input id="ollamaModel" type="text" value="qwen2.5:7b" />
+        </label>
+      </div>
+
       <div class="actions">
-        <button id="parseBtn" class="primary-btn">Import thêm vào bộ đề</button>
+        <button id="parseBtn" class="primary-btn">1. Phân tích file / tạo draft</button>
+        <button id="aiSuggestBtn" class="ghost-btn" disabled>2. AI/Ollama gợi ý đáp án thiếu</button>
+        <button id="mergeDraftBtn" class="primary-btn" disabled>3. Merge draft vào bộ import</button>
         <button id="saveLocalBtn" class="ghost-btn" disabled>Lưu tạm để test trên web</button>
-        <button id="downloadJsBtn" class="ghost-btn" disabled>Tải bộ vừa import .js</button>
-        <button id="downloadJsonBtn" class="ghost-btn" disabled>Tải bộ vừa import .json</button>
+        <button id="downloadJsBtn" class="ghost-btn" disabled>Tải draft .js</button>
+        <button id="downloadJsonBtn" class="ghost-btn" disabled>Tải draft .json</button>
       </div>
 
       <div id="importStatus" class="status-box">Chưa có file.</div>
@@ -157,6 +170,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://unpkg.com/mammoth@1.7.2/mammoth.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="../shared/subjects-registry.js"></script>
   <script src="../subjects/he-dieu-hanh/questions.js"></script>
   <script>window.__SUBJECT_DEFAULT_DATA__ = { "he-dieu-hanh": window.__QUIZ_DATA__ };</script>

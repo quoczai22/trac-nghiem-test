@@ -1,9 +1,10 @@
 // Admin Import / Export local cho GitHub Pages.
-// Ghi chú quan trọng:
-// - Không có backend nên không thể bảo mật tuyệt đối ở frontend.
-// - Import hiện tại chỉ lưu vào localStorage của máy đang dùng.
-// - Không cho "replace toàn bộ" trong UI để tránh người dùng import nhầm làm mất bộ đề.
-// - Sau này khi có Node.js + database, phần này có thể chuyển sang API thật.
+// Phase hiện tại: web tĩnh, không backend, không database.
+// Workflow an toàn:
+// 1) Phân tích file -> tạo draft
+// 2) Nếu thiếu đáp án -> tùy chọn gọi Ollama local để gợi ý
+// 3) Preview/deduplicate -> người dùng bấm Merge
+// 4) Merge chỉ append vào localStorage, không replace questions.js gốc
 
 function getSubjectInfo(subjectId) {
   const subject = window.QuizSubjects.get(subjectId);
@@ -34,6 +35,8 @@ const els = {
   importChapter: document.getElementById("importChapter"),
   importMode: document.getElementById("importMode"),
   parseBtn: document.getElementById("parseBtn"),
+  aiSuggestBtn: document.getElementById("aiSuggestBtn"),
+  mergeDraftBtn: document.getElementById("mergeDraftBtn"),
   saveLocalBtn: document.getElementById("saveLocalBtn"),
   downloadJsBtn: document.getElementById("downloadJsBtn"),
   downloadJsonBtn: document.getElementById("downloadJsonBtn"),
@@ -47,6 +50,8 @@ const els = {
   exportPdfBtn: document.getElementById("exportPdfBtn"),
   clearLocalBtn: document.getElementById("clearLocalBtn"),
   exportStatus: document.getElementById("exportStatus"),
+  ollamaHelperUrl: document.getElementById("ollamaHelperUrl"),
+  ollamaModel: document.getElementById("ollamaModel"),
   newSubjectTitle: document.getElementById("newSubjectTitle"),
   newSubjectIcon: document.getElementById("newSubjectIcon"),
   newSubjectUnitType: document.getElementById("newSubjectUnitType"),
@@ -56,6 +61,8 @@ const els = {
   createSubjectStatus: document.getElementById("createSubjectStatus"),
 };
 
+let draftData = null;
+let draftBatchMeta = null;
 let importedData = null;
 let importedBatch = null;
 
@@ -146,7 +153,11 @@ function cleanText(value) {
 }
 
 function cleanLine(value) {
-  return cleanText(value).replace(/\s*\n\s*/g, " ").replace(/\s+/g, " ").trim();
+  return cleanText(value)
+    .replace(/\s*\n\s*/g, " ")
+    .replace(/\s+/g, " ")
+    .replace(/\*\*/g, "")
+    .trim();
 }
 
 function parseAnswers(text) {
@@ -161,9 +172,10 @@ function parseAnswers(text) {
 
 function optionIndexes(block) {
   const labels = [];
-  const re = /(?:^|\n)\s*([ABCD])\s*[\.\)]\s*/g;
+  const re = /(?:^|\n|\s)([ABCD])\s*[\.\)]\s*/g;
   let match;
   while ((match = re.exec(block))) {
+    // Tránh bắt nhầm A/B/C/D nằm trong chữ thường bằng cách ưu tiên vị trí đầu dòng hoặc sau khoảng trắng rõ ràng.
     labels.push({ key: match[1].toUpperCase(), start: match.index + match[0].length, labelStart: match.index });
   }
   return labels;
@@ -174,14 +186,23 @@ function findInlineAnswer(block) {
   return match ? match[1].toUpperCase() : "";
 }
 
-function parseQuestionsFromText(rawText, chapter) {
+function findBoldAnswerFromOptions(optionsWithMarkup) {
+  for (const [key, value] of Object.entries(optionsWithMarkup)) {
+    if (/\*\*[^*]+\*\*/.test(value)) return key;
+  }
+  return "";
+}
+
+function parseQuestionsFromText(rawText, chapter, { allowMissingAnswer = true } = {}) {
   const text = cleanText(rawText);
   const answers = parseAnswers(text);
-  const questionStartRe = /(?:^|\n)\s*Câu\s+(\d{1,4})\s*\n?/gi;
+  const questionStartRe = /(?:^|\n)\s*(?:Câu\s+)?(\d{1,4})\s*[\.\)]?\s+/gi;
   const starts = [];
   let match;
 
   while ((match = questionStartRe.exec(text))) {
+    const before = text.slice(Math.max(0, match.index - 20), match.index);
+    if (/Unit|Page|ThS|English|MULTI|READING|FILL/i.test(before)) continue;
     starts.push({ number: Number(match[1]), start: match.index, bodyStart: questionStartRe.lastIndex });
   }
 
@@ -189,7 +210,7 @@ function parseQuestionsFromText(rawText, chapter) {
   for (let i = 0; i < starts.length; i += 1) {
     const current = starts[i];
     const nextStart = starts[i + 1]?.start ?? text.length;
-    let block = text.slice(current.bodyStart, nextStart);
+    const block = text.slice(current.bodyStart, nextStart);
 
     if (/THAM KHẢO|BẢNG ĐÁP ÁN|ĐÁP ÁN/i.test(block) && !/\bA\s*[\.\)]/i.test(block)) continue;
 
@@ -204,25 +225,29 @@ function parseQuestionsFromText(rawText, chapter) {
     const firstOption = usable[0];
     const questionText = cleanLine(block.slice(0, firstOption.labelStart));
     const options = {};
+    const optionsWithMarkup = {};
 
     for (let j = 0; j < usable.length; j += 1) {
       const item = usable[j];
       if (!["A", "B", "C", "D"].includes(item.key) || options[item.key]) continue;
       const next = usable.slice(j + 1).find((candidate) => ["A", "B", "C", "D"].includes(candidate.key) && !options[candidate.key]);
       const end = next ? next.labelStart : block.length;
-      let value = cleanLine(block.slice(item.start, end));
-      value = value.replace(/(?:THAM KHẢO|BẢNG ĐÁP ÁN|ĐÁP ÁN).*$/i, "").trim();
-      options[item.key] = value;
+      let rawValue = cleanText(block.slice(item.start, end)).replace(/(?:THAM KHẢO|BẢNG ĐÁP ÁN|ĐÁP ÁN).*$/i, "").trim();
+      optionsWithMarkup[item.key] = rawValue;
+      options[item.key] = cleanLine(rawValue);
     }
 
-    const answer = answers[current.number] || findInlineAnswer(block);
-    if (!questionText || !options.A || !options.B || !options.C || !options.D || !answer) continue;
+    const answer = answers[current.number] || findInlineAnswer(block) || findBoldAnswerFromOptions(optionsWithMarkup);
+    if (!questionText || !options.A || !options.B || !options.C || !options.D) continue;
+    if (!answer && !allowMissingAnswer) continue;
 
     questions.push({
       chapter: normalizeChapterValue(chapter),
       question: questionText,
       options,
       answer,
+      confidence: answer ? 1 : 0,
+      answerSource: answer ? (answers[current.number] ? "answer-table" : findBoldAnswerFromOptions(optionsWithMarkup) ? "bold-docx" : "inline") : "missing",
     });
   }
 
@@ -235,7 +260,7 @@ function parseJsData(text) {
   return JSON.parse(match[1]);
 }
 
-function normalizeData(data, subject, chapter) {
+function normalizeData(data, subject, chapter, { allowMissingAnswer = true } = {}) {
   const subjectInfo = getSubjectInfo(subject);
   const questions = (data.questions || data || []).map((q) => ({
     chapter: normalizeChapterValue(q.chapter || chapter),
@@ -247,7 +272,10 @@ function normalizeData(data, subject, chapter) {
       D: String(q.options?.D || q.D || "").trim(),
     },
     answer: String(q.answer || "").trim().toUpperCase(),
-  })).filter((q) => q.question && q.options.A && q.options.B && q.options.C && q.options.D && q.answer);
+    confidence: Number(q.confidence ?? (q.answer ? 1 : 0)),
+    answerSource: q.answerSource || (q.answer ? "provided" : "missing"),
+    explanation: q.explanation || "",
+  })).filter((q) => q.question && q.options.A && q.options.B && q.options.C && q.options.D && (allowMissingAnswer || q.answer));
 
   return {
     title: data.title || subjectInfo.title,
@@ -271,20 +299,48 @@ async function extractPdfText(file) {
   return text;
 }
 
+function getXmlText(node) {
+  return Array.from(node.getElementsByTagName("w:t")).map((item) => item.textContent || "").join("");
+}
+
+async function extractDocxTextWithBold(file) {
+  // DOCX là file zip. Hàm này đọc word/document.xml để giữ dấu **bold** quanh run in đậm.
+  // Nhờ vậy đề Anh văn 3 có đáp án in đậm có thể nhận diện bằng rule mà không cần AI.
+  if (!window.JSZip) {
+    if (!window.mammoth) throw new Error("Không tải được JSZip/Mammoth.js. Hãy mở bằng internet hoặc dùng TXT/JSON.");
+    const buffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer: buffer });
+    return result.value;
+  }
+
+  const zip = await JSZip.loadAsync(await file.arrayBuffer());
+  const documentXml = await zip.file("word/document.xml")?.async("text");
+  if (!documentXml) throw new Error("DOCX không có word/document.xml.");
+
+  const xml = new DOMParser().parseFromString(documentXml, "application/xml");
+  const paragraphs = Array.from(xml.getElementsByTagName("w:p"));
+
+  return paragraphs.map((p) => {
+    return Array.from(p.getElementsByTagName("w:r")).map((run) => {
+      const text = getXmlText(run);
+      if (!text) return "";
+      const isBold = run.getElementsByTagName("w:b").length > 0;
+      return isBold ? `**${text}**` : text;
+    }).join("");
+  }).join("\n");
+}
+
 async function extractDocxText(file) {
-  if (!window.mammoth) throw new Error("Không tải được Mammoth.js. Hãy mở bằng internet hoặc dùng TXT/JSON.");
-  const buffer = await file.arrayBuffer();
-  const result = await mammoth.extractRawText({ arrayBuffer: buffer });
-  return result.value;
+  return extractDocxTextWithBold(file);
 }
 
 async function readFileToData(file, subject, chapter) {
   const name = file.name.toLowerCase();
   if (name.endsWith(".json")) {
-    return normalizeData(JSON.parse(await file.text()), subject, chapter);
+    return normalizeData(JSON.parse(await file.text()), subject, chapter, { allowMissingAnswer: true });
   }
   if (name.endsWith(".js")) {
-    return normalizeData(parseJsData(await file.text()), subject, chapter);
+    return normalizeData(parseJsData(await file.text()), subject, chapter, { allowMissingAnswer: true });
   }
 
   let text = "";
@@ -292,8 +348,8 @@ async function readFileToData(file, subject, chapter) {
   else if (name.endsWith(".docx")) text = await extractDocxText(file);
   else text = await file.text();
 
-  const questions = parseQuestionsFromText(text, chapter);
-  return normalizeData({ title: getSubjectInfo(subject).title, questions }, subject, chapter);
+  const questions = parseQuestionsFromText(text, chapter, { allowMissingAnswer: true });
+  return normalizeData({ title: getSubjectInfo(subject).title, questions }, subject, chapter, { allowMissingAnswer: true });
 }
 
 function structuredCloneSafe(value) {
@@ -355,11 +411,6 @@ function getMergedData(subject) {
   };
 }
 
-function getLocalData(subject) {
-  const raw = localStorage.getItem(getSubjectInfo(subject).localKey);
-  return raw ? JSON.parse(raw) : null;
-}
-
 function saveMergedForQuiz(subject) {
   const data = getMergedData(subject);
   localStorage.setItem(getSubjectInfo(subject).localKey, toQuestionsJson(data));
@@ -393,7 +444,8 @@ function toDocumentHtml(data) {
         <li>${escapeHtml(q.options.C)}</li>
         <li>${escapeHtml(q.options.D)}</li>
       </ol>
-      <p><strong>Đáp án:</strong> ${escapeHtml(q.answer)}</p>
+      <p><strong>Đáp án:</strong> ${escapeHtml(q.answer || "Chưa xác định")}</p>
+      ${q.explanation ? `<p><em>${escapeHtml(q.explanation)}</em></p>` : ""}
     </div>
   `).join("\n");
 
@@ -431,19 +483,17 @@ function downloadText(filename, content, type = "text/plain") {
 }
 
 function downloadDoc(filename, data) {
-  const html = toDocumentHtml(data);
-  downloadText(filename, html, "application/msword");
+  downloadText(filename, toDocumentHtml(data), "application/msword");
 }
 
 function printPdf(data) {
-  const html = toDocumentHtml(data);
   const win = window.open("", "_blank");
   if (!win) {
     els.exportStatus.textContent = "Trình duyệt đang chặn popup. Hãy cho phép popup để xuất PDF.";
     return;
   }
   win.document.open();
-  win.document.write(html);
+  win.document.write(toDocumentHtml(data));
   win.document.close();
   win.focus();
   setTimeout(() => win.print(), 300);
@@ -453,15 +503,39 @@ function setImportStatus(message) {
   els.importStatus.textContent = message;
 }
 
-function showPreview(data, batch) {
-  const sample = data.questions.slice(0, 3);
+function getDraftStats(data = draftData) {
+  const questions = data?.questions || [];
+  const resolved = questions.filter((q) => q.answer).length;
+  const missing = questions.length - resolved;
+  const ai = questions.filter((q) => q.answerSource === "ollama").length;
+  return { total: questions.length, resolved, missing, ai };
+}
+
+function renderDraftPreview(data = draftData) {
+  if (!data) {
+    els.previewBox.classList.add("hidden");
+    return;
+  }
+
+  const stats = getDraftStats(data);
+  const sample = data.questions.slice(0, 12).map((q, index) => ({
+    stt: index + 1,
+    chapter: q.chapter,
+    question: q.question,
+    answer: q.answer || null,
+    confidence: q.confidence || 0,
+    answerSource: q.answerSource,
+    options: q.options,
+    explanation: q.explanation || "",
+  }));
+
   els.previewBox.classList.remove("hidden");
-  els.previewBox.textContent = JSON.stringify({
-    batch: batch ? { fileName: batch.fileName, count: batch.questions.length } : null,
-    count: data.questions.length,
-    sourceCounts: data.sourceCounts,
-    sample,
-  }, null, 2);
+  els.previewBox.textContent = JSON.stringify({ stats, sample }, null, 2);
+
+  els.aiSuggestBtn.disabled = stats.missing === 0;
+  els.mergeDraftBtn.disabled = stats.total === 0;
+  els.downloadJsBtn.disabled = stats.total === 0;
+  els.downloadJsonBtn.disabled = stats.total === 0;
 }
 
 async function handleParse() {
@@ -473,55 +547,145 @@ async function handleParse() {
 
   const subject = els.importSubject.value;
   const chapter = els.importChapter.value;
-  const batches = getBatches(subject);
   const parsedQuestions = [];
 
   try {
-    setImportStatus(`Đang đọc ${files.length} file...`);
+    setImportStatus(`Đang phân tích ${files.length} file...`);
     for (const file of files) {
       const parsed = await readFileToData(file, subject, chapter);
       if (!parsed.questions.length) {
         throw new Error(`Không tách được câu hỏi từ file ${file.name}.`);
       }
-
-      const batch = {
-        id: Date.now() + Math.random(),
-        fileName: file.name,
-        importedAt: new Date().toISOString(),
-        chapter: normalizeChapterValue(chapter),
-        questions: parsed.questions,
-      };
-      batches.push(batch);
-      parsedQuestions.push(...parsed.questions);
-      importedBatch = batch;
+      parsed.questions.forEach((q) => {
+        q.sourceFile = file.name;
+        parsedQuestions.push(q);
+      });
     }
 
-    saveBatches(subject, batches);
-    importedData = normalizeData({
-      title: `${getSubjectInfo(subject).title} - Batch import mới`,
+    draftData = normalizeData({
+      title: `${getSubjectInfo(subject).title} - Draft import`,
       questions: parsedQuestions,
-    }, subject, chapter);
+    }, subject, chapter, { allowMissingAnswer: true });
 
-    const merged = getMergedData(subject);
-    showPreview(merged, importedBatch);
+    draftBatchMeta = {
+      id: Date.now() + Math.random(),
+      fileName: files.map((f) => f.name).join(", "),
+      importedAt: new Date().toISOString(),
+      chapter: normalizeChapterValue(chapter),
+    };
 
-    els.saveLocalBtn.disabled = false;
-    els.downloadJsBtn.disabled = false;
-    els.downloadJsonBtn.disabled = false;
+    importedData = draftData;
+    importedBatch = draftBatchMeta;
+    renderDraftPreview();
 
+    const stats = getDraftStats();
     setImportStatus(
-      `Đã import thêm ${parsedQuestions.length} câu từ ${files.length} file (${formatChapterLabel(chapter, subject)}). ` +
-      `Tổng import tạm: ${getImportedOnlyData(subject).questions.length} câu. ` +
-      `Bản gộp hiện có: ${merged.questions.length} câu.`
+      `Đã tạo draft ${stats.total} câu từ ${files.length} file (${formatChapterLabel(chapter, subject)}). ` +
+      `Nhận diện được ${stats.resolved} đáp án, còn thiếu ${stats.missing}. ` +
+      `Kiểm tra preview trước khi Merge.`
     );
   } catch (error) {
+    draftData = null;
+    draftBatchMeta = null;
     importedData = null;
     importedBatch = null;
+    els.aiSuggestBtn.disabled = true;
+    els.mergeDraftBtn.disabled = true;
     els.saveLocalBtn.disabled = true;
     els.downloadJsBtn.disabled = true;
     els.downloadJsonBtn.disabled = true;
     setImportStatus(`Lỗi: ${error.message}`);
   }
+}
+
+async function suggestMissingAnswersWithOllama() {
+  if (!draftData) return;
+  const missing = draftData.questions
+    .map((question, index) => ({ ...question, index }))
+    .filter((q) => !q.answer);
+
+  if (!missing.length) {
+    setImportStatus("Draft không còn câu thiếu đáp án.");
+    return;
+  }
+
+  const baseUrl = String(els.ollamaHelperUrl.value || "http://localhost:3100").replace(/\/$/, "");
+  const model = String(els.ollamaModel.value || "qwen2.5:7b").trim();
+
+  try {
+    setImportStatus(`Đang gọi Ollama cho ${missing.length} câu thiếu đáp án...`);
+    const response = await fetch(`${baseUrl}/api/ai/resolve-answers`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model, questions: missing }),
+    });
+
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.message || "Ollama helper lỗi.");
+
+    (payload.results || []).forEach((result) => {
+      const target = draftData.questions[result.index];
+      if (!target) return;
+      const answer = String(result.answer || "").toUpperCase();
+      if (!["A", "B", "C", "D"].includes(answer)) return;
+      target.answer = answer;
+      target.confidence = Number(result.confidence || 0.75);
+      target.answerSource = "ollama";
+      target.explanation = result.explanation || "AI/Ollama gợi ý. Cần người dùng kiểm tra trước khi dùng chính thức.";
+    });
+
+    importedData = draftData;
+    renderDraftPreview();
+    const stats = getDraftStats();
+    setImportStatus(`Ollama đã gợi ý xong. Nhận diện ${stats.resolved}/${stats.total} câu, còn thiếu ${stats.missing}.`);
+  } catch (error) {
+    setImportStatus(`Không gọi được Ollama: ${error.message}. Hãy chạy tools/ollama-helper hoặc tự bổ sung đáp án.`);
+  }
+}
+
+function mergeDraft() {
+  if (!draftData || !draftData.questions.length) return;
+  const subject = els.importSubject.value;
+  const stats = getDraftStats();
+
+  if (stats.missing > 0) {
+    const ok = confirm(`Draft còn ${stats.missing} câu chưa có đáp án. Merge các câu đã có đáp án và bỏ câu thiếu?`);
+    if (!ok) return;
+  }
+
+  const readyQuestions = draftData.questions.filter((q) => q.answer);
+  if (!readyQuestions.length) {
+    setImportStatus("Không có câu nào đủ đáp án để merge.");
+    return;
+  }
+
+  const batches = getBatches(subject);
+  const batch = {
+    ...draftBatchMeta,
+    id: draftBatchMeta?.id || Date.now() + Math.random(),
+    fileName: draftBatchMeta?.fileName || "draft-import",
+    importedAt: draftBatchMeta?.importedAt || new Date().toISOString(),
+    chapter: normalizeChapterValue(els.importChapter.value),
+    questions: readyQuestions,
+  };
+
+  batches.push(batch);
+  saveBatches(subject, batches);
+
+  importedBatch = batch;
+  importedData = normalizeData({
+    title: `${getSubjectInfo(subject).title} - Batch import mới`,
+    questions: readyQuestions,
+  }, subject, els.importChapter.value, { allowMissingAnswer: false });
+
+  const merged = getMergedData(subject);
+  els.saveLocalBtn.disabled = false;
+  renderDraftPreview(importedData);
+  setImportStatus(
+    `Đã merge ${readyQuestions.length} câu vào bộ import. ` +
+    `Tổng import tạm: ${getImportedOnlyData(subject).questions.length} câu. ` +
+    `Bản gộp hiện có: ${merged.questions.length} câu.`
+  );
 }
 
 function saveImportedLocal() {
@@ -540,26 +704,25 @@ function getExportData() {
   else if (source === "imported") data = getImportedOnlyData(subject);
   else data = getMergedData(subject);
 
-  if (!data || !data.questions.length) {
-    throw new Error("Không có dữ liệu để xuất.");
-  }
-
-  return { subject, data: normalizeData(data, subject, 1) };
+  if (!data || !data.questions.length) throw new Error("Không có dữ liệu để xuất.");
+  return { subject, data: normalizeData(data, subject, 1, { allowMissingAnswer: false }) };
 }
 
 els.parseBtn.addEventListener("click", handleParse);
+els.aiSuggestBtn.addEventListener("click", suggestMissingAnswersWithOllama);
+els.mergeDraftBtn.addEventListener("click", mergeDraft);
 els.saveLocalBtn.addEventListener("click", saveImportedLocal);
 els.createSubjectBtn.addEventListener("click", createSubject);
 els.importSubject.addEventListener("change", () => renderChapterOptions(els.importSubject.value));
 
 els.downloadJsBtn.addEventListener("click", () => {
-  if (!importedData) return;
-  downloadText("questions_imported_latest.js", toQuestionsJs(importedData), "text/javascript");
+  if (!draftData) return;
+  downloadText("questions_draft.js", toQuestionsJs(draftData), "text/javascript");
 });
 
 els.downloadJsonBtn.addEventListener("click", () => {
-  if (!importedData) return;
-  downloadText("questions_imported_latest.json", toQuestionsJson(importedData), "application/json");
+  if (!draftData) return;
+  downloadText("questions_draft.json", toQuestionsJson(draftData), "application/json");
 });
 
 els.exportJsBtn.addEventListener("click", () => {

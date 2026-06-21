@@ -40,12 +40,78 @@ function strictJsonFromText(text) {
     .replace(/\s*```$/, "");
 
   try {
-    return JSON.parse(normalized);
+    const parsed = JSON.parse(normalized);
+    return typeof parsed === "string" ? JSON.parse(parsed) : parsed;
   } catch {}
 
-  const match = normalized.match(/\{[\s\S]*\}/) || normalized.match(/\[[\s\S]*\]/);
-  if (!match) throw new Error("Model không trả JSON.");
-  return JSON.parse(match[0]);
+  for (let start = 0; start < normalized.length; start += 1) {
+    if (normalized[start] !== "{" && normalized[start] !== "[") continue;
+
+    const stack = [];
+    let inString = false;
+    let escaped = false;
+    for (let end = start; end < normalized.length; end += 1) {
+      const char = normalized[end];
+      if (inString) {
+        if (escaped) escaped = false;
+        else if (char === "\\") escaped = true;
+        else if (char === '"') inString = false;
+        continue;
+      }
+      if (char === '"') inString = true;
+      else if (char === "{" || char === "[") stack.push(char);
+      else if (char === "}" || char === "]") {
+        const open = stack.pop();
+        if (!open || (open === "{" && char !== "}") || (open === "[" && char !== "]")) break;
+        if (!stack.length) {
+          try {
+            return JSON.parse(normalized.slice(start, end + 1));
+          } catch {
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  const preview = normalized.replace(/\s+/g, " ").slice(0, 160);
+  throw new Error(`Model không trả JSON${preview ? `: ${preview}` : "."}`);
+}
+
+async function requestJsonFromOllama(model, messages) {
+  async function send(requestMessages) {
+    const response = await fetch(`${OLLAMA_URL}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        stream: false,
+        format: "json",
+        messages: requestMessages,
+        options: { temperature: 0.1, top_p: 0.2 },
+      }),
+    });
+
+    if (!response.ok) {
+      const responseText = await response.text();
+      throw new Error(`Ollama lỗi ${response.status}: ${responseText.slice(0, 200)}`);
+    }
+    const payload = await response.json();
+    return strictJsonFromText(payload.message?.content || "");
+  }
+
+  try {
+    return await send(messages);
+  } catch (firstError) {
+    try {
+      return await send([
+        ...messages,
+        { role: "user", content: "Your previous response was invalid. Return only one valid JSON value matching the requested schema. No prose." },
+      ]);
+    } catch (retryError) {
+      throw new Error(`Model không trả JSON hợp lệ sau 2 lần thử: ${retryError.message || firstError.message}`);
+    }
+  }
 }
 
 function normalizeParsedQuestions(payload) {
@@ -90,31 +156,10 @@ Rules:
 - For grammar/vocabulary, solve directly.
 - Keep explanation under 25 Vietnamese words.`;
 
-  const response = await fetch(`${OLLAMA_URL}/api/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model,
-      stream: false,
-      messages: [
-        { role: "system", content: "You are a strict JSON API for multiple-choice answer extraction." },
-        { role: "user", content: prompt },
-      ],
-      options: {
-        temperature: 0.1,
-        top_p: 0.2,
-      },
-    }),
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Ollama lỗi ${response.status}: ${text.slice(0, 200)}`);
-  }
-
-  const payload = await response.json();
-  const content = payload.message?.content || "";
-  const parsed = strictJsonFromText(content);
+  const parsed = await requestJsonFromOllama(model, [
+    { role: "system", content: "You are a strict JSON API for multiple-choice answer extraction." },
+    { role: "user", content: prompt },
+  ]);
   const answer = String(parsed.answer || "").toUpperCase();
 
   return {
@@ -144,30 +189,10 @@ Rules:
 Raw document text:
 ${text}`;
 
-  const response = await fetch(`${OLLAMA_URL}/api/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model,
-      stream: false,
-      messages: [
-        { role: "system", content: "You are a strict JSON API for quiz question extraction." },
-        { role: "user", content: prompt },
-      ],
-      options: {
-        temperature: 0.1,
-        top_p: 0.2,
-      },
-    }),
-  });
-
-  if (!response.ok) {
-    const responseText = await response.text();
-    throw new Error(`Ollama lỗi ${response.status}: ${responseText.slice(0, 200)}`);
-  }
-
-  const payload = await response.json();
-  const parsed = strictJsonFromText(payload.message?.content || "");
+  const parsed = await requestJsonFromOllama(model, [
+    { role: "system", content: "You are a strict JSON API for quiz question extraction." },
+    { role: "user", content: prompt },
+  ]);
   return normalizeParsedQuestions(parsed);
 }
 
@@ -180,7 +205,7 @@ const server = http.createServer(async (req, res) => {
       message: "Ollama helper is running.",
       ollamaUrl: OLLAMA_URL,
       defaultModel: DEFAULT_MODEL,
-      features: ["resolve-answers", "parse-questions"],
+      features: ["resolve-answers", "parse-questions-v2"],
     });
   }
 

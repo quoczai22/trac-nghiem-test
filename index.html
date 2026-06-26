@@ -10,16 +10,16 @@
   <main class="home-shell">
     <section class="hero">
       <p class="eyebrow">HUIT Practice Test</p>
-      <h1>Hai lối ôn tập, một nhịp làm bài rõ ràng</h1>
-      <p class="subtitle">Giữ lại đúng hai môn đang dùng. Hệ điều hành là ngân hàng lớn để luyện rộng, còn Anh văn 3 là đề mô phỏng 40 câu bám sách và giọng đề trên lớp.</p>
-      <div class="hero-pills" aria-label="Tổng quan">
-        <span class="hero-pill">2 môn đang dùng</span>
-        <span class="hero-pill">Anh văn 3 có đề cố định 40 câu</span>
-        <span class="hero-pill">Hệ điều hành giữ random test + lịch sử</span>
-      </div>
+      <h1>Hệ điều hành và Anh văn 3</h1>
+      <p class="subtitle">Giữ lại đúng hai môn đang dùng: Hệ điều hành và một mục Anh văn 3 duy nhất.</p>
       <div class="hero-actions">
-        <a class="primary-btn" href="./subjects/he-dieu-hanh/index.html">Vào Hệ điều hành</a>
-        <a class="primary-btn alt-btn" href="./subjects/anh-van-3/index.html">Vào Anh văn 3</a>
+        <div class="start-dropdown">
+          <button id="startToggle" class="primary-btn dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+            Bắt đầu
+            <span class="caret">▾</span>
+          </button>
+          <div id="startMenu" class="dropdown-menu hidden" role="menu" aria-label="Chọn môn để bắt đầu"></div>
+        </div>
         <a class="ghost-btn" href="./admin/import-export.html">Quản lý câu hỏi</a>
       </div>
     </section>

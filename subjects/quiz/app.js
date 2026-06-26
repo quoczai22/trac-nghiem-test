@@ -177,6 +177,7 @@ const els = {
   jumpBtn: document.getElementById("jumpBtn"),
   randomCount: document.getElementById("randomCount"),
   newRandomBtn: document.getElementById("newRandomBtn"),
+  randomCard: document.getElementById("randomCard"),
   timerText: document.getElementById("timerText"),
   historyList: document.getElementById("historyList"),
   clearHistoryBtn: document.getElementById("clearHistoryBtn"),
@@ -311,8 +312,10 @@ function setFilter(filter) {
 }
 
 function renderFilters() {
+  const sourceData = getQuizDataSource();
+  const isFixedExam = Boolean(sourceData?.fixedExam);
   const entries = [
-    { id: "all", label: "Đề hiện tại" },
+    { id: "all", label: isFixedExam ? "Toàn bộ đề" : "Đề hiện tại" },
     ...subject.units.map((unit) => ({ id: unit.id, label: unit.label })),
     { id: "tong-on", label: "Tổng ôn" },
     { id: "unanswered", label: "Chưa làm" },
@@ -504,13 +507,29 @@ function renderQuestions() {
   els.nextBtn.disabled = state.currentIndex === visibleQuestions.length - 1;
 }
 
+function applyPresentationMode(data) {
+  const isFixedExam = Boolean(data?.fixedExam);
+  document.body.classList.toggle("exam-mode", isFixedExam);
+  if (els.randomCard) {
+    els.randomCard.classList.toggle("hidden", isFixedExam);
+  }
+
+  if (isFixedExam) {
+    els.subjectDescription.textContent = "Đề mô phỏng cố định 40 câu, bám Unit 7-12 với vocab, grammar, cloze và reading.";
+    document.getElementById("quizSubtitle").textContent = "Làm lần lượt từng câu, hết 60 phút hệ thống sẽ tự nộp bài.";
+  } else {
+    els.subjectDescription.textContent = subject.description;
+    document.getElementById("quizSubtitle").textContent = "Chọn đáp án rồi nộp bài để xem điểm.";
+  }
+}
+
 async function loadQuiz() {
   const data = getQuizDataSource();
   if (!data) throw new Error("Không tìm thấy dữ liệu câu hỏi.");
   document.title = `${subject.title} - Trắc nghiệm`;
   els.subjectHeading.textContent = `${subject.icon} ${subject.title}`;
-  els.subjectDescription.textContent = subject.description;
   els.adminLink.href = `../../admin/import-export.html?subject=${encodeURIComponent(SUBJECT_KEY)}`;
+  applyPresentationMode(data);
   state.bank = data.questions;
   const sourceSignature = getDataSignature(data);
   const oldSignature = localStorage.getItem(storageKey("source_signature"));
@@ -531,7 +550,9 @@ async function loadQuiz() {
     : pickRandomQuestions(Math.min(subject.id === "anh-van-3" ? 40 : 20, data.count || 20));
   state.questions = Array.isArray(savedQuestions) && savedQuestions.length ? savedQuestions : initialQuestionSet;
   saveState();
-  els.quizTitle.textContent = `${data.title} (${data.count} câu, đề hiện tại ${state.questions.length} câu)`;
+  els.quizTitle.textContent = data.fixedExam
+    ? `${data.title} (${state.questions.length} câu)`
+    : `${data.title} (${data.count} câu, đề hiện tại ${state.questions.length} câu)`;
   updateStats();
   if (state.submitted && !state.attemptRecorded) {
     recordAttempt(state.autoSubmitted);

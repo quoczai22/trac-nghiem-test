@@ -21,14 +21,14 @@
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: "Segoe UI", Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
 }
 
 .app-shell {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
+  grid-template-columns: 320px minmax(0, 1fr);
   min-height: 100vh;
 }
 
@@ -40,6 +40,10 @@ body {
   padding: 24px 18px;
   border-right: 1px solid var(--line);
   background: linear-gradient(180deg, #f9fbff 0%, #f2f5fb 100%);
+}
+
+body.exam-mode .sidebar {
+  background: linear-gradient(180deg, #fffaf2 0%, #f8f3ea 100%);
 }
 
 .brand h1 {
@@ -237,6 +241,7 @@ body {
 
 .content {
   padding: 22px;
+  max-width: 1160px;
 }
 
 .nav-panel {
@@ -288,6 +293,7 @@ body {
 .topbar h2 {
   margin: 0 0 6px;
   font-size: 28px;
+  line-height: 1.25;
 }
 
 .legend {
@@ -333,7 +339,17 @@ body {
   border-radius: 8px;
   padding: 20px;
   box-shadow: var(--shadow);
-  max-width: 980px;
+  max-width: 100%;
+}
+
+body.exam-mode .chapter-badge {
+  background: #fff1d6;
+  color: #92400e;
+}
+
+body.exam-mode .admin-link {
+  background: #fff1d6;
+  color: #92400e;
 }
 
 .question-card.correct-state {

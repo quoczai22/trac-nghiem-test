@@ -334,6 +334,17 @@ async function extractDocxText(file) {
   return extractDocxTextWithBold(file);
 }
 
+function arrayBufferToBase64(buffer) {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000;
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
+}
+
 async function parseRawTextWithOllama(text, subject, chapter, fileName) {
   const baseUrl = String(els.ollamaHelperUrl.value || "http://localhost:3100").replace(/\/$/, "");
   const model = String(els.ollamaModel.value || "qwen2.5:7b").trim();
@@ -362,6 +373,36 @@ async function parseRawTextWithOllama(text, subject, chapter, fileName) {
   return normalizeData({ title: subjectInfo.title, questions }, subject, chapter, { allowMissingAnswer: true });
 }
 
+async function parseDocxWithHelper(file, subject, chapter) {
+  const baseUrl = String(els.ollamaHelperUrl.value || "http://localhost:3100").replace(/\/$/, "");
+  const model = String(els.ollamaModel.value || "qwen2.5:7b").trim();
+  const subjectInfo = getSubjectInfo(subject);
+
+  setImportStatus(`Parser trong trình duyệt chưa nhận ra ${file.name}. Đang nhờ helper local đọc DOCX trực tiếp...`);
+  const response = await fetch(`${baseUrl}/api/ai/parse-docx`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model,
+      fileName: file.name,
+      fileBase64: arrayBufferToBase64(await file.arrayBuffer()),
+      subject: subjectInfo.title,
+      chapter: formatChapterLabel(chapter, subject),
+    }),
+  });
+
+  const payload = await response.json();
+  if (!response.ok) throw new Error(payload.message || "DOCX helper lỗi.");
+
+  const questions = (payload.questions || []).map((question) => ({
+    ...question,
+    chapter: question.chapter || chapter,
+    answerSource: question.answerSource || (question.answer ? "docx-helper" : "missing"),
+  }));
+
+  return normalizeData({ title: subjectInfo.title, questions }, subject, chapter, { allowMissingAnswer: true });
+}
+
 async function readFileToData(file, subject, chapter) {
   const name = file.name.toLowerCase();
   if (name.endsWith(".json")) {
@@ -379,6 +420,15 @@ async function readFileToData(file, subject, chapter) {
   const questions = parseQuestionsFromText(text, chapter, { allowMissingAnswer: true });
   const parsed = normalizeData({ title: getSubjectInfo(subject).title, questions }, subject, chapter, { allowMissingAnswer: true });
   if (parsed.questions.length) return parsed;
+
+  if (name.endsWith(".docx")) {
+    try {
+      const docxFallback = await parseDocxWithHelper(file, subject, chapter);
+      if (docxFallback.questions.length) return docxFallback;
+    } catch (error) {
+      throw new Error(`Không tách được câu hỏi từ file ${file.name}. Parser thường và helper DOCX đều thất bại: ${error.message}`);
+    }
+  }
 
   try {
     const fallback = await parseRawTextWithOllama(text, subject, chapter, file.name);

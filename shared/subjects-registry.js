@@ -18,7 +18,7 @@
       description: "Môn local cho đề Anh văn 3. Import DOCX/PDF rồi dùng parser hoặc Ollama để nhận diện đáp án.",
       units: [7, 8, 9, 10, 11, 12].map((unit) => ({ id: String(unit), label: `Unit ${unit}` })),
       kind: "local",
-      href: "./subjects/quiz/index.html?subject=anh-van-3",
+      href: "./subjects/anh-van-3/index.html",
     },
   ];
 

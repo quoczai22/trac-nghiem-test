@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anh văn 3</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Georgia, "Times New Roman", serif;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, #f5efe6, #e2edf7);
+        color: #1f2937;
+      }
+      .panel {
+        width: min(560px, calc(100vw - 32px));
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(31, 41, 55, 0.08);
+        border-radius: 16px;
+        padding: 28px;
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.12);
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: 32px;
+      }
+      p {
+        margin: 0 0 10px;
+        line-height: 1.5;
+      }
+      .muted {
+        color: #4b5563;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="panel">
+      <h1>Anh văn 3</h1>
+      <p>Đang nạp ngân hàng câu hỏi từ tài liệu đã tách và chuyển bạn vào màn làm bài.</p>
+      <p class="muted">Nếu trình duyệt chặn chuyển trang, mở lại môn này từ trang chủ.</p>
+    </main>
+
+    <script src="./questions.js"></script>
+    <script>
+      (function seedEnglishQuiz() {
+        if (!window.__QUIZ_DATA__ || !Array.isArray(window.__QUIZ_DATA__.questions)) {
+          document.querySelector(".panel").innerHTML = "<h1>Lỗi dữ liệu</h1><p>Không tìm thấy bộ câu hỏi Anh văn 3.</p>";
+          return;
+        }
+
+        localStorage.setItem("quiz_subject_anh-van-3_data", JSON.stringify(window.__QUIZ_DATA__));
+        window.location.replace("../quiz/index.html?subject=anh-van-3");
+      })();
+    </script>
+  </body>
+</html>

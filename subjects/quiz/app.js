@@ -32,6 +32,10 @@ function getQuizDataSource() {
     }
   }
   if (subject.id === "anh-van-3") {
+    if (window.__QUIZ_DATA__ && Array.isArray(window.__QUIZ_DATA__.questions) && window.__QUIZ_DATA__.questions.length) {
+      window.__QUIZ_DATA__.count = window.__QUIZ_DATA__.questions.length;
+      return window.__QUIZ_DATA__;
+    }
     const fallback = window.__QUIZ_EXAM_50__ || window.__QUIZ_EXAM_40__;
     if (fallback && Array.isArray(fallback.questions)) {
       fallback.count = fallback.questions.length;
@@ -569,7 +573,7 @@ async function loadQuiz() {
   const savedQuestions = JSON.parse(localStorage.getItem(storageKey("questions")) || "null");
   const initialQuestionSet = data.fixedExam
     ? data.questions
-    : pickRandomQuestions(Math.min(subject.id === "anh-van-3" ? 40 : 20, data.count || 20));
+    : pickRandomQuestions(Math.min(subject.id === "anh-van-3" ? 50 : 20, data.count || 20));
   state.questions = Array.isArray(savedQuestions) && savedQuestions.length ? savedQuestions : initialQuestionSet;
   if (subject.id === "anh-van-3" && els.randomCount && !els.randomCount.dataset.av3Ready) {
     els.randomCount.value = "50";

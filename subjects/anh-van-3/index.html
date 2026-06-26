@@ -2,101 +2,14 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="0; url=../quiz/index.html?subject=anh-van-3" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Anh văn 3</title>
-    <style>
-      :root {
-        color-scheme: light;
-        font-family: Georgia, "Times New Roman", serif;
-      }
-      body {
-        margin: 0;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        background: linear-gradient(135deg, #f5efe6, #e2edf7);
-        color: #1f2937;
-      }
-      .panel {
-        width: min(560px, calc(100vw - 32px));
-        background: rgba(255, 255, 255, 0.92);
-        border: 1px solid rgba(31, 41, 55, 0.08);
-        border-radius: 16px;
-        padding: 28px;
-        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.12);
-      }
-      h1 {
-        margin: 0 0 12px;
-        font-size: 32px;
-      }
-      p {
-        margin: 0 0 10px;
-        line-height: 1.5;
-      }
-      .muted {
-        color: #4b5563;
-      }
-      .actions {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-        margin-top: 18px;
-      }
-      button {
-        border: 0;
-        border-radius: 12px;
-        padding: 14px 16px;
-        font-size: 16px;
-        font-weight: 700;
-        cursor: pointer;
-      }
-      .primary {
-        background: #1d4ed8;
-        color: white;
-      }
-      .secondary {
-        background: #fff7ed;
-        color: #9a3412;
-        border: 1px solid rgba(154, 52, 18, 0.15);
-      }
-      .hint {
-        margin-top: 14px;
-        font-size: 14px;
-        color: #6b7280;
-      }
-    </style>
+    <title>Đang chuyển hướng...</title>
+    <script>
+      window.location.replace("../quiz/index.html?subject=anh-van-3");
+    </script>
   </head>
   <body>
-    <main class="panel">
-      <h1>Anh văn 3</h1>
-      <p>Chọn đề CLO để vào làm ngay. Mình giữ đúng form ôn của trường: vocab thực tế, grammar trọng tâm, cloze ngắn và reading ngắn.</p>
-      <p class="muted">Có 2 mode để ôn an toàn: 40 câu để rà nhanh và 50 câu để sát cảm giác thi hơn.</p>
-      <div class="actions">
-        <button id="open40Btn" class="primary" type="button">Mở đề CLO 40 câu</button>
-        <button id="open50Btn" class="secondary" type="button">Mở đề CLO 50 câu</button>
-      </div>
-      <p class="hint">Bạn vẫn có thể vào trong web rồi bấm tạo đề khác nếu muốn luyện thêm.</p>
-    </main>
-
-    <script src="./exam-40.js"></script>
-    <script src="./exam-50.js"></script>
-    <script>
-      (function seedEnglishQuiz() {
-        const exam40 = window.__QUIZ_EXAM_40__;
-        const exam50 = window.__QUIZ_EXAM_50__;
-        if (!exam40 || !Array.isArray(exam40.questions) || !exam50 || !Array.isArray(exam50.questions)) {
-          document.querySelector(".panel").innerHTML = "<h1>Lỗi dữ liệu</h1><p>Không tìm thấy đề CLO của Anh văn 3.</p>";
-          return;
-        }
-
-        function openExam(data) {
-          localStorage.setItem("quiz_subject_anh-van-3_data", JSON.stringify(data));
-          window.location.replace("../quiz/index.html?subject=anh-van-3");
-        }
-
-        document.getElementById("open40Btn").addEventListener("click", () => openExam(exam40));
-        document.getElementById("open50Btn").addEventListener("click", () => openExam(exam50));
-      })();
-    </script>
+    <p>Đang chuyển sang bài làm Anh văn 3...</p>
   </body>
 </html>

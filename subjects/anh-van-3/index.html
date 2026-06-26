@@ -36,25 +36,66 @@
       .muted {
         color: #4b5563;
       }
+      .actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+      }
+      button {
+        border: 0;
+        border-radius: 12px;
+        padding: 14px 16px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .primary {
+        background: #1d4ed8;
+        color: white;
+      }
+      .secondary {
+        background: #fff7ed;
+        color: #9a3412;
+        border: 1px solid rgba(154, 52, 18, 0.15);
+      }
+      .hint {
+        margin-top: 14px;
+        font-size: 14px;
+        color: #6b7280;
+      }
     </style>
   </head>
   <body>
     <main class="panel">
       <h1>Anh văn 3</h1>
-      <p>Đang nạp đề mô phỏng 40 câu bám sách Unit 7-12, có trộn thêm kiểu hỏi từ file của cô.</p>
-      <p class="muted">Form hiện có đủ vocab, grammar, cloze đoạn văn và reading trả lời câu hỏi.</p>
+      <p>Chọn đề CLO để vào làm ngay. Mình giữ đúng form ôn của trường: vocab thực tế, grammar trọng tâm, cloze ngắn và reading ngắn.</p>
+      <p class="muted">Có 2 mode để ôn an toàn: 40 câu để rà nhanh và 50 câu để sát cảm giác thi hơn.</p>
+      <div class="actions">
+        <button id="open40Btn" class="primary" type="button">Mở đề CLO 40 câu</button>
+        <button id="open50Btn" class="secondary" type="button">Mở đề CLO 50 câu</button>
+      </div>
+      <p class="hint">Bạn vẫn có thể vào trong web rồi bấm tạo đề khác nếu muốn luyện thêm.</p>
     </main>
 
     <script src="./exam-40.js"></script>
+    <script src="./exam-50.js"></script>
     <script>
       (function seedEnglishQuiz() {
-        if (!window.__QUIZ_EXAM_40__ || !Array.isArray(window.__QUIZ_EXAM_40__.questions)) {
-          document.querySelector(".panel").innerHTML = "<h1>Lỗi dữ liệu</h1><p>Không tìm thấy đề mô phỏng 40 câu.</p>";
+        const exam40 = window.__QUIZ_EXAM_40__;
+        const exam50 = window.__QUIZ_EXAM_50__;
+        if (!exam40 || !Array.isArray(exam40.questions) || !exam50 || !Array.isArray(exam50.questions)) {
+          document.querySelector(".panel").innerHTML = "<h1>Lỗi dữ liệu</h1><p>Không tìm thấy đề CLO của Anh văn 3.</p>";
           return;
         }
 
-        localStorage.setItem("quiz_subject_anh-van-3_data", JSON.stringify(window.__QUIZ_EXAM_40__));
-        window.location.replace("../quiz/index.html?subject=anh-van-3");
+        function openExam(data) {
+          localStorage.setItem("quiz_subject_anh-van-3_data", JSON.stringify(data));
+          window.location.replace("../quiz/index.html?subject=anh-van-3");
+        }
+
+        document.getElementById("open40Btn").addEventListener("click", () => openExam(exam40));
+        document.getElementById("open50Btn").addEventListener("click", () => openExam(exam50));
       })();
     </script>
   </body>

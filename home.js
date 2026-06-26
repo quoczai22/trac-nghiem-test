@@ -1,6 +1,6 @@
 function renderSubjects() {
   const grid = document.getElementById("subjectGrid");
-  const subjects = window.QuizSubjects.list().filter((subject) => subject.id === "anh-van-3");
+  const subjects = window.QuizSubjects.list();
   grid.innerHTML = "";
 
   subjects.forEach((subject) => {

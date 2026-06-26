@@ -1,6 +1,15 @@
 (function registerSubjectRegistry() {
   const DEFAULT_SUBJECTS = [
     {
+      id: "he-dieu-hanh",
+      title: "Hệ điều hành",
+      icon: "💻",
+      description: "Ngân hàng trắc nghiệm Hệ điều hành chương 1-8, random đề và lưu lịch sử làm bài.",
+      units: Array.from({ length: 8 }, (_, index) => ({ id: String(index + 1), label: `Chương ${index + 1}` })),
+      kind: "static",
+      href: "./subjects/he-dieu-hanh/index.html",
+    },
+    {
       id: "anh-van-3",
       title: "Anh văn 3",
       icon: "A3",
@@ -24,7 +33,7 @@
   }
 
   function create({ title, icon, description, unitType, unitCount }) {
-    throw new Error("Bản này chỉ giữ lại một môn duy nhất là Anh văn 3.");
+    throw new Error("Bản này giữ sẵn Hệ điều hành và một mục Anh văn 3 duy nhất.");
   }
 
   window.QuizSubjects = {

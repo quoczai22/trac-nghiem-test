@@ -20,7 +20,7 @@
     <section class="panel" hidden>
       <div class="panel-head">
         <h2>Tạo môn local</h2>
-        <p>Bản này chỉ dùng cho một môn duy nhất là Anh văn 3.</p>
+        <p>Bản này giữ lại hai môn đang dùng, trong đó Anh văn 3 chỉ còn một mục duy nhất.</p>
       </div>
 
       <div class="form-grid">
@@ -172,8 +172,11 @@
   <script src="https://unpkg.com/mammoth@1.7.2/mammoth.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="../shared/subjects-registry.js"></script>
+  <script>window.__SUBJECT_DEFAULT_DATA__ = {};</script>
+  <script src="../subjects/he-dieu-hanh/questions.js"></script>
+  <script>window.__SUBJECT_DEFAULT_DATA__["he-dieu-hanh"] = window.__QUIZ_DATA__;</script>
   <script src="../subjects/anh-van-3/questions.js"></script>
-  <script>window.__SUBJECT_DEFAULT_DATA__ = { "anh-van-3": window.__QUIZ_DATA__ };</script>
+  <script>window.__SUBJECT_DEFAULT_DATA__["anh-van-3"] = window.__QUIZ_DATA__;</script>
   <script src="./admin.js"></script>
 </body>
 </html>

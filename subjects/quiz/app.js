@@ -31,6 +31,13 @@ function getQuizDataSource() {
       console.warn("Không đọc được bộ đề import:", error);
     }
   }
+  if (subject.id === "anh-van-3") {
+    const fallback = window.__QUIZ_EXAM_50__ || window.__QUIZ_EXAM_40__;
+    if (fallback && Array.isArray(fallback.questions)) {
+      fallback.count = fallback.questions.length;
+      return fallback;
+    }
+  }
   return {
     title: `Ngân hàng trắc nghiệm ${subject.title}`,
     count: 0,
@@ -564,6 +571,10 @@ async function loadQuiz() {
     ? data.questions
     : pickRandomQuestions(Math.min(subject.id === "anh-van-3" ? 40 : 20, data.count || 20));
   state.questions = Array.isArray(savedQuestions) && savedQuestions.length ? savedQuestions : initialQuestionSet;
+  if (subject.id === "anh-van-3" && els.randomCount && !els.randomCount.dataset.av3Ready) {
+    els.randomCount.value = "50";
+    els.randomCount.dataset.av3Ready = "true";
+  }
   saveState();
   els.quizTitle.textContent = data.fixedExam
     ? `${data.title} (${state.questions.length} câu)`

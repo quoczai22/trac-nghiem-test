@@ -16,7 +16,7 @@
       description: "Ngân hàng trắc nghiệm Anh văn 3, mở vào là làm luôn trên web.",
       units: [7, 8, 9, 10, 11, 12].map((unit) => ({ id: String(unit), label: `Unit ${unit}` })),
       kind: "local",
-      href: "./subjects/anh-van-3/index.html",
+      href: "./subjects/quiz/index.html?subject=anh-van-3",
     },
   ];
 

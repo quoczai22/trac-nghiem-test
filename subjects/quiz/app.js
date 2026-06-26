@@ -510,13 +510,10 @@ function renderQuestions() {
 function applyPresentationMode(data) {
   const isFixedExam = Boolean(data?.fixedExam);
   document.body.classList.toggle("exam-mode", isFixedExam);
-  if (els.randomCard) {
-    els.randomCard.classList.toggle("hidden", isFixedExam);
-  }
 
   if (isFixedExam) {
     els.subjectDescription.textContent = "Đề mô phỏng cố định 40 câu, bám Unit 7-12 với vocab, grammar, cloze và reading.";
-    document.getElementById("quizSubtitle").textContent = "Làm lần lượt từng câu, hết 60 phút hệ thống sẽ tự nộp bài.";
+    document.getElementById("quizSubtitle").textContent = "Mặc định mở đề 40 câu, nhưng bạn vẫn có thể tạo đề khác và hệ thống sẽ tự nộp khi hết 60 phút.";
   } else {
     els.subjectDescription.textContent = subject.description;
     document.getElementById("quizSubtitle").textContent = "Chọn đáp án rồi nộp bài để xem điểm.";

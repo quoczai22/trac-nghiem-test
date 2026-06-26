@@ -157,6 +157,18 @@ function formatChapterBadge(chapter) {
   return subject.units.find((unit) => unit.id === value)?.label || `Chương ${chapter}`;
 }
 
+function inferClo(question) {
+  if (question?.clo) return question.clo;
+  if (subject.id !== "anh-van-3") return "";
+
+  const text = String(question?.question || "");
+  if (text.startsWith("[Vocab")) return "CLO1.2";
+  if (text.startsWith("[Grammar")) return "CLO1.1";
+  if (text.startsWith("[Reading")) return "CLO2.3";
+  if (text.startsWith("[Cloze")) return "CLO2.4";
+  return "";
+}
+
 const els = {
   totalCount: document.getElementById("totalCount"),
   answeredCount: document.getElementById("answeredCount"),
@@ -460,12 +472,18 @@ function renderQuestions() {
   const chapterBadge = fragment.querySelector(".chapter-badge");
   const questionIndex = fragment.querySelector(".question-index");
   const questionText = fragment.querySelector(".question-text");
+  const questionClo = fragment.querySelector(".question-clo");
   const optionsWrap = fragment.querySelector(".options");
   const explain = fragment.querySelector(".explain");
 
   chapterBadge.textContent = formatChapterBadge(question.chapter);
   questionIndex.textContent = `Câu ${actualIndex + 1} / ${state.questions.length}`;
   questionText.textContent = prettifyText(question.question);
+  const clo = inferClo(question);
+  if (clo) {
+    questionClo.textContent = `Chuẩn đầu ra: ${clo}`;
+    questionClo.classList.remove("hidden");
+  }
 
   const selected = state.answers[actualIndex];
   const isCorrect = selected === question.answer;

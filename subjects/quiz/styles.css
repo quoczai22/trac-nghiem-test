@@ -384,6 +384,17 @@ body.exam-mode .admin-link {
   line-height: 1.45;
 }
 
+.question-clo {
+  margin: -4px 0 14px;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+body.exam-mode .question-clo {
+  color: #92400e;
+}
+
 .options {
   display: grid;
   gap: 8px;

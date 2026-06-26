@@ -526,7 +526,10 @@ async function loadQuiz() {
   }
   localStorage.setItem(storageKey("source_signature"), sourceSignature);
   const savedQuestions = JSON.parse(localStorage.getItem(storageKey("questions")) || "null");
-  state.questions = Array.isArray(savedQuestions) && savedQuestions.length ? savedQuestions : pickRandomQuestions(20);
+  const initialQuestionSet = data.fixedExam
+    ? data.questions
+    : pickRandomQuestions(Math.min(subject.id === "anh-van-3" ? 40 : 20, data.count || 20));
+  state.questions = Array.isArray(savedQuestions) && savedQuestions.length ? savedQuestions : initialQuestionSet;
   saveState();
   els.quizTitle.textContent = `${data.title} (${data.count} câu, đề hiện tại ${state.questions.length} câu)`;
   updateStats();

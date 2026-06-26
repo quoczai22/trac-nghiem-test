@@ -41,19 +41,19 @@
   <body>
     <main class="panel">
       <h1>Anh văn 3</h1>
-      <p>Đang nạp ngân hàng câu hỏi từ tài liệu đã tách và chuyển bạn vào màn làm bài.</p>
-      <p class="muted">Nếu trình duyệt chặn chuyển trang, mở lại môn này từ trang chủ.</p>
+      <p>Đang nạp đề mô phỏng 40 câu bám sách Unit 7-12, có trộn thêm kiểu hỏi từ file của cô.</p>
+      <p class="muted">Form hiện có đủ vocab, grammar, cloze đoạn văn và reading trả lời câu hỏi.</p>
     </main>
 
-    <script src="./questions.js"></script>
+    <script src="./exam-40.js"></script>
     <script>
       (function seedEnglishQuiz() {
-        if (!window.__QUIZ_DATA__ || !Array.isArray(window.__QUIZ_DATA__.questions)) {
-          document.querySelector(".panel").innerHTML = "<h1>Lỗi dữ liệu</h1><p>Không tìm thấy bộ câu hỏi Anh văn 3.</p>";
+        if (!window.__QUIZ_EXAM_40__ || !Array.isArray(window.__QUIZ_EXAM_40__.questions)) {
+          document.querySelector(".panel").innerHTML = "<h1>Lỗi dữ liệu</h1><p>Không tìm thấy đề mô phỏng 40 câu.</p>";
           return;
         }
 
-        localStorage.setItem("quiz_subject_anh-van-3_data", JSON.stringify(window.__QUIZ_DATA__));
+        localStorage.setItem("quiz_subject_anh-van-3_data", JSON.stringify(window.__QUIZ_EXAM_40__));
         window.location.replace("../quiz/index.html?subject=anh-van-3");
       })();
     </script>

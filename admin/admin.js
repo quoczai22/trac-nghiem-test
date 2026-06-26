@@ -100,7 +100,7 @@ function renderChapterOptions(subjectId, selectedValue = "tong-on") {
 }
 
 function refreshSubjectControls(preferredSubjectId) {
-  const currentImport = preferredSubjectId || els.importSubject.value || "he-dieu-hanh";
+  const currentImport = preferredSubjectId || els.importSubject.value || "anh-van-3";
   const currentExport = preferredSubjectId || els.exportSubject.value || currentImport;
   const importChapter = els.importChapter.value || "tong-on";
 
@@ -890,4 +890,4 @@ els.fileInput.addEventListener("change", () => {
 });
 
 const requestedSubject = new URLSearchParams(window.location.search).get("subject");
-refreshSubjectControls(window.QuizSubjects.get(requestedSubject) ? requestedSubject : "he-dieu-hanh");
+refreshSubjectControls(window.QuizSubjects.get(requestedSubject) ? requestedSubject : "anh-van-3");

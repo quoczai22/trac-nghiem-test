@@ -18,9 +18,7 @@ MODEL = "qwen2.5:7b"
 W_NS = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
 
 
-PDF_PATTERNS = [
-    "LIFE - Multiple choice Exercises (English B2) - With answers*.pdf",
-]
+PDF_PATTERNS = []
 
 DOCX_FILES = [
     "Progress Test 2-B1.docx",
@@ -29,14 +27,19 @@ DOCX_FILES = [
 
 
 ALWAYS_KEEP_SOURCES = {
-    "AV3 de thi",
     "AV3 scoped synthetic",
+    "LIFE A2-B1 Student Book",
 }
 
 
 EXCLUDED_SOURCES = {
     "Co Thu review",
     "AV3 review",
+    "AV3 de thi",
+    "LIFE - Multiple choice Exercises (English B2) - With answers",
+    "LIFE - Multiple choice Exercises (English B2) - With answers (1)",
+    "Progress Test 2-B1",
+    "Progress Test 2 - B2",
 }
 
 
@@ -468,6 +471,8 @@ def is_connector_noise(item):
 def is_external_reading_noise(item):
     source = str(item.get("source") or "").strip()
     question = str(item.get("question") or "").strip()
+    if source == "LIFE A2-B1 Student Book":
+        return False
     if source in EXCLUDED_SOURCES:
         return True
     if question.startswith("[Cloze]") or question.startswith("[Reading"):
@@ -768,6 +773,102 @@ def make_manual_question(source, chapter, question, options, answer, explanation
         "answerSource": "scoped-generator",
         "explanation": explanation,
     }
+
+
+def build_book_reading_questions():
+    source = "LIFE A2-B1 Student Book"
+    items = []
+
+    passage1 = (
+        "I've just moved into my new flat and I love it! It's in a small building with three floors "
+        "- I'm on the top floor. The people in the flat below my flat are really friendly and I've "
+        "been down to their flat twice for dinner already. There's a park opposite the building, just "
+        "on the other side of the road. I often go there for lunch. My building is between two amazing "
+        "restaurants - on the right, there's a great Greek restaurant, and on the left there's a really "
+        "good Mexican place. I'm also really near the metro station, so I can get to work really quickly."
+    )
+    reading1 = [
+        (
+            "7",
+            f"[Reading Passage 1]\n{passage1}\nWhere is the writer's flat?",
+            {"A": "On the ground floor", "B": "On the top floor", "C": "Next to the park", "D": "Above the metro station"},
+            "B",
+        ),
+        (
+            "7",
+            f"[Reading Passage 1]\n{passage1}\nWhich neighbours are friendly?",
+            {"A": "The people above the flat", "B": "The people opposite the flat", "C": "The people below the flat", "D": "The people near the park"},
+            "C",
+        ),
+        (
+            "7",
+            f"[Reading Passage 1]\n{passage1}\nWhere is the park?",
+            {"A": "Behind the building", "B": "Opposite the building", "C": "Inside the building", "D": "Under the metro station"},
+            "B",
+        ),
+        (
+            "7",
+            f"[Reading Passage 1]\n{passage1}\nWhat is true about the restaurants?",
+            {"A": "They are both Greek", "B": "They are both Mexican", "C": "The building is between them", "D": "They are far from the flat"},
+            "C",
+        ),
+        (
+            "7",
+            f"[Reading Passage 1]\n{passage1}\nWhy can the writer get to work quickly?",
+            {"A": "Because the office is opposite the park", "B": "Because the writer has a car", "C": "Because the metro station is nearby", "D": "Because the restaurants are close"},
+            "C",
+        ),
+    ]
+
+    passage2 = (
+        "I decided to have a holiday with a difference last summer - I stayed at home for a week! Why? "
+        "Well, I'd just bought my first home and I didn't have any money. I did lots of different things "
+        "during my holiday. I went to a museum and learnt about the local history - I didn't know that so "
+        "many interesting things had happened where I live. One evening, some friends came to my new house "
+        "for a barbecue. I'd asked everyone to bring something to eat and it was great! Another day, I went "
+        "to my local swimming pool for the first time. I had always thought it looked a bit old and dirty, "
+        "but it was really nice inside. Most nights I ate at local restaurants. There were some excellent "
+        "places - I had never tried Ethiopian food before. The only bad day was when I decided to go walking "
+        "in the local countryside. I hadn't checked the weather and it rained all day! At the end of the "
+        "week, I felt really relaxed. And I had spent much less money than I normally do on a holiday."
+    )
+    reading2 = [
+        (
+            "9",
+            f"[Reading Passage 2]\n{passage2}\nWhy did the writer stay at home for a week?",
+            {"A": "Because the writer was ill", "B": "Because the writer had no passport", "C": "Because the writer had just bought a home and had no money", "D": "Because the writer had to work"},
+            "C",
+        ),
+        (
+            "9",
+            f"[Reading Passage 2]\n{passage2}\nWhat did the writer ask friends to bring to the barbecue?",
+            {"A": "Some music", "B": "Something to eat", "C": "A swimming bag", "D": "Money for the museum"},
+            "B",
+        ),
+        (
+            "9",
+            f"[Reading Passage 2]\n{passage2}\nWhat had the writer thought about the local swimming pool before visiting it?",
+            {"A": "It looked modern", "B": "It looked expensive", "C": "It looked old and dirty", "D": "It looked crowded"},
+            "C",
+        ),
+        (
+            "9",
+            f"[Reading Passage 2]\n{passage2}\nWhat food had the writer never tried before?",
+            {"A": "Greek food", "B": "Mexican food", "C": "Italian food", "D": "Ethiopian food"},
+            "D",
+        ),
+        (
+            "9",
+            f"[Reading Passage 2]\n{passage2}\nWhy was the walking day the only bad day?",
+            {"A": "The writer got lost", "B": "The writer hadn't checked the weather and it rained all day", "C": "The countryside was closed", "D": "No friends came along"},
+            "B",
+        ),
+    ]
+
+    for chapter, question, options, answer in reading1 + reading2:
+        items.append(make_manual_question(source, chapter, question, options, answer))
+
+    return items
 
 
 def build_scoped_generated_questions():
@@ -1100,6 +1201,7 @@ def collect_new_questions():
             print(f"{path.name}: {len(parsed)} parsed")
             collected.extend(parsed)
 
+    collected.extend(build_book_reading_questions())
     collected.extend(build_scoped_generated_questions())
     cleaned, dropped = sanitize_questions(collected)
     if dropped:

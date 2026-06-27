@@ -254,6 +254,10 @@ function getUnitChapter(unit) {
   return String(unit?.[0]?.question?.chapter ?? "").trim();
 }
 
+function isReadingUnit(unit) {
+  return unit.some((item) => String(item?.question?.question || "").trim().startsWith("[Reading"));
+}
+
 function buildAv3ChapterTargets(units, targetCount) {
   const chapterStats = new Map();
 
@@ -315,9 +319,27 @@ function pickUnitsGreedy(units, targetCount) {
 function pickBalancedAv3Questions(count) {
   const safeCount = Math.min(count, state.bank.length);
   const allUnits = buildRandomUnits();
-  const chapterTargets = buildAv3ChapterTargets(allUnits, safeCount);
   const chosenUnits = [];
   const chosenKeys = new Set();
+
+  const readingUnits = allUnits.filter((unit) => isReadingUnit(unit));
+  if (readingUnits.length) {
+    const pickedReadingUnit = shuffleArray(readingUnits)[0];
+    const readingSize = getUnitQuestionCount(pickedReadingUnit);
+    if (readingSize <= safeCount) {
+      const key = pickedReadingUnit.map((item) => `${item.index}`).join("-");
+      chosenKeys.add(key);
+      chosenUnits.push(pickedReadingUnit);
+    }
+  }
+
+  const chapterTargets = buildAv3ChapterTargets(
+    allUnits.filter((unit) => {
+      const key = unit.map((item) => `${item.index}`).join("-");
+      return !chosenKeys.has(key);
+    }),
+    safeCount - chosenUnits.flat().length
+  );
 
   for (const chapter of AV3_CORE_CHAPTERS) {
     const info = chapterTargets.get(chapter);

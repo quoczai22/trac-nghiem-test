@@ -504,6 +504,38 @@ def apply_strict_scope(questions):
     return dedupe_flat_questions(filtered)
 
 
+def apply_known_fixes(questions):
+    fixed = []
+    for item in questions:
+        normalized = dict(item)
+        key = normalize_key(normalized.get("question"))
+
+        if key == normalize_key("I’m meeting Sam for coffee later."):
+            normalized["answer"] = "B"
+            normalized["confidence"] = 1.0
+            normalized["answerSource"] = "manual-fix"
+            normalized["explanation"] = (
+                "Reported speech hợp lý là 'Nick said that he was meeting Sam for coffee later.'"
+            )
+
+        elif key == normalize_key("I may leave tomorrow."):
+            normalized["answer"] = "A"
+            normalized["confidence"] = 1.0
+            normalized["answerSource"] = "manual-fix"
+            normalized["explanation"] = (
+                "Trong reported speech kiểu trắc nghiệm, 'may' -> 'might' và 'tomorrow' -> 'the next day'."
+            )
+
+        elif key == normalize_key("I know I haven’t __________ very well in my exams."):
+            normalized["answer"] = "D"
+            normalized["confidence"] = 1.0
+            normalized["answerSource"] = "manual-fix"
+            normalized["explanation"] = "Cụm đúng là 'do well in exams', nên đáp án là 'done'."
+
+        fixed.append(normalized)
+    return fixed
+
+
 def extract_docx_text(path):
     with zipfile.ZipFile(path) as archive:
         xml_text = archive.read("word/document.xml")
@@ -1090,7 +1122,7 @@ def main():
     ready_questions = [item for item in new_questions if item.get("answer")]
     print(f"Ready new questions: {len(ready_questions)}")
 
-    payload["questions"] = apply_strict_scope(existing_questions + ready_questions)
+    payload["questions"] = apply_known_fixes(apply_strict_scope(existing_questions + ready_questions))
     payload["count"] = len(payload["questions"])
     payload["sourceCounts"] = {"imported": payload["count"]}
 

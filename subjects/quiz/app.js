@@ -66,6 +66,7 @@ const state = {
 
 const TIME_LIMIT_MS = 60 * 60 * 1000;
 const MAX_HISTORY_ITEMS = 50;
+const AV3_CORE_CHAPTERS = ["7", "8", "9", "10", "11", "12"];
 
 const PHRASE_REPLACEMENTS = [
   ["He dieu hanh", "Hệ điều hành"],
@@ -243,6 +244,122 @@ function buildRandomUnits() {
   }
 
   return units;
+}
+
+function getUnitQuestionCount(unit) {
+  return unit.reduce((total, item) => total + 1, 0);
+}
+
+function getUnitChapter(unit) {
+  return String(unit?.[0]?.question?.chapter ?? "").trim();
+}
+
+function buildAv3ChapterTargets(units, targetCount) {
+  const chapterStats = new Map();
+
+  AV3_CORE_CHAPTERS.forEach((chapter) => {
+    const chapterUnits = units.filter((unit) => getUnitChapter(unit) === chapter);
+    const available = chapterUnits.reduce((sum, unit) => sum + getUnitQuestionCount(unit), 0);
+    chapterStats.set(chapter, { units: chapterUnits, available, target: 0 });
+  });
+
+  const activeChapters = AV3_CORE_CHAPTERS.filter((chapter) => (chapterStats.get(chapter)?.available || 0) > 0);
+  if (!activeChapters.length) return chapterStats;
+
+  let remaining = Math.min(targetCount, state.bank.length);
+  const baseTarget = Math.floor(remaining / activeChapters.length);
+
+  activeChapters.forEach((chapter) => {
+    const info = chapterStats.get(chapter);
+    info.target = Math.min(info.available, baseTarget);
+    remaining -= info.target;
+  });
+
+  const expandable = [...activeChapters];
+  let guard = 0;
+  while (remaining > 0 && expandable.length && guard < 1000) {
+    guard += 1;
+    let allocatedInRound = false;
+
+    for (const chapter of expandable) {
+      if (remaining <= 0) break;
+      const info = chapterStats.get(chapter);
+      if (info.target < info.available) {
+        info.target += 1;
+        remaining -= 1;
+        allocatedInRound = true;
+      }
+    }
+
+    if (!allocatedInRound) break;
+  }
+
+  return chapterStats;
+}
+
+function pickUnitsGreedy(units, targetCount) {
+  const selected = [];
+  let picked = 0;
+
+  for (const unit of units) {
+    const size = getUnitQuestionCount(unit);
+    if (picked + size > targetCount) continue;
+    selected.push(unit);
+    picked += size;
+    if (picked === targetCount) break;
+  }
+
+  return selected;
+}
+
+function pickBalancedAv3Questions(count) {
+  const safeCount = Math.min(count, state.bank.length);
+  const allUnits = buildRandomUnits();
+  const chapterTargets = buildAv3ChapterTargets(allUnits, safeCount);
+  const chosenUnits = [];
+  const chosenKeys = new Set();
+
+  for (const chapter of AV3_CORE_CHAPTERS) {
+    const info = chapterTargets.get(chapter);
+    if (!info || !info.units.length || !info.target) continue;
+
+    const shuffled = shuffleArray(info.units);
+    const exact = pickUnitsToCount(shuffled, info.target);
+    const selected = exact || pickUnitsGreedy(shuffled, info.target);
+
+    selected.forEach((unit) => {
+      const key = unit.map((item) => `${item.index}`).join("-");
+      if (!chosenKeys.has(key)) {
+        chosenKeys.add(key);
+        chosenUnits.push(unit);
+      }
+    });
+  }
+
+  let questions = chosenUnits.flat().map((item) => item.question);
+  if (questions.length >= safeCount) {
+    return questions.slice(0, safeCount);
+  }
+
+  const remainingUnits = shuffleArray(allUnits).filter((unit) => {
+    const key = unit.map((item) => `${item.index}`).join("-");
+    return !chosenKeys.has(key);
+  });
+
+  const filler = pickUnitsToCount(remainingUnits, safeCount - questions.length)
+    || pickUnitsGreedy(remainingUnits, safeCount - questions.length);
+
+  if (filler?.length) {
+    questions = questions.concat(filler.flat().map((item) => item.question));
+  }
+
+  if (questions.length < safeCount) {
+    const existing = new Set(questions.map((question) => question.question));
+    const fallback = shuffleArray(state.bank).filter((question) => !existing.has(question.question));
+    questions = questions.concat(fallback.slice(0, safeCount - questions.length));
+  }
+
+  return questions.slice(0, safeCount);
 }
 
 function pickUnitsToCount(units, targetCount) {
@@ -698,16 +815,7 @@ function pickRandomQuestions(count) {
     const pool = shuffleArray(state.bank);
     return pool.slice(0, safeCount);
   }
-
-  const shuffledUnits = shuffleArray(buildRandomUnits());
-  const selectedUnits = pickUnitsToCount(shuffledUnits, safeCount);
-
-  if (!selectedUnits) {
-    const pool = shuffleArray(state.bank);
-    return pool.slice(0, safeCount);
-  }
-
-  return selectedUnits.flat().map((item) => item.question);
+  return pickBalancedAv3Questions(safeCount);
 }
 
 function createNewRandomQuiz() {

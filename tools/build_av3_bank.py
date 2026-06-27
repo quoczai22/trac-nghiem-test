@@ -424,6 +424,39 @@ def matches_strict_scope(item):
     return any(re.search(pattern, blob, re.I) for pattern in EXTERNAL_SCOPE_PATTERNS)
 
 
+def is_future_plans_noise(item):
+    blob = question_blob(item).lower()
+    question = str(item.get("question") or "").strip().lower()
+    chapter = infer_scope_chapter(item)
+
+    # Keep "going to" when it is part of Unit 11 reported speech content.
+    if chapter == "11" and (
+        question.startswith(("‘", "'", '"'))
+        or "reported speech" in blob
+        or "said that" in blob
+        or "told me that" in blob
+    ):
+        return False
+
+    future_markers = [
+        "going to",
+        "will buy",
+        "will retire",
+        "are leaving",
+        "will leave",
+        "going to leave",
+        "going to retire",
+        "going to have a small party",
+    ]
+    return any(marker in blob for marker in future_markers)
+
+
+def is_connector_noise(item):
+    blob = question_blob(item).lower()
+    connector_markers = ["nevertheless", "although", "despite", "though"]
+    return all(marker in blob for marker in connector_markers)
+
+
 def dedupe_flat_questions(items):
     seen = set()
     unique = []
@@ -443,6 +476,10 @@ def apply_strict_scope(questions):
             continue
         normalized = dict(item)
         normalized["chapter"] = infer_scope_chapter(normalized)
+        if is_future_plans_noise(normalized):
+            continue
+        if is_connector_noise(normalized):
+            continue
         filtered.append(normalized)
     return dedupe_flat_questions(filtered)
 

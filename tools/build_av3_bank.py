@@ -30,7 +30,13 @@ DOCX_FILES = [
 
 ALWAYS_KEEP_SOURCES = {
     "AV3 de thi",
+    "AV3 scoped synthetic",
+}
+
+
+EXCLUDED_SOURCES = {
     "Co Thu review",
+    "AV3 review",
 }
 
 
@@ -417,6 +423,8 @@ def infer_scope_chapter(item):
 
 def matches_strict_scope(item):
     source = str(item.get("source") or "").strip()
+    if source in EXCLUDED_SOURCES:
+        return False
     if source in ALWAYS_KEEP_SOURCES:
         return True
 
@@ -457,6 +465,16 @@ def is_connector_noise(item):
     return all(marker in blob for marker in connector_markers)
 
 
+def is_external_reading_noise(item):
+    source = str(item.get("source") or "").strip()
+    question = str(item.get("question") or "").strip()
+    if source in EXCLUDED_SOURCES:
+        return True
+    if question.startswith("[Cloze]") or question.startswith("[Reading"):
+        return True
+    return False
+
+
 def dedupe_flat_questions(items):
     seen = set()
     unique = []
@@ -476,6 +494,8 @@ def apply_strict_scope(questions):
             continue
         normalized = dict(item)
         normalized["chapter"] = infer_scope_chapter(normalized)
+        if is_external_reading_noise(normalized):
+            continue
         if is_future_plans_noise(normalized):
             continue
         if is_connector_noise(normalized):
@@ -705,37 +725,197 @@ def parse_pdf_questions(path):
     return questions
 
 
-def build_seed_questions():
-    seed = [
-        ("9", "I know my phone is ________ here.", {"A": "nowhere", "B": "anywhere", "C": "somewhere"}, "C"),
-        ("9", "I can't find my cat ________. I hope she isn't lost.", {"A": "nowhere", "B": "anywhere", "C": "somewhere"}, "B"),
-        ("9", "________ called for you but he didn't leave his name.", {"A": "Everyone", "B": "Someone", "C": "No one"}, "B"),
-        ("9", "Today, you can visit the huge pyramids that the Incas built, and ________ are still finding objects such as pots for cooking or ________ showing pictures from their past.", {"A": "archaeologists / statues", "B": "archaeologists / paintings", "C": "collectors / paintings"}, "B"),
-        ("9", "You don't need to read the instructions because it's so ________.", {"A": "basic", "B": "user-friendly", "C": "useful"}, "B"),
-        ("9", "Let me begin by telling ________.", {"A": "about my visit to Italy", "B": "you a bit about the city of Pisa", "C": "a bit about the city of Pisa"}, "B"),
-        ("9", "Everyone was playing ________ on their phones because, unlike other video games, you didn't have to spend much money ________ the app and you could take it ________ everywhere.", {"A": "with it / on / with", "B": "in it / on / with", "C": "it / on / with"}, "C"),
-        ("11", "We ________ our first video game when we were eleven.", {"A": "used to play", "B": "played", "C": "had played"}, "B"),
-        ("11", "My parents ________ me to the park, but I go regularly now.", {"A": "didn't use to take", "B": "used to take", "C": "took"}, "A"),
-        ("11", "Mum ________ us she would be late home and not to wait for her for dinner.", {"A": "told", "B": "said", "C": "spoke"}, "A"),
-        ("11", "Did David ________ you about his plans for the summer?", {"A": "say", "B": "tell", "C": "talk"}, "B"),
-        ("11", "My husband ________ me a funny joke this morning.", {"A": "says", "B": "told", "C": "said"}, "B"),
-        ("12", "When it ________ cold, we ________ to stay at home.", {"A": "is / prefer", "B": "is / will prefer", "C": "were / would prefer"}, "A"),
-        ("12", "How many people ________ to the party?", {"A": "came", "B": "did / come", "C": "had come"}, "A"),
-        ("12", "When I got to the station, the train ________ already.", {"A": "left", "B": "had left", "C": "leaves"}, "B"),
+def make_manual_question(source, chapter, question, options, answer, explanation=""):
+    return {
+        "source": source,
+        "chapter": chapter,
+        "question": question,
+        "options": options,
+        "answer": answer,
+        "confidence": 1,
+        "answerSource": "scoped-generator",
+        "explanation": explanation,
+    }
+
+
+def build_scoped_generated_questions():
+    source = "AV3 scoped synthetic"
+    items = []
+
+    unit7 = [
+        ("7", "I have worked here ________ 2022.", {"A": "for", "B": "since", "C": "from", "D": "during"}, "B"),
+        ("7", "We have lived in this city ________ three years.", {"A": "since", "B": "from", "C": "for", "D": "at"}, "C"),
+        ("7", "She ________ her first job in 2021.", {"A": "has found", "B": "found", "C": "finds", "D": "had found"}, "B"),
+        ("7", "Have you ever ________ abroad?", {"A": "work", "B": "worked", "C": "working", "D": "works"}, "B"),
+        ("7", "I haven't finished my report ________.", {"A": "already", "B": "yet", "C": "ever", "D": "just"}, "B"),
+        ("7", "He has ________ received your email.", {"A": "yet", "B": "ever", "C": "just", "D": "since"}, "C"),
+        ("7", "My office is ________ the second floor.", {"A": "on", "B": "in", "C": "at", "D": "between"}, "A"),
+        ("7", "The bank is ________ the supermarket and the cafe.", {"A": "through", "B": "between", "C": "along", "D": "up"}, "B"),
+        ("7", "Walk ________ the bridge and turn left.", {"A": "across", "B": "between", "C": "inside", "D": "opposite"}, "A"),
+        ("7", "The station is ________ the museum.", {"A": "next to", "B": "through", "C": "down", "D": "inside"}, "A"),
+        ("7", "A person who works with you is your ________.", {"A": "applicant", "B": "colleague", "C": "customer", "D": "guard"}, "B"),
+        ("7", "A letter saying positive things about your work is a ________.", {"A": "reference", "B": "promotion", "C": "salary", "D": "contact"}, "A"),
+        ("7", "A person who has applied for a job is an ________.", {"A": "assistant", "B": "applicant", "C": "employer", "D": "actor"}, "B"),
+        ("7", "If a room has a lot of space, it is ________.", {"A": "modern", "B": "positive", "C": "spacious", "D": "manual"}, "C"),
+        ("7", "A person with a lot of training is highly-________.", {"A": "qualified", "B": "friendly", "C": "natural", "D": "careful"}, "A"),
+        ("7", "Food grown without chemicals is called ________ food.", {"A": "organic", "B": "portable", "C": "electronic", "D": "domestic"}, "A"),
+        ("7", "A market ________ is a place for selling things outside.", {"A": "screen", "B": "stall", "C": "route", "D": "record"}, "B"),
+        ("7", "If the positives are more important than the negatives, they ________ them.", {"A": "produce", "B": "outweigh", "C": "retire", "D": "replace"}, "B"),
+        ("7", "A job with many different activities has a lot of ________.", {"A": "variety", "B": "reference", "C": "risk", "D": "loan"}, "A"),
+        ("7", "To bring together means to ________ everyone in the same place.", {"A": "protect", "B": "join", "C": "move", "D": "invite"}, "B"),
+        ("7", "How long ________ you known your best friend?", {"A": "did", "B": "have", "C": "are", "D": "had"}, "B"),
+        ("7", "They ________ already, so we can start the meeting.", {"A": "arrive", "B": "arrived", "C": "have arrived", "D": "had arrived"}, "C"),
+        ("7", "I ________ to university when I was nineteen.", {"A": "have gone", "B": "went", "C": "go", "D": "had gone"}, "B"),
+        ("7", "We have been friends ________ we were children.", {"A": "for", "B": "since", "C": "during", "D": "while"}, "B"),
+        ("7", "The restaurant is ________ the left, opposite the park.", {"A": "on", "B": "in", "C": "at", "D": "under"}, "A"),
+        ("7", "Go ________ the stairs carefully; the meeting room is upstairs.", {"A": "down", "B": "into", "C": "up", "D": "through"}, "C"),
+        ("7", "The train goes ________ the tunnel.", {"A": "through", "B": "between", "C": "over", "D": "next to"}, "A"),
+        ("7", "I haven't seen that film ________.", {"A": "just", "B": "yet", "C": "since", "D": "for"}, "B"),
     ]
-    return [
-        {
-            "source": "Co Thu review",
-            "chapter": chapter,
-            "question": question,
-            "options": options,
-            "answer": answer,
-            "confidence": 1,
-            "answerSource": "teacher-review",
-            "explanation": "",
-        }
-        for chapter, question, options, answer in seed
+
+    unit8 = [
+        ("8", "If it rains, we ________ at home.", {"A": "stayed", "B": "stay", "C": "will stay", "D": "have stayed"}, "C"),
+        ("8", "If you heat water to 100 degrees, it ________.", {"A": "boiled", "B": "boils", "C": "will boil", "D": "is boiling"}, "B"),
+        ("8", "If I hear any news, I ________ you a message.", {"A": "sent", "B": "send", "C": "will send", "D": "would send"}, "C"),
+        ("8", "If the weather is good, we ________ the forest on Saturday.", {"A": "visit", "B": "visited", "C": "will visit", "D": "would visit"}, "C"),
+        ("8", "The woman ________ works in that lab is my aunt.", {"A": "where", "B": "who", "C": "when", "D": "whose"}, "B"),
+        ("8", "This is the phone ________ I bought yesterday.", {"A": "which", "B": "who", "C": "where", "D": "when"}, "A"),
+        ("8", "That is the village ________ my grandparents were born.", {"A": "which", "B": "who", "C": "where", "D": "what"}, "C"),
+        ("8", "A language disappears when nobody ________ it anymore.", {"A": "speaks", "B": "spoke", "C": "will speak", "D": "has spoken"}, "A"),
+        ("8", "Awareness means knowledge or ________ of a problem.", {"A": "distance", "B": "understanding", "C": "payment", "D": "direction"}, "B"),
+        ("8", "If a language dies out, it slowly stops being ________.", {"A": "recorded", "B": "sold", "C": "used", "D": "borrowed"}, "C"),
+        ("8", "Humans cannot survive without clean ________.", {"A": "screens", "B": "water", "C": "roads", "D": "bridges"}, "B"),
+        ("8", "A shift is a ________ in the way something happens.", {"A": "change", "B": "result", "C": "promise", "D": "flight"}, "A"),
+        ("8", "If you neglect your homework, you do not give it enough ________.", {"A": "attention", "B": "noise", "C": "space", "D": "cash"}, "A"),
+        ("8", "The team used technology kits to ________ disappearing languages.", {"A": "repair", "B": "record", "C": "paint", "D": "throw"}, "B"),
+        ("8", "Older people in the village still speak ________.", {"A": "organic", "B": "Apatani", "C": "Greek", "D": "Italian"}, "B"),
+        ("8", "A laptop is a computer ________ you can carry with you.", {"A": "where", "B": "who", "C": "which", "D": "when"}, "C"),
+        ("8", "If my dog hears a noise outside, he ________.", {"A": "barked", "B": "barks", "C": "will barked", "D": "would bark"}, "B"),
+        ("8", "If they don't save those recordings, the language ________ forever.", {"A": "disappears", "B": "disappeared", "C": "will disappear", "D": "has disappeared"}, "C"),
+        ("8", "The machine ________ cooks dinner for us would be very useful.", {"A": "who", "B": "where", "C": "that", "D": "when"}, "C"),
+        ("8", "People use sunglasses to protect their eyes from the ________.", {"A": "sun", "B": "rain", "C": "river", "D": "engine"}, "A"),
+        ("8", "You use a torch to see in the ________.", {"A": "market", "B": "dark", "C": "afternoon", "D": "airport"}, "B"),
+        ("8", "If the battery is flat, the device ________ work.", {"A": "doesn't", "B": "won't", "C": "didn't", "D": "hasn't"}, "A"),
+        ("8", "A reception is the place ________ visitors first arrive in a building.", {"A": "who", "B": "which", "C": "where", "D": "what"}, "C"),
+        ("8", "The children are learning English, ________ is very useful for technology jobs.", {"A": "who", "B": "which", "C": "where", "D": "when"}, "B"),
+        ("8", "If nobody records the last speaker, the language will ________ out.", {"A": "die", "B": "set", "C": "bring", "D": "grow"}, "A"),
+        ("8", "This is the app ________ helps me learn vocabulary.", {"A": "where", "B": "who", "C": "that", "D": "when"}, "C"),
+        ("8", "If I finish early, I ________ you after class.", {"A": "called", "B": "call", "C": "will call", "D": "would call"}, "C"),
     ]
+
+    unit9 = [
+        ("9", "When we arrived at the station, the train ________.", {"A": "left", "B": "has left", "C": "had left", "D": "leaves"}, "C"),
+        ("9", "She was tired because she ________ all day.", {"A": "worked", "B": "had worked", "C": "works", "D": "has worked"}, "B"),
+        ("9", "As soon as the sun had come out, the children ________ outside.", {"A": "run", "B": "ran", "C": "have run", "D": "were running"}, "B"),
+        ("9", "Who ________ this message?", {"A": "did write", "B": "wrote", "C": "has wrote", "D": "writing"}, "B"),
+        ("9", "How many people ________ to the party?", {"A": "came", "B": "did come", "C": "had come", "D": "comes"}, "A"),
+        ("9", "Who ________ here?", {"A": "does live", "B": "lives", "C": "did lived", "D": "has living"}, "B"),
+        ("9", "A trader is a person who buys and ________ things.", {"A": "sells", "B": "moves", "C": "keeps", "D": "hides"}, "A"),
+        ("9", "A gondolier takes tourists around Venice in a ________.", {"A": "truck", "B": "gondola", "C": "submarine", "D": "tram"}, "B"),
+        ("9", "Property in Venice is particularly ________.", {"A": "cheap", "B": "modern", "C": "expensive", "D": "quiet"}, "C"),
+        ("9", "Many young people move away to more ________ cities.", {"A": "ancient", "B": "crowded", "C": "modern", "D": "narrow"}, "C"),
+        ("9", "Good health is a ________ in life.", {"A": "gift", "B": "mission", "C": "loan", "D": "grid"}, "A"),
+        ("9", "A challenge is something difficult you need to ________.", {"A": "face", "B": "launch", "C": "release", "D": "boil"}, "A"),
+        ("9", "Venice has a high quality of life, but property is very ________.", {"A": "friendly", "B": "expensive", "C": "portable", "D": "traditional"}, "B"),
+        ("9", "The city is beautiful, but crowds can be a ________.", {"A": "disadvantage", "B": "gift", "C": "guide", "D": "gondola"}, "A"),
+        ("9", "Before we got home, we ________ dinner in a small restaurant.", {"A": "had had", "B": "have had", "C": "had", "D": "have"}, "A"),
+        ("9", "Who ________ your glasses?", {"A": "broke", "B": "did broke", "C": "had broken", "D": "breaks"}, "A"),
+        ("9", "What ________ the delay?", {"A": "did cause", "B": "cause", "C": "caused", "D": "had causing"}, "C"),
+        ("9", "The museum was huge, but the biggest ________ was the long queue.", {"A": "increase", "B": "challenge", "C": "trader", "D": "gift"}, "B"),
+        ("9", "By the time we saw the sunset, the musicians ________ already.", {"A": "left", "B": "had left", "C": "leave", "D": "have left"}, "B"),
+        ("9", "A crowd means many people in the same ________.", {"A": "place", "B": "record", "C": "century", "D": "battery"}, "A"),
+        ("9", "Who ________ me earlier today?", {"A": "called", "B": "did called", "C": "had call", "D": "calls"}, "A"),
+        ("9", "After they ________ the tickets, they went into the theatre.", {"A": "buy", "B": "bought", "C": "had bought", "D": "have bought"}, "C"),
+        ("9", "The city has many advantages, but housing prices have also ________.", {"A": "increased", "B": "launched", "C": "released", "D": "survived"}, "A"),
+    ]
+
+    unit10 = [
+        ("10", "Millions of smartphones ________ every year.", {"A": "sell", "B": "are sold", "C": "sold", "D": "are selling"}, "B"),
+        ("10", "The first Apple laptops ________ in 1999.", {"A": "produced", "B": "were produced", "C": "are produced", "D": "have produced"}, "B"),
+        ("10", "Facebook ________ by Mark Zuckerberg.", {"A": "created", "B": "is created", "C": "was created", "D": "has creating"}, "C"),
+        ("10", "Public transport ________ a lot in my country.", {"A": "uses", "B": "is used", "C": "used", "D": "using"}, "B"),
+        ("10", "The logo ________ all over the world.", {"A": "recognizes", "B": "is recognized", "C": "recognized", "D": "has recognize"}, "B"),
+        ("10", "I used to ________ to concerts every month.", {"A": "go", "B": "went", "C": "gone", "D": "going"}, "A"),
+        ("10", "She didn't use to ________ coffee, but now she drinks it every day.", {"A": "liked", "B": "like", "C": "likes", "D": "liking"}, "B"),
+        ("10", "Did you use to ________ a Walkman?", {"A": "owned", "B": "own", "C": "owns", "D": "owning"}, "B"),
+        ("10", "The land around the wind farm is very ________.", {"A": "flat", "B": "huge", "C": "illegal", "D": "organic"}, "A"),
+        ("10", "The farmer finally paid off the ________ on his machine.", {"A": "record", "B": "loan", "C": "screen", "D": "bridge"}, "B"),
+        ("10", "A wind turbine must withstand very strong ________.", {"A": "sun", "B": "wind", "C": "rainbows", "D": "crowds"}, "B"),
+        ("10", "Electricity from the turbine goes into the local ________.", {"A": "grid", "B": "park", "C": "market", "D": "tunnel"}, "A"),
+        ("10", "A ton is a unit of ________.", {"A": "distance", "B": "weight", "C": "temperature", "D": "time"}, "B"),
+        ("10", "Farmers grow ________ on the land.", {"A": "crops", "B": "tickets", "C": "bridges", "D": "signals"}, "A"),
+        ("10", "A lot of money ________ on famous logos.", {"A": "spends", "B": "is spent", "C": "spent", "D": "spending"}, "B"),
+        ("10", "New articles ________ for the website every week.", {"A": "write", "B": "wrote", "C": "are written", "D": "have write"}, "C"),
+        ("10", "The old logo ________ back after many customers complained.", {"A": "changed", "B": "was changed", "C": "is changing", "D": "changes"}, "B"),
+        ("10", "We used to ________ CDs, but now we stream music online.", {"A": "buy", "B": "bought", "C": "buys", "D": "buying"}, "A"),
+        ("10", "He didn't use to ________ glasses when he was younger.", {"A": "wore", "B": "wear", "C": "wears", "D": "wearing"}, "B"),
+        ("10", "The second turbine ________ to save more money for the school.", {"A": "built", "B": "was built", "C": "is building", "D": "has build"}, "B"),
+        ("10", "YouTube ________ by over a billion people every month.", {"A": "use", "B": "is used", "C": "used", "D": "uses"}, "B"),
+        ("10", "The first video ________ by Jawed Karim in 2005.", {"A": "made", "B": "was made", "C": "is made", "D": "making"}, "B"),
+        ("10", "People used to ________ photos on film, not on phones.", {"A": "take", "B": "took", "C": "taken", "D": "takes"}, "A"),
+        ("10", "The wind turbine can withstand 130 miles per ________.", {"A": "week", "B": "hour", "C": "minute", "D": "month"}, "B"),
+        ("10", "A product is more attractive if its logo ________ easily.", {"A": "recognize", "B": "is recognized", "C": "recognized", "D": "recognizes"}, "B"),
+    ]
+
+    unit11 = [
+        ("11", "She said that she ________ the film.", {"A": "loved", "B": "love", "C": "has loved", "D": "is loving"}, "A"),
+        ("11", "He told me that he ________ help me later.", {"A": "will", "B": "would", "C": "can", "D": "has"}, "B"),
+        ("11", "They said that they ________ seen anything like it before.", {"A": "never have", "B": "had never", "C": "never", "D": "were"}, "B"),
+        ("11", "Julia said that she ________ there at noon.", {"A": "was going to be", "B": "is going to be", "C": "will be", "D": "goes"}, "A"),
+        ("11", "If you use tell in reported speech, you need an ________.", {"A": "object", "B": "adjective", "C": "article", "D": "option"}, "A"),
+        ("11", "Voyager 1 is a ________.", {"A": "market stall", "B": "spacecraft", "C": "gondola", "D": "loan"}, "B"),
+        ("11", "The solar system is the collection of planets around one ________.", {"A": "star", "B": "sun", "C": "forest", "D": "river"}, "B"),
+        ("11", "A mission is a particular job or ________.", {"A": "task", "B": "ticket", "C": "machine", "D": "cable"}, "A"),
+        ("11", "Classical and jazz are kinds of ________.", {"A": "planets", "B": "music", "C": "engines", "D": "storms"}, "B"),
+        ("11", "Voyager carries a message for other life forms in the ________.", {"A": "universe", "B": "tunnel", "C": "market", "D": "bridge"}, "A"),
+        ("11", "She said, 'I am waiting for the bus.' -> She said that she ________ for the bus.", {"A": "waited", "B": "was waiting", "C": "has waited", "D": "waits"}, "B"),
+        ("11", "He said, 'We missed our flight.' -> He said that they ________ their flight.", {"A": "miss", "B": "had missed", "C": "have missed", "D": "missed"}, "B"),
+        ("11", "They said, 'We'll help you.' -> They said that they ________ help me.", {"A": "would", "B": "will", "C": "can", "D": "should"}, "A"),
+        ("11", "The Golden Record was put on Voyager to represent the ________.", {"A": "desert", "B": "Earth", "C": "mountain", "D": "stadium"}, "B"),
+        ("11", "The team chose photos, sounds and music for the Golden ________.", {"A": "grid", "B": "record", "C": "market", "D": "battery"}, "B"),
+        ("11", "After said, you can use the word that, but you do not ________ to.", {"A": "must", "B": "have", "C": "want", "D": "say"}, "B"),
+        ("11", "He told me that he ________ leaving that afternoon.", {"A": "is", "B": "was", "C": "has", "D": "would"}, "B"),
+        ("11", "A spacecraft is launched when it is sent on a ________.", {"A": "journey", "B": "lesson", "C": "discount", "D": "salary"}, "A"),
+        ("11", "The sound of a human heart was included on the Golden ________.", {"A": "record", "B": "tower", "C": "stall", "D": "guide"}, "A"),
+        ("11", "He said, 'I bought my first game in 2010.' -> He said that he ________ his first game in 2010.", {"A": "had bought", "B": "has bought", "C": "buys", "D": "buying"}, "A"),
+        ("11", "She said, 'I want a new Xbox.' -> She said that she ________ a new Xbox.", {"A": "wants", "B": "wanted", "C": "had wanted to", "D": "would want"}, "B"),
+        ("11", "Voyager 1 first photographed Jupiter and ________.", {"A": "Venice", "B": "Saturn", "C": "Mars only", "D": "the Moon"}, "B"),
+        ("11", "Reported speech often changes pronouns, time words and ________.", {"A": "possessives", "B": "crops", "C": "weights", "D": "bridges"}, "A"),
+        ("11", "He said, 'We live here.' -> He said that they lived ________.", {"A": "here", "B": "there", "C": "everywhere", "D": "outside"}, "B"),
+    ]
+
+    unit12 = [
+        ("12", "If I had more time, I ________ travel more.", {"A": "will", "B": "would", "C": "have", "D": "am"}, "B"),
+        ("12", "If it ________ less, the land wouldn't be so dry.", {"A": "rained", "B": "rains", "C": "has rained", "D": "was raining"}, "A"),
+        ("12", "What would you do if you ________ a tornado?", {"A": "see", "B": "saw", "C": "have seen", "D": "will see"}, "B"),
+        ("12", "If the river flooded, we ________ leave our homes.", {"A": "had to", "B": "would have to", "C": "will have", "D": "must"}, "B"),
+        ("12", "I can't find my keys ________.", {"A": "everywhere", "B": "anywhere", "C": "someone", "D": "something"}, "B"),
+        ("12", "________ called for you, but he didn't leave his name.", {"A": "Nobody", "B": "Someone", "C": "Nowhere", "D": "Nothing"}, "B"),
+        ("12", "There is ________ in my bag. It's empty.", {"A": "anything", "B": "nothing", "C": "someone", "D": "everywhere"}, "B"),
+        ("12", "Would you like ________ to eat?", {"A": "anything", "B": "something", "C": "nothing", "D": "everywhere"}, "B"),
+        ("12", "Everybody means the same as ________.", {"A": "nobody", "B": "someone", "C": "everyone", "D": "anything"}, "C"),
+        ("12", "If I could meet someone famous, I ________ ask lots of questions.", {"A": "will", "B": "would", "C": "am", "D": "did"}, "B"),
+        ("12", "A poacher is someone who catches animals ________ for money.", {"A": "legally", "B": "illegally", "C": "carefully", "D": "slowly"}, "B"),
+        ("12", "A sponsor is a person or group that gives ________.", {"A": "weather", "B": "money", "C": "animals", "D": "powder"}, "B"),
+        ("12", "To release an animal means to put it back into the ________.", {"A": "shop", "B": "wild", "C": "boat", "D": "hotel"}, "B"),
+        ("12", "A victim is a person or animal affected by a bad ________.", {"A": "situation", "B": "record", "C": "journey", "D": "screen"}, "A"),
+        ("12", "If animal parts are ground into powder, they are made into very small ________.", {"A": "bridges", "B": "pieces", "C": "forests", "D": "markets"}, "B"),
+        ("12", "An endangered animal is in ________.", {"A": "fashion", "B": "danger", "C": "charge", "D": "control"}, "B"),
+        ("12", "The Wilderness Protection Mobile Unit helps stop illegal animal ________.", {"A": "recording", "B": "poaching", "C": "farming", "D": "painting"}, "B"),
+        ("12", "If we had a bigger house, we ________ keep more rescued animals.", {"A": "can", "B": "would", "C": "will", "D": "are"}, "B"),
+        ("12", "I saw ________ near the rescue centre, but I don't know who it was.", {"A": "somebody", "B": "everything", "C": "nowhere", "D": "nothing"}, "A"),
+        ("12", "There was ________ else in the room, so I left.", {"A": "anyone", "B": "no one", "C": "someone", "D": "everyone"}, "B"),
+        ("12", "If the weather were warmer, we ________ outside.", {"A": "study", "B": "would study", "C": "will study", "D": "studied"}, "B"),
+        ("12", "The rescue centre gives special care to rescued ________.", {"A": "animals", "B": "engines", "C": "lessons", "D": "bridges"}, "A"),
+        ("12", "If nobody helped endangered animals, many species ________ disappear.", {"A": "must", "B": "would", "C": "can", "D": "did"}, "B"),
+        ("12", "You can go ________ quieter if this place is too noisy.", {"A": "nowhere", "B": "somewhere", "C": "everyone", "D": "nothing"}, "B"),
+        ("12", "I did ________ wrong, so I wasn't worried.", {"A": "anything", "B": "something", "C": "nothing", "D": "nowhere"}, "C"),
+    ]
+
+    for chapter, question, options, answer in unit7 + unit8 + unit9 + unit10 + unit11 + unit12:
+        items.append(make_manual_question(source, chapter, question, options, answer))
+
+    return items
 
 
 def strict_json_from_text(text):
@@ -888,7 +1068,7 @@ def collect_new_questions():
             print(f"{path.name}: {len(parsed)} parsed")
             collected.extend(parsed)
 
-    collected.extend(build_seed_questions())
+    collected.extend(build_scoped_generated_questions())
     cleaned, dropped = sanitize_questions(collected)
     if dropped:
         print(f"Dropped {len(dropped)} broken newly parsed questions")

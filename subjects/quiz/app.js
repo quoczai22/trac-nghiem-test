@@ -456,6 +456,14 @@ function saveHistory() {
   localStorage.setItem(storageKey("history"), JSON.stringify(state.history));
 }
 
+function isQuestionSetCompatible(savedQuestions, bankQuestions) {
+  if (!Array.isArray(savedQuestions) || !savedQuestions.length) return false;
+  if (!Array.isArray(bankQuestions) || !bankQuestions.length) return false;
+
+  const bankKeys = new Set(bankQuestions.map((question) => question.question));
+  return savedQuestions.every((question) => bankKeys.has(question?.question));
+}
+
 function formatTime(ms) {
   const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
   const minutes = Math.floor(totalSeconds / 60);
@@ -803,10 +811,20 @@ async function loadQuiz() {
   }
   localStorage.setItem(storageKey("source_signature"), sourceSignature);
   const savedQuestions = JSON.parse(localStorage.getItem(storageKey("questions")) || "null");
+  const savedQuestionSetValid = isQuestionSetCompatible(savedQuestions, data.questions);
+  if (Array.isArray(savedQuestions) && savedQuestions.length && !savedQuestionSetValid) {
+    state.answers = {};
+    state.submitted = false;
+    state.autoSubmitted = false;
+    state.attemptRecorded = false;
+    state.currentIndex = 0;
+    state.deadline = 0;
+    localStorage.removeItem(storageKey("questions"));
+  }
   const initialQuestionSet = data.fixedExam
     ? data.questions
     : pickRandomQuestions(Math.min(subject.id === "anh-van-3" ? 50 : 20, data.count || 20));
-  state.questions = Array.isArray(savedQuestions) && savedQuestions.length ? savedQuestions : initialQuestionSet;
+  state.questions = savedQuestionSetValid ? savedQuestions : initialQuestionSet;
   if (subject.id === "anh-van-3" && els.randomCount && !els.randomCount.dataset.av3Ready) {
     els.randomCount.value = "50";
     els.randomCount.dataset.av3Ready = "true";

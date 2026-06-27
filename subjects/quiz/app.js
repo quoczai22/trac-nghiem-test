@@ -180,6 +180,99 @@ function inferClo(question) {
   return "";
 }
 
+function shuffleArray(items) {
+  const pool = [...items];
+  for (let i = pool.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool;
+}
+
+function buildQuestionGroupKey(question, index) {
+  if (subject.id !== "anh-van-3") return `single:${index}`;
+
+  const text = String(question?.question || "").trim();
+  const source = String(question?.source || "unknown");
+
+  const clozeMatch = text.match(/^\[Cloze\]\s*(Passage\s+\d+)/i);
+  if (clozeMatch) return `${source}|cloze|${clozeMatch[1].toLowerCase()}`;
+
+  const blankMatch = text.match(/fill in the blank\s*\((\d+)\)/i);
+  if (blankMatch) {
+    const stem = text.replace(/\(\d+\)\s*$/i, "").trim().toLowerCase();
+    return `${source}|blank|${stem}`;
+  }
+
+  const readingMatch = text.match(/^\[(Reading[^\]]*)\]\s*(.+?)\n/i);
+  if (readingMatch) return `${source}|reading|${readingMatch[1].toLowerCase()}|${readingMatch[2].toLowerCase()}`;
+
+  return `single:${index}`;
+}
+
+function isBlankSeriesQuestion(question) {
+  return /fill in the blank\s*\(\d+\)/i.test(String(question?.question || ""));
+}
+
+function buildRandomUnits() {
+  const orderedItems = state.bank.map((question, index) => ({
+    question,
+    index,
+    key: buildQuestionGroupKey(question, index),
+  }));
+  const units = [];
+
+  for (const item of orderedItems) {
+    const currentSource = String(item.question?.source || "unknown");
+    const lastUnit = units[units.length - 1];
+    const lastItem = lastUnit?.[lastUnit.length - 1];
+    const lastSource = String(lastItem?.question?.source || "unknown");
+
+    const sameNamedGroup = lastItem && item.key === lastItem.key && !item.key.startsWith("single:");
+    const sameBlankRun =
+      lastItem &&
+      isBlankSeriesQuestion(item.question) &&
+      isBlankSeriesQuestion(lastItem.question) &&
+      currentSource === lastSource;
+
+    if (sameNamedGroup || sameBlankRun) {
+      lastUnit.push(item);
+    } else {
+      units.push([item]);
+    }
+  }
+
+  return units;
+}
+
+function pickUnitsToCount(units, targetCount) {
+  const memo = new Map();
+
+  function solve(position, remaining) {
+    if (remaining === 0) return [];
+    if (position >= units.length || remaining < 0) return null;
+
+    const key = `${position}:${remaining}`;
+    if (memo.has(key)) return memo.get(key);
+
+    const current = units[position];
+    let result = null;
+
+    if (current.length <= remaining) {
+      const withCurrent = solve(position + 1, remaining - current.length);
+      if (withCurrent) result = [current, ...withCurrent];
+      else if (remaining === current.length) result = [current];
+    }
+
+    if (!result) result = solve(position + 1, remaining);
+
+    memo.set(key, result);
+    return result;
+  }
+
+  return solve(0, targetCount);
+}
+
 const els = {
   totalCount: document.getElementById("totalCount"),
   answeredCount: document.getElementById("answeredCount"),
@@ -599,12 +692,22 @@ async function loadQuiz() {
 }
 
 function pickRandomQuestions(count) {
-  const pool = [...state.bank];
-  for (let i = pool.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
+  const safeCount = Math.min(count, state.bank.length);
+
+  if (subject.id !== "anh-van-3") {
+    const pool = shuffleArray(state.bank);
+    return pool.slice(0, safeCount);
   }
-  return pool.slice(0, Math.min(count, pool.length));
+
+  const shuffledUnits = shuffleArray(buildRandomUnits());
+  const selectedUnits = pickUnitsToCount(shuffledUnits, safeCount);
+
+  if (!selectedUnits) {
+    const pool = shuffleArray(state.bank);
+    return pool.slice(0, safeCount);
+  }
+
+  return selectedUnits.flat().map((item) => item.question);
 }
 
 function createNewRandomQuiz() {

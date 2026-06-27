@@ -28,12 +28,355 @@ DOCX_FILES = [
 ]
 
 
+ALWAYS_KEEP_SOURCES = {
+    "AV3 de thi",
+    "Co Thu review",
+}
+
+
+STRICT_SCOPE_RULES = {
+    "7": [
+        r"\bfor\b",
+        r"\bsince\b",
+        r"present perfect",
+        r"past simple",
+        r"how long",
+        r"\byet\b",
+        r"\bjust\b",
+        r"\bever\b",
+        r"\bnever\b",
+        r"preposition",
+        r"next to",
+        r"opposite",
+        r"between",
+        r"in front of",
+        r"\bnear\b",
+        r"\bacross\b",
+        r"\bthrough\b",
+        r"\balong\b",
+        r"\binside\b",
+        r"\boutside\b",
+        r"\bup\b",
+        r"\bdown\b",
+        r"organic",
+        r"market stall",
+        r"outweigh",
+        r"variety",
+        r"bring together",
+        r"applicant",
+        r"reference",
+        r"promotion",
+        r"unskilled",
+        r"qualified",
+        r"colleague",
+        r"spacious",
+        r"sales representative",
+        r"fashion designer",
+        r"shop assistant",
+        r"ground floor",
+        r"manager",
+    ],
+    "8": [
+        r"zero conditional",
+        r"first conditional",
+        r"relative clause",
+        r"\bwho\b",
+        r"\bwhich\b",
+        r"\bwhere\b",
+        r"if .+ will",
+        r"if .+ won'?t",
+        r"disappears",
+        r"awareness",
+        r"die out",
+        r"survive",
+        r"\bshift\b",
+        r"neglect",
+        r"apatani",
+        r"enduring voices",
+        r"recording equipment",
+        r"technology kits",
+        r"language disappears",
+        r"native language",
+    ],
+    "9": [
+        r"past perfect",
+        r"\bhad\b",
+        r"subject question",
+        r"how many people",
+        r"who wrote",
+        r"who called",
+        r"who lives",
+        r"when i got to the station",
+        r"the train had left",
+        r"\bvenice\b",
+        r"trader",
+        r"challenge",
+        r"gondolier",
+        r"property",
+        r"move away",
+        r"\bgift\b",
+        r"quality of life",
+        r"advantages",
+        r"disadvantages",
+        r"\bcrowd\b",
+        r"\bhuge\b",
+        r"\bincrease\b",
+        r"archaeologists",
+        r"paintings",
+        r"user-friendly",
+        r"pisa",
+    ],
+    "10": [
+        r"passive",
+        r"\bis\b .+\bby\b",
+        r"\bare\b .+\bby\b",
+        r"\bwas\b .+\bby\b",
+        r"\bwere\b .+\bby\b",
+        r"used to",
+        r"didn'?t use to",
+        r"flat",
+        r"paid off",
+        r"\bloan\b",
+        r"withstand",
+        r"\bgrid\b",
+        r"\bton\b",
+        r"\bcrops\b",
+        r"wind turbine",
+        r"electricity",
+        r"facebook was created",
+        r"youtube",
+    ],
+    "11": [
+        r"reported speech",
+        r"\bsaid\b",
+        r"\btold\b",
+        r"would produce",
+        r"would help",
+        r"golden record",
+        r"voyager",
+        r"spacecraft",
+        r"launched",
+        r"solar system",
+        r"mission",
+        r"\bfunction\b",
+        r"classical",
+        r"\bjazz\b",
+        r"universe",
+        r"life forms",
+    ],
+    "12": [
+        r"second conditional",
+        r"\bwould\b",
+        r"if i",
+        r"if you",
+        r"if we",
+        r"anywhere",
+        r"everywhere",
+        r"everyone",
+        r"everybody",
+        r"nobody",
+        r"no one",
+        r"someone",
+        r"somebody",
+        r"something",
+        r"nothing",
+        r"somewhere",
+        r"anybody",
+        r"anyone",
+        r"wilderness protection mobile unit",
+        r"\bpoacher",
+        r"\bsponsor",
+        r"\brelease\b",
+        r"\bvictim",
+        r"\billegal\b",
+        r"\bpowder\b",
+        r"endangered",
+        r"rescue centre",
+        r"cambodia",
+    ],
+}
+
+
+READING_SCOPE_HINTS = [
+    r"^\[Cloze\]",
+    r"^\[Reading",
+    r"fill in the blank",
+    r"choose the correct",
+    r"read the",
+]
+
+
+EXTERNAL_SCOPE_PATTERNS = [
+    r"^\[Cloze\]",
+    r"^\[Reading",
+    r"fill in the blank",
+    r"choose the correct",
+    r"read the",
+    r"\bfor\b",
+    r"\bsince\b",
+    r"present perfect",
+    r"past simple",
+    r"how long",
+    r"\byet\b",
+    r"\bjust\b",
+    r"\bever\b",
+    r"\bnever\b",
+    r"preposition",
+    r"next to",
+    r"opposite",
+    r"between",
+    r"in front of",
+    r"\bnear\b",
+    r"\bacross\b",
+    r"\bthrough\b",
+    r"\balong\b",
+    r"\binside\b",
+    r"\boutside\b",
+    r"\bup\b",
+    r"\bdown\b",
+    r"zero conditional",
+    r"first conditional",
+    r"relative clause",
+    r"\bwho\b",
+    r"\bwhich\b",
+    r"\bwhere\b",
+    r"past perfect",
+    r"subject question",
+    r"how many people",
+    r"used to",
+    r"passive",
+    r"reported speech",
+    r"\bsaid\b",
+    r"\btold\b",
+    r"second conditional",
+    r"anywhere",
+    r"everyone",
+    r"nobody",
+    r"someone",
+    r"somebody",
+    r"something",
+    r"nothing",
+    r"somewhere",
+    r"anybody",
+    r"anyone",
+    r"organic",
+    r"market stall",
+    r"outweigh",
+    r"variety",
+    r"bring together",
+    r"disappears",
+    r"awareness",
+    r"die out",
+    r"survive",
+    r"\bshift\b",
+    r"neglect",
+    r"apatani",
+    r"enduring voices",
+    r"technology kits",
+    r"recording equipment",
+    r"trader",
+    r"challenge",
+    r"gondolier",
+    r"property",
+    r"move away",
+    r"\bgift\b",
+    r"quality of life",
+    r"advantages",
+    r"disadvantages",
+    r"\bcrowd\b",
+    r"\bhuge\b",
+    r"\bincrease\b",
+    r"\bvenice\b",
+    r"flat",
+    r"paid off",
+    r"\bloan\b",
+    r"withstand",
+    r"\bgrid\b",
+    r"\bton\b",
+    r"\bcrops\b",
+    r"wind turbine",
+    r"electricity",
+    r"golden record",
+    r"voyager",
+    r"spacecraft",
+    r"launched",
+    r"solar system",
+    r"mission",
+    r"\bfunction\b",
+    r"classical",
+    r"\bjazz\b",
+    r"universe",
+    r"life forms",
+    r"wilderness protection mobile unit",
+    r"\bpoacher",
+    r"\bsponsor",
+    r"\brelease\b",
+    r"\bvictim",
+    r"\billegal\b",
+    r"\bpowder\b",
+    r"endangered",
+    r"rescue centre",
+    r"cambodia",
+]
+
+
+def has_nested_choice_markup(text):
+    value = str(text or "")
+    return bool(
+        re.search(r"\b\d{1,3}\.\s", value)
+        or re.search(r"\([ABCD]\)", value)
+        or "MULTILPLE CHOICE QUESTIONS" in value
+        or "Grammar (Unit" in value
+        or "Part 3:" in value
+    )
+
+
+def is_suspicious_question(item):
+    question = str(item.get("question") or "")
+    options = item.get("options") or {}
+
+    if not question or len(options) < 3:
+        return True
+
+    if item.get("answer") and item["answer"] not in options:
+        return True
+
+    for value in options.values():
+        option_text = str(value or "").strip()
+        if not option_text:
+            return True
+        if len(option_text) > 110:
+            return True
+        if has_nested_choice_markup(option_text):
+            return True
+
+    return False
+
+
+def sanitize_questions(questions):
+    clean = []
+    dropped = []
+    for item in questions:
+        if is_suspicious_question(item):
+            dropped.append(item)
+        else:
+            clean.append(item)
+    return clean, dropped
+
+
 def read_existing_payload():
     text = OUTPUT_FILE.read_text(encoding="utf-8")
     match = re.search(r"window\.__QUIZ_DATA__\s*=\s*(\{.*\})\s*;\s*$", text, re.S)
     if not match:
         raise RuntimeError("questions.js khong dung dinh dang window.__QUIZ_DATA__ = {...};")
-    return json.loads(match.group(1))
+    payload = json.loads(match.group(1))
+    cleaned, dropped = sanitize_questions(payload.get("questions", []))
+    if dropped:
+        print(f"Dropped {len(dropped)} broken existing questions")
+    payload["questions"] = cleaned
+    payload["count"] = len(cleaned)
+    payload["sourceCounts"] = {"imported": len(cleaned)}
+    return payload
 
 
 def normalize_spaces(text):
@@ -51,6 +394,57 @@ def normalize_key(text):
     normalized = "".join(ch for ch in normalized if unicodedata.category(ch) != "Mn")
     normalized = re.sub(r"[^a-zA-Z0-9]+", " ", normalized).strip().lower()
     return normalized
+
+
+def question_blob(item):
+    options = item.get("options") or {}
+    option_text = " ".join(str(value or "") for value in options.values())
+    return normalize_spaces(f"{item.get('question', '')} {option_text} {item.get('source', '')}")
+
+
+def infer_scope_chapter(item):
+    original = str(item.get("chapter") or "").strip()
+    if original in STRICT_SCOPE_RULES:
+        return original
+
+    blob = question_blob(item)
+    for chapter, patterns in STRICT_SCOPE_RULES.items():
+        for pattern in patterns:
+            if re.search(pattern, blob, re.I):
+                return chapter
+    return "tong-on"
+
+
+def matches_strict_scope(item):
+    source = str(item.get("source") or "").strip()
+    if source in ALWAYS_KEEP_SOURCES:
+        return True
+
+    blob = question_blob(item)
+    return any(re.search(pattern, blob, re.I) for pattern in EXTERNAL_SCOPE_PATTERNS)
+
+
+def dedupe_flat_questions(items):
+    seen = set()
+    unique = []
+    for item in items:
+        key = normalize_key(item.get("question"))
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        unique.append(item)
+    return unique
+
+
+def apply_strict_scope(questions):
+    filtered = []
+    for item in questions:
+        if not matches_strict_scope(item):
+            continue
+        normalized = dict(item)
+        normalized["chapter"] = infer_scope_chapter(normalized)
+        filtered.append(normalized)
+    return dedupe_flat_questions(filtered)
 
 
 def extract_docx_text(path):
@@ -458,7 +852,10 @@ def collect_new_questions():
             collected.extend(parsed)
 
     collected.extend(build_seed_questions())
-    return collected
+    cleaned, dropped = sanitize_questions(collected)
+    if dropped:
+        print(f"Dropped {len(dropped)} broken newly parsed questions")
+    return cleaned
 
 
 def main():
@@ -468,11 +865,15 @@ def main():
     new_questions = dedupe_questions(existing_questions, new_questions)
     print(f"New unique questions: {len(new_questions)}")
 
-    resolve_answers(new_questions)
+    try:
+        resolve_answers(new_questions)
+    except RuntimeError as error:
+        print(f"Warning: {error}")
+        print("Skip them moi chua co dap an vi Ollama dang khong san sang.")
     ready_questions = [item for item in new_questions if item.get("answer")]
     print(f"Ready new questions: {len(ready_questions)}")
 
-    payload["questions"] = existing_questions + ready_questions
+    payload["questions"] = apply_strict_scope(existing_questions + ready_questions)
     payload["count"] = len(payload["questions"])
     payload["sourceCounts"] = {"imported": payload["count"]}
 

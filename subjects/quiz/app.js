@@ -1170,6 +1170,19 @@ els.nextBtn.addEventListener("click", () => {
   showCurrentQuestion();
 });
 
+// Left/Right arrows act like "Câu trước"/"Câu sau", except while typing in a field or reviewing
+// a past attempt. On a focused radio they would otherwise change the chosen answer.
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+  if (state.reviewId !== null) return;
+  const target = event.target;
+  if (target.matches?.("textarea, select, [contenteditable], input:not([type='radio'])")) return;
+  const button = event.key === "ArrowLeft" ? els.prevBtn : els.nextBtn;
+  event.preventDefault();
+  if (!button.disabled) button.click();
+});
+
 els.jumpBtn.addEventListener("click", () => {
   const target = Number(els.jumpInput.value);
   if (!Number.isFinite(target) || target < 1 || target > state.questions.length) return;

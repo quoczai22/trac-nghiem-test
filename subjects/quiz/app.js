@@ -928,7 +928,7 @@ async function loadQuiz() {
   }
   const initialQuestionSet = data.fixedExam
     ? data.questions
-    : pickRandomQuestions(Math.min(["anh-van-3", "an-toan-mang"].includes(subject.id) ? 50 : 20, data.count || 20));
+    : pickRandomQuestions(Math.min(["anh-van-3", "an-toan-mang"].includes(subject.id) ? 50 : 20, data.count || 20)).map(withShuffledOptions);
   state.questions = savedQuestionSetValid ? savedQuestions : initialQuestionSet;
   if (["anh-van-3", "an-toan-mang"].includes(subject.id) && els.randomCount && !els.randomCount.dataset.defaultReady) {
     els.randomCount.value = "50";
@@ -1048,8 +1048,20 @@ function pickUnitQuestions(unitId, count) {
     .slice(0, count);
 }
 
+// Each new exam deals the options in a new order, so the answer letter cannot be memorized.
+function withShuffledOptions(question) {
+  const letters = Object.keys(question.options).sort();
+  const options = {};
+  let answer = question.answer;
+  shuffleArray(Object.entries(question.options)).forEach(([key, value], index) => {
+    options[letters[index]] = value;
+    if (key === question.answer) answer = letters[index];
+  });
+  return { ...question, options, answer };
+}
+
 function startQuiz(questions, filter = "all") {
-  state.questions = questions;
+  state.questions = questions.map(withShuffledOptions);
   state.answers = {};
   state.submitted = false;
   state.autoSubmitted = false;
@@ -1090,6 +1102,7 @@ els.submitBtn.addEventListener("click", () => {
 
 els.resetBtn.addEventListener("click", () => {
   if (!confirm("Xóa toàn bộ đáp án đã chọn và làm lại từ đầu?")) return;
+  state.questions = state.questions.map(withShuffledOptions);
   state.answers = {};
   state.submitted = false;
   state.autoSubmitted = false;

@@ -30,8 +30,42 @@ const end = app.indexOf("function createNewRandomQuiz()", start);
 assert.ok(start >= 0 && end > start);
 const picker = vm.runInNewContext(
   `${app.slice(start, end)}; pickBalancedAtmQuestions`,
-  { state: { bank }, shuffleArray: (items) => [...items].reverse() }
+  { state: { bank }, shuffleArray: (items) => [...items].reverse(), freshFirst: (items) => items }
 );
+
+// Consecutive exams draw unseen families first, so back-to-back exams do not repeat.
+const seenStart = app.indexOf("let seenRounds");
+const seenEnd = app.indexOf("function pickRandomQuestions(count)", seenStart);
+assert.ok(seenStart >= 0 && seenEnd > seenStart);
+const seenContext = {
+  state: { bank },
+  shuffleArray: (items) => {
+    const pool = [...items];
+    for (let i = pool.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool;
+  },
+  localStorage: { getItem: () => null, setItem: () => {} },
+  SEEN_KEY: "unused-in-test",
+  console,
+};
+const freshPicker = vm.runInNewContext(
+  `${app.slice(seenStart, seenEnd)}; ${app.slice(start, end)}; ({ pick: pickBalancedAtmQuestions, markSeen })`,
+  seenContext
+);
+for (const [count, exams] of [[20, 5], [50, 2]]) {
+  const seenFamilies = new Set();
+  for (let exam = 0; exam < exams; exam += 1) {
+    const selected = freshPicker.pick(count);
+    for (const question of selected) {
+      assert.ok(!seenFamilies.has(question.family), `exam ${exam + 1} of ${count} repeats ${question.id}`);
+      seenFamilies.add(question.family);
+    }
+    freshPicker.markSeen(selected);
+  }
+}
 
 for (const count of [10, 20, 40, 50, 100, bank.length]) {
   const selected = picker(count);

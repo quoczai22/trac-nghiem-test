@@ -952,6 +952,7 @@ async function loadQuiz() {
     ? data.questions
     : pickRandomQuestions(Math.min(["anh-van-3", "an-toan-mang"].includes(subject.id) ? 50 : 20, data.count || 20)).map(withShuffledOptions);
   state.questions = savedQuestionSetValid ? savedQuestions : initialQuestionSet;
+  if (!savedQuestionSetValid && !data.fixedExam) markSeen(state.questions);
   if (["anh-van-3", "an-toan-mang"].includes(subject.id) && els.randomCount && !els.randomCount.dataset.defaultReady) {
     els.randomCount.value = "50";
     els.randomCount.dataset.defaultReady = "true";
@@ -975,6 +976,33 @@ async function loadQuiz() {
   else updateTimer();
 }
 
+// Each new exam records which round dealt its questions. Pickers then put unseen questions
+// first and the longest-unseen next, so consecutive exams do not repeat until a pool runs out.
+// Keyed by family, because variants of one family test the same idea.
+const SEEN_KEY = storageKey("seen");
+let seenRounds = JSON.parse(localStorage.getItem(SEEN_KEY) || "{}");
+
+function familyKey(question) {
+  return question.family || question.id || question.question;
+}
+
+function freshFirst(questions) {
+  const round = (question) => seenRounds[familyKey(question)] ?? -1;
+  return [...questions].sort((left, right) => round(left) - round(right));
+}
+
+function markSeen(questions) {
+  const round = Math.max(0, ...Object.values(seenRounds)) + 1;
+  questions.forEach((question) => {
+    seenRounds[familyKey(question)] = round;
+  });
+  try {
+    localStorage.setItem(SEEN_KEY, JSON.stringify(seenRounds));
+  } catch (error) {
+    console.warn("Không lưu được danh sách câu đã ra:", error);
+  }
+}
+
 function pickRandomQuestions(count) {
   const safeCount = Math.min(count, state.bank.length);
 
@@ -982,7 +1010,7 @@ function pickRandomQuestions(count) {
     return pickBalancedAtmQuestions(safeCount);
   }
   if (subject.id !== "anh-van-3") {
-    const pool = shuffleArray(state.bank);
+    const pool = freshFirst(shuffleArray(state.bank));
     return pool.slice(0, safeCount);
   }
   return pickBalancedAv3Questions(safeCount);
@@ -1003,9 +1031,9 @@ function pickBalancedAtmQuestions(count) {
   const selectedFamilies = new Set();
   for (let chapter = 1; chapter <= 6; chapter += 1) {
     const chapterQuestions = state.bank.filter((question) => Number(question.chapter) === chapter);
-    const applicationPool = shuffleArray(chapterQuestions.filter((question) => question.style === "application"));
+    const applicationPool = freshFirst(shuffleArray(chapterQuestions.filter((question) => question.style === "application")));
     const acronymFamilies = new Set();
-    const acronymPool = shuffleArray(chapterQuestions.filter((question) => question.style === "acronym"))
+    const acronymPool = freshFirst(shuffleArray(chapterQuestions.filter((question) => question.style === "acronym")))
       .map((question) => {
         const family = question.family || question.id;
         const repeat = acronymFamilies.has(family);
@@ -1014,7 +1042,7 @@ function pickBalancedAtmQuestions(count) {
       })
       .sort((left, right) => Number(left.repeat) - Number(right.repeat))
       .map((entry) => entry.question);
-    const reviewPool = shuffleArray(chapterQuestions.filter((question) => !["application", "acronym"].includes(question.style)));
+    const reviewPool = freshFirst(shuffleArray(chapterQuestions.filter((question) => !["application", "acronym"].includes(question.style))));
     // About a quarter are long application cases; the rest stay short and direct.
     const applicationTarget = Math.min(Math.round(targets[chapter - 1] / 4), applicationPool.length);
     // About one in five questions asks for an acronym, mirroring past exams of the same department.
@@ -1039,7 +1067,7 @@ function pickBalancedAtmQuestions(count) {
 
   if (selected.length < count) {
     const existing = new Set(selected.map((question) => question.question));
-    const filler = shuffleArray(state.bank).filter((question) => !existing.has(question.question));
+    const filler = freshFirst(shuffleArray(state.bank)).filter((question) => !existing.has(question.question));
     selected.push(...filler.slice(0, count - selected.length));
   }
   return shuffleArray(selected).slice(0, count);
@@ -1060,9 +1088,9 @@ function createNewRandomQuiz() {
 function pickUnitQuestions(unitId, count) {
   // One variant per family, as in the mixed exams.
   const families = new Set();
-  return shuffleArray(state.bank.filter((question) => String(question.chapter) === unitId))
+  return freshFirst(shuffleArray(state.bank.filter((question) => String(question.chapter) === unitId)))
     .filter((question) => {
-      const family = question.family || question.id || question.question;
+      const family = familyKey(question);
       if (families.has(family)) return false;
       families.add(family);
       return true;
@@ -1083,6 +1111,7 @@ function withShuffledOptions(question) {
 }
 
 function startQuiz(questions, filter = "all") {
+  markSeen(questions);
   state.questions = questions.map(withShuffledOptions);
   state.answers = {};
   state.submitted = false;

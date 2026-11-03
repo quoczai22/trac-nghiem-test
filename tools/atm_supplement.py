@@ -10,6 +10,42 @@ Sources name the slide deck; "bản cập nhật" marks the newer 40/42/37/45-sl
 # the standards questions below replace them.
 REMOVE_IDS = {"gen_423", "gen_426", "gen_428", "gen_429", "gen_432", "gen_435", "gen_438", "gen_458"}
 
+# Template items rewritten in place because a "wrong" option was also true or the
+# labels were not from the slides. Each entry: id -> (question, correct, wrong1, wrong2, wrong3).
+# The correct answer keeps its original letter; family, section and source stay unchanged.
+OVERRIDES = {
+    "gen_206": ("Luật lọc gói chỉ cho máy quản trị 10.0.0.5 vào cổng cấu hình firewall. Luật phân biệt máy này với máy khác dựa vào trường nào?",
+                "Địa chỉ IP nguồn", "Địa chỉ IP đích", "Cổng đích", "Nội dung HTTP của yêu cầu"),
+    "gen_209": ("Chỉ máy web 203.0.113.10 được nhận TCP 443 từ Internet, các máy nội bộ khác thì không. Luật lọc gói phân biệt dựa vào trường nào?",
+                "Địa chỉ IP đích", "Địa chỉ IP nguồn", "Cổng nguồn", "Cờ TCP SYN"),
+    "gen_212": ("Cùng một máy chủ, luật cho TCP 443 nhưng chặn TCP 23. Luật phân biệt hai luồng dựa vào trường nào?",
+                "Cổng đích", "Địa chỉ IP đích", "Địa chỉ IP nguồn", "Địa chỉ MAC nguồn"),
+    "gen_215": ("LAN được duyệt web bên ngoài; gói trả lời vào được nhưng kết nối do Internet khởi tạo bị chặn, không cần luật mở chiều ngược. Loại tường lửa nào làm được việc này?",
+                "Stateful inspection firewall", "Packet filtering không lưu trạng thái", "WAF chỉ bảo vệ ứng dụng web", "Screening router dùng ACL tĩnh"),
+    "gen_240": ("Vì sao đã có firewall vẫn nên triển khai thêm IDS/IPS?",
+                "Firewall lọc theo luật, không phân tích dấu hiệu tấn công",
+                "Firewall không có khả năng chặn bất kỳ cổng dịch vụ nào",
+                "IDS/IPS thay thế hoàn toàn chức năng lọc của firewall",
+                "Firewall chỉ hoạt động được trong mạng không dây"),
+    "gen_342": ("Theo slide, RTS/CTS hữu ích nhất trong trường hợp nào?",
+                "Khi xung đột do trạm ẩn (hidden node) đáng kể",
+                "Khi cần chống kẻ tấn công nghe lén WLAN",
+                "Khi cần mã hóa khung dữ liệu giữa STA và AP",
+                "Khi cần ẩn SSID khỏi các máy khách lạ"),
+    "gen_375": ("Theo slide, WEP hiện nay nên được xem là gì?",
+                "Kiến thức legacy, không dùng cho thiết kế mới",
+                "Tiêu chuẩn hiện hành song song với WPA3",
+                "Lựa chọn tốt cho mạng khách vì cấu hình nhẹ",
+                "Chuẩn bảo mật bắt buộc của Wi-Fi 6 và Wi-Fi 7"),
+    "gen_387": ("RC4 mà WEP sử dụng thuộc loại thuật toán nào?",
+                "Mã hóa dòng (stream cipher)", "Mã hóa khối AES chế độ CCM", "Hàm băm một chiều tạo ICV", "Giao thức trao đổi khóa SAE"),
+    "gen_390": ("So với WEP, TKIP của WPA cải thiện điểm nào?",
+                "Đổi khóa theo từng gói thay vì dùng một khóa tĩnh",
+                "Chuyển hẳn sang mã hóa khối AES-CCMP",
+                "Bỏ mã hóa, chỉ dùng SSID ẩn để bảo vệ",
+                "Bắt buộc máy chủ RADIUS cho mọi mạng"),
+}
+
 B1 = "Đề cương mục 1.3-1.6; slide Bài 1"
 B2 = "Đề cương mục 2.1-2.5; slide Bài 2 (a, b)"
 B3 = "Đề cương mục 3.1-3.4; slide Bài 3"

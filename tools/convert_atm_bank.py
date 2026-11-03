@@ -2,8 +2,9 @@
 
 Usage: python tools/convert_atm_bank.py path/to/an_toan_mang_chon_loc.json
 
-The acronym/standards supplement in tools/atm_supplement.py is merged in, and
-the weak items it lists in REMOVE_IDS are dropped.
+The acronym/standards supplement in tools/atm_supplement.py is merged in, the
+weak items it lists in REMOVE_IDS are dropped, and the items in OVERRIDES are
+rewritten.
 """
 
 import hashlib
@@ -13,7 +14,16 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from atm_supplement import QUESTIONS as SUPPLEMENT, REMOVE_IDS  # noqa: E402
+from atm_supplement import OVERRIDES, QUESTIONS as SUPPLEMENT, REMOVE_IDS  # noqa: E402
+
+
+def apply_override(item: dict) -> dict:
+    if item["id"] not in OVERRIDES:
+        return item
+    question, correct, *wrong = OVERRIDES[item["id"]]
+    options = list(wrong)
+    options.insert(item["answer"], correct)
+    return {**item, "question": question, "options": options}
 
 
 def supplement_items() -> list:
@@ -51,7 +61,7 @@ def main() -> None:
     bank = json.loads(source.read_text(encoding="utf-8"))
     letters = "ABCD"
     questions = []
-    items = [item for item in bank["questions"] if item["id"] not in REMOVE_IDS] + supplement_items()
+    items = [apply_override(item) for item in bank["questions"] if item["id"] not in REMOVE_IDS] + supplement_items()
     items.sort(key=lambda item: int(item["chapter"]))
     for item in items:
         options = item["options"]

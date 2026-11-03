@@ -51,7 +51,7 @@
         </div>
 
         <div class="history-card">
-          <div class="navigator-head"><strong>Lịch sử làm bài</strong><span>Lưu các lần nộp</span></div>
+          <div class="navigator-head"><strong>Lịch sử làm bài</strong><span>Bấm để xem lại bài</span></div>
           <div id="historyList" class="history-list"></div>
           <button id="clearHistoryBtn" class="ghost-btn small-btn history-clear">Xóa lịch sử</button>
         </div>
@@ -78,6 +78,19 @@
           </div>
         </header>
 
+        <section id="reviewPanel" class="review-panel hidden">
+          <div class="review-head">
+            <div>
+              <strong id="reviewTitle"></strong>
+              <p id="reviewMeta"></p>
+            </div>
+            <div class="review-actions">
+              <button id="reviewWrongOnlyBtn" class="ghost-btn small-btn"></button>
+              <button id="closeReviewBtn" class="primary-btn small-btn">Về đề đang làm</button>
+            </div>
+          </div>
+          <div id="reviewList" class="review-list"></div>
+        </section>
         <section id="resultPanel" class="result-panel hidden"></section>
         <section class="nav-panel">
           <div class="nav-left">

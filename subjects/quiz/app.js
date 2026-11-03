@@ -63,11 +63,14 @@ const state = {
   currentIndex: Number(localStorage.getItem(storageKey("current")) || 0),
   deadline: Number(localStorage.getItem(storageKey("deadline")) || 0),
   timerId: null,
+  reviewId: null,
+  reviewWrongOnly: false,
 };
 
 const TIME_LIMIT_MINUTES = subject.id === "an-toan-mang" ? 50 : 60;
 const TIME_LIMIT_MS = TIME_LIMIT_MINUTES * 60 * 1000;
 const MAX_HISTORY_ITEMS = 50;
+const MAX_REVIEW_ITEMS = 10;
 const AV3_CORE_CHAPTERS = ["7", "8", "9", "10", "11", "12"];
 
 const PHRASE_REPLACEMENTS = [
@@ -438,6 +441,12 @@ const els = {
   timerText: document.getElementById("timerText"),
   historyList: document.getElementById("historyList"),
   clearHistoryBtn: document.getElementById("clearHistoryBtn"),
+  reviewPanel: document.getElementById("reviewPanel"),
+  reviewTitle: document.getElementById("reviewTitle"),
+  reviewMeta: document.getElementById("reviewMeta"),
+  reviewList: document.getElementById("reviewList"),
+  reviewWrongOnlyBtn: document.getElementById("reviewWrongOnlyBtn"),
+  closeReviewBtn: document.getElementById("closeReviewBtn"),
   filters: document.getElementById("filters"),
   subjectHeading: document.getElementById("subjectHeading"),
   subjectDescription: document.getElementById("subjectDescription"),
@@ -454,8 +463,20 @@ function saveState() {
   localStorage.setItem(storageKey("deadline"), String(state.deadline));
 }
 
+function withoutReview(item) {
+  const { review, ...summary } = item;
+  return summary;
+}
+
 function saveHistory() {
-  localStorage.setItem(storageKey("history"), JSON.stringify(state.history));
+  try {
+    localStorage.setItem(storageKey("history"), JSON.stringify(state.history));
+  } catch (error) {
+    // When storage is full, keep the scores and drop the saved questions.
+    console.warn("Không đủ chỗ lưu chi tiết bài làm:", error);
+    state.history = state.history.map(withoutReview);
+    localStorage.setItem(storageKey("history"), JSON.stringify(state.history));
+  }
 }
 
 function isQuestionSetCompatible(savedQuestions, bankQuestions) {
@@ -536,8 +557,15 @@ function recordAttempt(auto = false) {
     submittedAt: new Date().toISOString(),
     auto,
     ...stats,
+    review: {
+      questions: state.questions.map(({ chapter, question, options, answer }) => ({ chapter, question, options, answer })),
+      answers: { ...state.answers },
+    },
   };
-  state.history = [attempt, ...state.history].slice(0, MAX_HISTORY_ITEMS);
+  // Only the attempts shown in the list keep their questions, so localStorage stays small.
+  state.history = [attempt, ...state.history]
+    .slice(0, MAX_HISTORY_ITEMS)
+    .map((item, index) => (index < MAX_REVIEW_ITEMS ? item : withoutReview(item)));
   saveHistory();
   renderHistory();
 }
@@ -550,21 +578,90 @@ function renderHistory() {
   }
 
   els.historyList.innerHTML = state.history
-    .slice(0, 10)
+    .slice(0, MAX_REVIEW_ITEMS)
     .map((item, index) => {
       const mode = item.auto ? "Tự nộp" : "Nộp tay";
+      const tag = item.review ? "button" : "div";
+      const attrs = item.review ? `type="button" data-attempt-id="${item.id}"` : "";
+      const active = item.id === state.reviewId ? " active" : "";
       return `
-        <div class="history-item">
+        <${tag} ${attrs} class="history-item${active}">
           <div class="history-main">
             <span>Lần ${state.history.length - index}</span>
             <span class="history-score">${item.score10.toFixed(2)}</span>
           </div>
           <div class="history-meta">${item.correct}/${item.total} đúng · ${formatTime(item.usedMs)} · ${mode}</div>
           <div class="history-meta">${formatDateTime(item.submittedAt)} · Sai ${item.wrong}, trống ${item.blank}</div>
-        </div>
+          <div class="history-meta">${item.review ? "Bấm để xem lại câu hỏi" : "Lần này nộp trước khi có xem lại"}</div>
+        </${tag}>
       `;
     })
     .join("");
+}
+
+function openReview(attemptId) {
+  const attempt = state.history.find((item) => item.id === attemptId);
+  if (!attempt?.review) return;
+  state.reviewId = attemptId;
+  state.reviewWrongOnly = false;
+  document.body.classList.add("reviewing");
+  renderReview();
+  renderHistory();
+  els.reviewPanel.scrollIntoView({ block: "start", behavior: "instant" });
+}
+
+function closeReview() {
+  if (!state.reviewId) return;
+  state.reviewId = null;
+  document.body.classList.remove("reviewing");
+  els.reviewPanel.classList.add("hidden");
+  renderHistory();
+}
+
+function renderReview() {
+  const index = state.history.findIndex((item) => item.id === state.reviewId);
+  const attempt = state.history[index];
+  const { questions, answers } = attempt.review;
+  const missed = attempt.wrong + attempt.blank;
+
+  els.reviewTitle.textContent = `Xem lại lần ${state.history.length - index} · ${attempt.score10.toFixed(2)} điểm`;
+  els.reviewMeta.textContent = `${attempt.correct}/${attempt.total} đúng · Sai ${attempt.wrong}, trống ${attempt.blank} · ${formatTime(attempt.usedMs)} · ${formatDateTime(attempt.submittedAt)}`;
+  els.reviewWrongOnlyBtn.textContent = state.reviewWrongOnly ? "Xem tất cả câu" : `Chỉ câu sai/trống (${missed})`;
+  els.reviewList.innerHTML = "";
+
+  questions.forEach((question, idx) => {
+    const selected = answers[idx];
+    const isCorrect = selected === question.answer;
+    if (state.reviewWrongOnly && isCorrect) return;
+
+    const fragment = els.template.content.cloneNode(true);
+    fragment.querySelector(".question-card").classList.add(isCorrect ? "correct-state" : "wrong-state");
+    fragment.querySelector(".chapter-badge").textContent = formatChapterBadge(question.chapter);
+    fragment.querySelector(".question-index").textContent = `Câu ${idx + 1} / ${questions.length}`;
+    fragment.querySelector(".question-text").textContent = prettifyText(question.question);
+
+    const optionsWrap = fragment.querySelector(".options");
+    for (const [key, value] of Object.entries(question.options)) {
+      const option = document.createElement("div");
+      option.className = "option";
+      if (key === question.answer) option.classList.add("correct-answer");
+      if (selected === key && !isCorrect) option.classList.add("wrong-answer");
+      option.innerHTML = `<span><strong>${key}.</strong> ${prettifyText(value)}</span>`;
+      optionsWrap.appendChild(option);
+    }
+
+    const explain = fragment.querySelector(".explain");
+    explain.classList.remove("hidden");
+    explain.innerHTML = selected
+      ? `Bạn chọn <strong>${selected}</strong>. Đáp án đúng là <strong>${question.answer}</strong>.`
+      : `Bạn chưa chọn. Đáp án đúng là <strong>${question.answer}</strong>.`;
+    els.reviewList.appendChild(fragment);
+  });
+
+  if (!els.reviewList.children.length) {
+    els.reviewList.innerHTML = `<p class="history-empty">Lần này không sai câu nào.</p>`;
+  }
+  els.reviewPanel.classList.remove("hidden");
 }
 
 function setFilter(filter) {
@@ -710,6 +807,8 @@ function clampCurrentIndex() {
 }
 
 function renderQuestions() {
+  // Anything that redraws the current exam (submit, new exam, navigator, timeout) ends a review.
+  closeReview();
   const visibleQuestions = getVisibleQuestions();
   clampCurrentIndex();
   els.questionHost.innerHTML = "";
@@ -980,9 +1079,25 @@ els.resetBtn.addEventListener("click", () => {
 
 els.clearHistoryBtn.addEventListener("click", () => {
   if (!confirm("Xóa toàn bộ lịch sử làm bài?")) return;
+  closeReview();
   state.history = [];
   saveHistory();
   renderHistory();
+});
+
+els.historyList.addEventListener("click", (event) => {
+  const item = event.target.closest("[data-attempt-id]");
+  if (item) openReview(Number(item.dataset.attemptId));
+});
+
+els.reviewWrongOnlyBtn.addEventListener("click", () => {
+  state.reviewWrongOnly = !state.reviewWrongOnly;
+  renderReview();
+});
+
+els.closeReviewBtn.addEventListener("click", () => {
+  closeReview();
+  showCurrentQuestion();
 });
 
 els.prevBtn.addEventListener("click", () => {

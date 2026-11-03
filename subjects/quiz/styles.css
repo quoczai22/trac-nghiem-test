@@ -563,9 +563,72 @@ body.exam-mode .question-clo {
   line-height: 1.35;
 }
 
+button.history-item {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+button.history-item:hover,
+.history-item.active {
+  border-color: #bfd1ff;
+  background: var(--blue-soft);
+}
+
 .history-clear {
   margin-top: 10px;
   width: 100%;
+}
+
+body.reviewing .nav-panel,
+body.reviewing .question-host,
+body.reviewing .result-panel {
+  display: none;
+}
+
+.review-panel {
+  margin-top: 18px;
+}
+
+.review-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.review-head strong {
+  font-size: 20px;
+}
+
+.review-head p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.review-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.review-list .option {
+  cursor: default;
 }
 
 .back-home,

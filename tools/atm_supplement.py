@@ -6,6 +6,8 @@ deterministically in convert_atm_bank.py so the correct answer is not always A.
 Sources name the slide deck; "bản cập nhật" marks the newer 40/42/37/45-slide decks.
 """
 
+from atm_direct import DIRECT
+
 # Template-generated chapter 6 items whose options were generic or ambiguous;
 # the standards questions below replace them.
 REMOVE_IDS = {"gen_423", "gen_426", "gen_428", "gen_429", "gen_432", "gen_435", "gen_438", "gen_458"}
@@ -44,7 +46,11 @@ OVERRIDES = {
                 "Chuyển hẳn sang mã hóa khối AES-CCMP",
                 "Bỏ mã hóa, chỉ dùng SSID ẩn để bảo vệ",
                 "Bắt buộc máy chủ RADIUS cho mọi mạng"),
+    # The slides never tie 13335 to a lifecycle; "vòng đời" appears only under FIPS 140-2.
+    "case_54": ("Theo slide Bài 6, nhóm cần bộ hướng dẫn quản lý an ninh CNTT tập trung vào quản lý rủi ro và lập kế hoạch bảo mật tổng thể, không phải kiểm định mô-đun mật mã. Chuẩn nào phù hợp?",
+                "ISO/IEC 13335", "PCI DSS", "FIPS 140-2", "ISO/IEC 15408"),
 }
+OVERRIDES.update(DIRECT)
 
 B1 = "Đề cương mục 1.3-1.6; slide Bài 1"
 B2 = "Đề cương mục 2.1-2.5; slide Bài 2 (a, b)"

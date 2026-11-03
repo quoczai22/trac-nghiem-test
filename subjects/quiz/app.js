@@ -993,7 +993,8 @@ function pickBalancedAtmQuestions(count) {
       .sort((left, right) => Number(left.repeat) - Number(right.repeat))
       .map((entry) => entry.question);
     const reviewPool = shuffleArray(chapterQuestions.filter((question) => !["application", "acronym"].includes(question.style)));
-    const applicationTarget = Math.min(Math.floor(targets[chapter - 1] / 2), applicationPool.length);
+    // About a quarter are long application cases; the rest stay short and direct.
+    const applicationTarget = Math.min(Math.round(targets[chapter - 1] / 4), applicationPool.length);
     // About one in five questions asks for an acronym, mirroring past exams of the same department.
     const acronymTarget = Math.min(Math.round(targets[chapter - 1] / 5), acronymPool.length);
     const pool = [

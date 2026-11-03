@@ -8,7 +8,8 @@ Ngân hàng 440 câu theo đề cương học phần 2022 và slide Bài 1–6 (
 - 60 câu tình huống vận dụng (`application`) được biên tập riêng từ đề cương/slide.
 - 75 câu chữ viết tắt (`acronym`) phủ cả 6 chương, ví dụ CIA, RAT, ICV, NGFW, SASE, ZTNA, SIEM, EDR, SAE, PMF, OWE, TOE, EAL, PCI DSS, FIPS.
 - 45 câu về chuẩn (`standard`): IEEE 802.11i/802.11w/802.11ax/802.11be, 802.1X/EAP/RADIUS ở Chương 5; ISO/IEC 27001/27002 qua các phiên bản 2005/2013/2022, 27005, 27701, 42001, 15408, 13335, PCI DSS, FIPS 140-2/140-3, NIST CSF 2.0 và luật Việt Nam ở Chương 6.
-- Đề mặc định 50 câu và 50 phút, chia theo chương 5/10/10/10/10/5; trong đó 24 câu vận dụng và 10 câu chữ viết tắt.
+- 90 câu phân biệt (`distinction`) được viết lại thành câu hỏi thẳng, mỗi câu một ý cụ thể, bám slide khi slide có nội dung (`tools/atm_direct.py`).
+- Đề mặc định 50 câu và 50 phút, chia theo chương 5/10/10/10/10/5; trong đó 14 câu vận dụng và 10 câu chữ viết tắt.
 - Đây là mục tiêu cân bằng cách luyện, không phải ước tính xác suất trúng đề thi thật.
 
 Đề cương 2022 nêu ISO/IEC 27001/27002:2005, ISO/IEC 13335 và FIPS 140-2, còn slide Bài 6 bản cập nhật dùng 27001/27002:2022, FIPS 140-3 và luật 2025. Câu hỏi luôn ghi rõ phiên bản hoặc nguồn ("theo slide cập nhật") để không có hai đáp án cùng đúng.

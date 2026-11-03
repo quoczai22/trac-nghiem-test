@@ -41,7 +41,7 @@ for (const count of [10, 20, 40, 50, 100, bank.length]) {
     for (let chapter = 1; chapter <= 6; chapter += 1) {
       assert.equal(selected.filter((question) => Number(question.chapter) === chapter).length, expected[chapter - 1]);
     }
-    const expectedApplications = { 10: 4, 20: 10, 40: 20, 50: 24, 100: 50 };
+    const expectedApplications = { 10: 4, 20: 6, 40: 10, 50: 14, 100: 26 };
     assert.equal(selected.filter((question) => question.style === "application").length, expectedApplications[count]);
     const expectedAcronyms = { 10: 0, 20: 4, 40: 10, 50: 10, 100: 20 };
     assert.equal(selected.filter((question) => question.style === "acronym").length, expectedAcronyms[count]);

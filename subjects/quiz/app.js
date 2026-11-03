@@ -676,12 +676,9 @@ function setFilter(filter) {
 function renderFilters() {
   const sourceData = getQuizDataSource();
   const isFixedExam = Boolean(sourceData?.fixedExam);
-  // A unit chip starts a practice exam from that unit's whole bank. AV3 keeps the plain
-  // filter because its reading questions must stay grouped with their passage.
-  const unitPractice = !isFixedExam && subject.id !== "anh-van-3";
   const entries = [
     { id: "all", label: isFixedExam ? "Toàn bộ đề" : "Đề hiện tại" },
-    ...subject.units.map((unit) => ({ id: unit.id, label: unit.label, practice: unitPractice })),
+    ...subject.units.map((unit) => ({ id: unit.id, label: unit.label })),
     { id: "tong-on", label: "Tổng ôn" },
     { id: "unanswered", label: "Chưa làm" },
   ];
@@ -694,7 +691,7 @@ function renderFilters() {
     button.dataset.filter = entry.id;
     button.textContent = entry.label;
     button.classList.toggle("active", state.filter === entry.id);
-    button.addEventListener("click", () => (entry.practice ? createUnitQuiz(entry.id) : setFilter(entry.id)));
+    button.addEventListener("click", () => setFilter(entry.id));
     els.filters.appendChild(button);
   });
 }
@@ -1028,23 +1025,27 @@ function pickBalancedAtmQuestions(count) {
 
 function createNewRandomQuiz() {
   const count = Number(els.randomCount.value || 20);
+  // With a unit chip selected, the new exam comes from that unit's whole bank. AV3 always
+  // mixes, because its reading questions must stay grouped with their passage.
+  const unitSelected = subject.units.some((unit) => unit.id === state.filter);
+  if (unitSelected && subject.id !== "anh-van-3") {
+    startQuiz(pickUnitQuestions(state.filter, count), state.filter);
+    return;
+  }
   startQuiz(pickRandomQuestions(count));
 }
 
-function createUnitQuiz(unitId) {
-  const inProgress = !state.submitted && Object.values(state.answers).some(Boolean);
-  if (inProgress && !confirm("Bỏ đề đang làm dở để luyện riêng phần này?")) return;
-  const count = Number(els.randomCount.value || 20);
+function pickUnitQuestions(unitId, count) {
   // One variant per family, as in the mixed exams.
   const families = new Set();
-  const pool = shuffleArray(state.bank.filter((question) => String(question.chapter) === unitId)).filter((question) => {
-    const family = question.family || question.id || question.question;
-    if (families.has(family)) return false;
-    families.add(family);
-    return true;
-  });
-  startQuiz(pool.slice(0, count), unitId);
-  showCurrentQuestion();
+  return shuffleArray(state.bank.filter((question) => String(question.chapter) === unitId))
+    .filter((question) => {
+      const family = question.family || question.id || question.question;
+      if (families.has(family)) return false;
+      families.add(family);
+      return true;
+    })
+    .slice(0, count);
 }
 
 function startQuiz(questions, filter = "all") {

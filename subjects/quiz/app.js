@@ -31,11 +31,12 @@ function getQuizDataSource() {
       console.warn("Không đọc được bộ đề import:", error);
     }
   }
+  const defaultData = window.__SUBJECT_DEFAULT_DATA__?.[subject.id];
+  if (defaultData && Array.isArray(defaultData.questions) && defaultData.questions.length) {
+    defaultData.count = defaultData.questions.length;
+    return defaultData;
+  }
   if (subject.id === "anh-van-3") {
-    if (window.__QUIZ_DATA__ && Array.isArray(window.__QUIZ_DATA__.questions) && window.__QUIZ_DATA__.questions.length) {
-      window.__QUIZ_DATA__.count = window.__QUIZ_DATA__.questions.length;
-      return window.__QUIZ_DATA__;
-    }
     const fallback = window.__QUIZ_EXAM_50__ || window.__QUIZ_EXAM_40__;
     if (fallback && Array.isArray(fallback.questions)) {
       fallback.count = fallback.questions.length;
@@ -64,7 +65,8 @@ const state = {
   timerId: null,
 };
 
-const TIME_LIMIT_MS = 60 * 60 * 1000;
+const TIME_LIMIT_MINUTES = subject.id === "an-toan-mang" ? 50 : 60;
+const TIME_LIMIT_MS = TIME_LIMIT_MINUTES * 60 * 1000;
 const MAX_HISTORY_ITEMS = 50;
 const AV3_CORE_CHAPTERS = ["7", "8", "9", "10", "11", "12"];
 
@@ -473,7 +475,7 @@ function formatTime(ms) {
 
 function updateTimer() {
   if (!state.deadline || state.submitted) {
-    els.timerText.textContent = state.submitted ? "Đã nộp" : "60:00";
+    els.timerText.textContent = state.submitted ? "Đã nộp" : `${TIME_LIMIT_MINUTES}:00`;
     els.timerText.classList.remove("warning");
     return;
   }
@@ -598,7 +600,7 @@ function renderFilters() {
 }
 
 function getVisibleQuestions() {
-  if (state.filter === "all") return state.questions;
+  if (state.filter === "all" || state.filter === "tong-on") return state.questions;
   if (state.filter === "unanswered") {
     return state.questions.filter((_, idx) => !state.answers[idx]);
   }
@@ -687,7 +689,7 @@ function renderResult() {
   els.resultPanel.innerHTML = `
     <div><strong>${stats.correct}/${stats.total}</strong> câu đúng</div>
     <p>Điểm quy đổi: <strong>${stats.score10.toFixed(2)}</strong></p>
-    <p>${state.autoSubmitted ? "Đã hết 60 phút nên hệ thống tự nộp bài." : "Làm lại được ngay."} Các câu đúng/sai đã được tô màu để bạn rà cực nhanh.</p>
+    <p>${state.autoSubmitted ? `Đã hết ${TIME_LIMIT_MINUTES} phút nên hệ thống tự nộp bài.` : "Làm lại được ngay."} Các câu đúng/sai đã được tô màu để bạn rà cực nhanh.</p>
   `;
   els.resultPanel.classList.remove("hidden");
   els.resultLegend.classList.remove("hidden");
@@ -823,11 +825,11 @@ async function loadQuiz() {
   }
   const initialQuestionSet = data.fixedExam
     ? data.questions
-    : pickRandomQuestions(Math.min(subject.id === "anh-van-3" ? 50 : 20, data.count || 20));
+    : pickRandomQuestions(Math.min(["anh-van-3", "an-toan-mang"].includes(subject.id) ? 50 : 20, data.count || 20));
   state.questions = savedQuestionSetValid ? savedQuestions : initialQuestionSet;
-  if (subject.id === "anh-van-3" && els.randomCount && !els.randomCount.dataset.av3Ready) {
+  if (["anh-van-3", "an-toan-mang"].includes(subject.id) && els.randomCount && !els.randomCount.dataset.defaultReady) {
     els.randomCount.value = "50";
-    els.randomCount.dataset.av3Ready = "true";
+    els.randomCount.dataset.defaultReady = "true";
   }
   saveState();
   els.quizTitle.textContent = data.fixedExam
@@ -851,11 +853,48 @@ async function loadQuiz() {
 function pickRandomQuestions(count) {
   const safeCount = Math.min(count, state.bank.length);
 
+  if (subject.id === "an-toan-mang") {
+    return pickBalancedAtmQuestions(safeCount);
+  }
   if (subject.id !== "anh-van-3") {
     const pool = shuffleArray(state.bank);
     return pool.slice(0, safeCount);
   }
   return pickBalancedAv3Questions(safeCount);
+}
+
+function pickBalancedAtmQuestions(count) {
+  if (count >= state.bank.length) return shuffleArray(state.bank);
+
+  const weights = [1, 2, 2, 2, 2, 1];
+  const targets = weights.map((weight) => Math.floor((count * weight) / 10));
+  let remaining = count - targets.reduce((total, target) => total + target, 0);
+  for (let index = 0; remaining > 0; index = (index + 1) % targets.length) {
+    targets[index] += 1;
+    remaining -= 1;
+  }
+
+  const selected = [];
+  const selectedFamilies = new Set();
+  for (let chapter = 1; chapter <= 6; chapter += 1) {
+    const pool = shuffleArray(state.bank.filter((question) => Number(question.chapter) === chapter));
+    let picked = 0;
+    for (const question of pool) {
+      const family = question.family || question.id || question.question;
+      if (selectedFamilies.has(family)) continue;
+      selected.push(question);
+      selectedFamilies.add(family);
+      picked += 1;
+      if (picked >= targets[chapter - 1]) break;
+    }
+  }
+
+  if (selected.length < count) {
+    const existing = new Set(selected.map((question) => question.question));
+    const filler = shuffleArray(state.bank).filter((question) => !existing.has(question.question));
+    selected.push(...filler.slice(0, count - selected.length));
+  }
+  return shuffleArray(selected).slice(0, count);
 }
 
 function createNewRandomQuiz() {

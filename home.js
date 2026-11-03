@@ -18,7 +18,7 @@ function renderSubjects() {
     const description = document.createElement("p");
     description.textContent = subject.description;
     const status = document.createElement("strong");
-    status.textContent = subject.kind === "static" ? "Đang có sẵn" : "Môn local";
+    status.textContent = subject.status || (subject.kind === "static" ? "Đang có sẵn" : "Môn local");
 
     content.append(title, description, status);
     card.append(icon, content);

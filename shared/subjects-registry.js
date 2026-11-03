@@ -18,6 +18,16 @@
       kind: "local",
       href: "./subjects/quiz/index.html?subject=anh-van-3",
     },
+    {
+      id: "an-toan-mang",
+      title: "An toàn mạng máy tính",
+      icon: "🔒",
+      description: "500 câu luyện tập theo đề cương 6 chương; tạo đề 50 câu, lưu kết quả làm bài.",
+      units: Array.from({ length: 6 }, (_, index) => ({ id: String(index + 1), label: `Chương ${index + 1}` })),
+      kind: "local",
+      href: "./subjects/quiz/index.html?subject=an-toan-mang",
+      status: "Đang có sẵn",
+    },
   ];
 
   function clone(value) {

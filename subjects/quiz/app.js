@@ -676,9 +676,12 @@ function setFilter(filter) {
 function renderFilters() {
   const sourceData = getQuizDataSource();
   const isFixedExam = Boolean(sourceData?.fixedExam);
+  // A unit chip starts a practice exam from that unit's whole bank. AV3 keeps the plain
+  // filter because its reading questions must stay grouped with their passage.
+  const unitPractice = !isFixedExam && subject.id !== "anh-van-3";
   const entries = [
     { id: "all", label: isFixedExam ? "Toàn bộ đề" : "Đề hiện tại" },
-    ...subject.units.map((unit) => ({ id: unit.id, label: unit.label })),
+    ...subject.units.map((unit) => ({ id: unit.id, label: unit.label, practice: unitPractice })),
     { id: "tong-on", label: "Tổng ôn" },
     { id: "unanswered", label: "Chưa làm" },
   ];
@@ -691,7 +694,7 @@ function renderFilters() {
     button.dataset.filter = entry.id;
     button.textContent = entry.label;
     button.classList.toggle("active", state.filter === entry.id);
-    button.addEventListener("click", () => setFilter(entry.id));
+    button.addEventListener("click", () => (entry.practice ? createUnitQuiz(entry.id) : setFilter(entry.id)));
     els.filters.appendChild(button);
   });
 }
@@ -1025,13 +1028,33 @@ function pickBalancedAtmQuestions(count) {
 
 function createNewRandomQuiz() {
   const count = Number(els.randomCount.value || 20);
-  state.questions = pickRandomQuestions(count);
+  startQuiz(pickRandomQuestions(count));
+}
+
+function createUnitQuiz(unitId) {
+  const inProgress = !state.submitted && Object.values(state.answers).some(Boolean);
+  if (inProgress && !confirm("Bỏ đề đang làm dở để luyện riêng phần này?")) return;
+  const count = Number(els.randomCount.value || 20);
+  // One variant per family, as in the mixed exams.
+  const families = new Set();
+  const pool = shuffleArray(state.bank.filter((question) => String(question.chapter) === unitId)).filter((question) => {
+    const family = question.family || question.id || question.question;
+    if (families.has(family)) return false;
+    families.add(family);
+    return true;
+  });
+  startQuiz(pool.slice(0, count), unitId);
+  showCurrentQuestion();
+}
+
+function startQuiz(questions, filter = "all") {
+  state.questions = questions;
   state.answers = {};
   state.submitted = false;
   state.autoSubmitted = false;
   state.attemptRecorded = false;
   state.currentIndex = 0;
-  state.filter = "all";
+  state.filter = filter;
   renderFilters();
   const sourceData = getQuizDataSource();
   els.quizTitle.textContent = `${sourceData.title} (${sourceData.questions.length} câu, đề hiện tại ${state.questions.length} câu)`;

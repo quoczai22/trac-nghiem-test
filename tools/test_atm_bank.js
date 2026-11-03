@@ -17,6 +17,8 @@ assert.equal(new Set(bank.map((question) => question.question)).size, bank.lengt
 const counts = bank.reduce((result, question) => {
   assert.ok(question.options[question.answer], question.id);
   assert.equal(new Set(Object.values(question.options)).size, 4, question.id);
+  assert.ok(question.explanation, question.id);
+  assert.deepEqual(Object.keys(question.optionNotes).sort(), Object.keys(question.options).filter((key) => key !== question.answer), question.id);
   result[question.chapter] = (result[question.chapter] || 0) + 1;
   return result;
 }, {});

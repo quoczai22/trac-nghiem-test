@@ -436,6 +436,28 @@ body.exam-mode .question-clo {
   line-height: 1.5;
 }
 
+.explain p {
+  margin: 0 0 6px;
+}
+
+.explain .explain-right,
+.explain .explain-wrong {
+  padding: 8px 10px;
+  border-left: 3px solid;
+  border-radius: 6px;
+  color: var(--text);
+}
+
+.explain .explain-right {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+
+.explain .explain-wrong {
+  border-color: var(--red);
+  background: var(--red-soft);
+}
+
 .hidden {
   display: none !important;
 }

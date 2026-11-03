@@ -168,6 +168,29 @@ function prettifyText(text) {
   return String(text);
 }
 
+// Explanations live on the bank item, keyed by its original letters. Exams shuffle the options,
+// so a note is found through the option's text instead of its letter.
+let bankById = null;
+function findBankQuestion(id) {
+  if (!bankById) bankById = new Map(state.bank.map((item) => [item.id, item]));
+  return bankById.get(id);
+}
+
+function explainHtml(question, selected) {
+  const answerLine = `Đáp án đúng là <strong>${question.answer}</strong>.`;
+  const source = question.id ? findBankQuestion(question.id) : null;
+  if (!source?.explanation) {
+    return selected ? `Bạn chọn <strong>${selected}</strong>. ${answerLine}` : `Bạn chưa chọn. ${answerLine}`;
+  }
+  const why = `<p class="explain-right"><strong>Vì sao ${question.answer} đúng:</strong> ${source.explanation}</p>`;
+  if (selected === question.answer) return `<p>Bạn chọn đúng <strong>${selected}</strong>.</p>${why}`;
+  if (!selected) return `<p>Bạn chưa chọn. ${answerLine}</p>${why}`;
+  const originalKey = Object.keys(source.options).find((key) => source.options[key] === question.options[selected]);
+  const note = source.optionNotes?.[originalKey];
+  const wrong = note ? `<p class="explain-wrong"><strong>Vì sao ${selected} sai:</strong> ${note}</p>` : "";
+  return `<p>Bạn chọn <strong>${selected}</strong>. ${answerLine}</p>${wrong}${why}`;
+}
+
 function formatChapterBadge(chapter) {
   const value = String(chapter ?? "").trim();
   if (value === "tong-on" || value === "all" || value === "0" || !value) return "Tổng ôn";
@@ -558,7 +581,7 @@ function recordAttempt(auto = false) {
     auto,
     ...stats,
     review: {
-      questions: state.questions.map(({ chapter, question, options, answer }) => ({ chapter, question, options, answer })),
+      questions: state.questions.map(({ id, chapter, question, options, answer }) => ({ id, chapter, question, options, answer })),
       answers: { ...state.answers },
     },
   };
@@ -655,9 +678,7 @@ function renderReview() {
 
     const explain = fragment.querySelector(".explain");
     explain.classList.remove("hidden");
-    explain.innerHTML = selected
-      ? `Bạn chọn <strong>${selected}</strong>. Đáp án đúng là <strong>${question.answer}</strong>.`
-      : `Bạn chưa chọn. Đáp án đúng là <strong>${question.answer}</strong>.`;
+    explain.innerHTML = explainHtml(question, selected);
     els.reviewList.appendChild(fragment);
   });
 
@@ -850,9 +871,7 @@ function renderQuestions() {
   if (state.submitted) {
     card.classList.add(isCorrect ? "correct-state" : "wrong-state");
     explain.classList.remove("hidden");
-    explain.innerHTML = selected
-      ? `Bạn chọn <strong>${selected}</strong>. Đáp án đúng là <strong>${question.answer}</strong>.`
-      : `Bạn chưa chọn. Đáp án đúng là <strong>${question.answer}</strong>.`;
+    explain.innerHTML = explainHtml(question, selected);
   }
 
   for (const [key, value] of Object.entries(question.options)) {
@@ -893,7 +912,7 @@ function applyPresentationMode(data) {
     document.getElementById("quizSubtitle").textContent = "Mặc định mở đề 40 câu, nhưng bạn vẫn có thể tạo đề khác và hệ thống sẽ tự nộp khi hết 60 phút.";
   } else {
     els.subjectDescription.textContent = subject.description;
-    document.getElementById("quizSubtitle").textContent = "Chọn đáp án rồi nộp bài để xem điểm.";
+    document.getElementById("quizSubtitle").textContent = "Chọn đáp án rồi nộp bài để xem điểm. Phím 1–4 chọn đáp án, ← → chuyển câu.";
   }
 }
 
@@ -1170,14 +1189,22 @@ els.nextBtn.addEventListener("click", () => {
   showCurrentQuestion();
 });
 
-// Left/Right arrows act like "Câu trước"/"Câu sau", except while typing in a field or reviewing
-// a past attempt. On a focused radio they would otherwise change the chosen answer.
+// Left/Right arrows act like "Câu trước"/"Câu sau", and 1-4 pick the options top to bottom as
+// shown, except while typing in a field or reviewing a past attempt. On a focused radio the
+// arrows would otherwise change the chosen answer.
 document.addEventListener("keydown", (event) => {
-  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
   if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
   if (state.reviewId !== null) return;
   const target = event.target;
   if (target.matches?.("textarea, select, [contenteditable], input:not([type='radio'])")) return;
+  if (/^[1-9]$/.test(event.key)) {
+    const option = els.questionHost.querySelectorAll(".option input")[Number(event.key) - 1];
+    if (!option || option.disabled) return;
+    event.preventDefault();
+    option.click();
+    return;
+  }
+  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
   const button = event.key === "ArrowLeft" ? els.prevBtn : els.nextBtn;
   event.preventDefault();
   if (!button.disabled) button.click();

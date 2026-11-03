@@ -4,7 +4,7 @@ Usage: python tools/convert_atm_bank.py path/to/an_toan_mang_chon_loc.json
 
 The acronym/standards supplement in tools/atm_supplement.py is merged in, the
 weak items it lists in REMOVE_IDS are dropped, and the items in OVERRIDES are
-rewritten.
+rewritten. Explanations from tools/atm_explain.py are attached last.
 """
 
 import hashlib
@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from atm_explain import EXPLAIN  # noqa: E402
 from atm_supplement import OVERRIDES, QUESTIONS as SUPPLEMENT, REMOVE_IDS  # noqa: E402
 
 
@@ -81,6 +82,13 @@ def main() -> None:
             "section": item["section"],
             "source": item["source"],
         })
+        if item["id"] in EXPLAIN:
+            explanation, notes = EXPLAIN[item["id"]]
+            wrong = set(letters) - {letters[answer]}
+            if set(notes) != wrong:
+                raise ValueError(f"Explanation notes for {item['id']} must cover exactly {sorted(wrong)}")
+            questions[-1]["explanation"] = explanation
+            questions[-1]["optionNotes"] = notes
 
     if not questions:
         raise ValueError("The ATM question bank is empty")

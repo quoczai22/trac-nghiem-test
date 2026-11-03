@@ -12,6 +12,7 @@ Ngân hàng 426 câu theo đề cương học phần 2022 và slide Bài 1–6 (
 - 14 câu tường lửa cho các phần Bài 3 trước đó chưa có câu: chức năng, sản phẩm, kiến trúc đơn lẻ/kết hợp, multi-homed, hybrid mesh, NetworkPolicy/eBPF, lưu lượng mã hóa, AI/ML.
 - Đã bỏ 37 câu dư thừa: mã độc slide không dạy (rootkit, ransomware, botnet, logic bomb, cryptojacking, fileless), nhãn không có trong slide (Rule order, Change review, ACL) và câu hỏi lặp lại đúng một ý của câu khác. Danh sách nằm trong `REMOVE_IDS`.
 - Các câu phân biệt (`distinction`) được viết lại thành câu hỏi thẳng, mỗi câu một ý cụ thể, bám slide khi slide có nội dung (`tools/atm_direct.py`).
+- Mỗi câu có lời giải thích vì sao đáp án đúng (`explanation`) và vì sao từng đáp án sai là sai (`optionNotes`), viết trong `tools/atm_explain_c1.py`…`atm_explain_c6.py`. Sau khi nộp bài, câu đúng chỉ hiện lý do đúng; câu sai hiện thêm lý do đáp án đã chọn sai.
 - Đề mặc định 50 câu và 50 phút, chia theo chương 5/10/10/10/10/5; trong đó 14 câu vận dụng và 10 câu chữ viết tắt.
 - Đây là mục tiêu cân bằng cách luyện, không phải ước tính xác suất trúng đề thi thật.
 

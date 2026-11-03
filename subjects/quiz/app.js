@@ -912,7 +912,7 @@ function applyPresentationMode(data) {
     document.getElementById("quizSubtitle").textContent = "Mặc định mở đề 40 câu, nhưng bạn vẫn có thể tạo đề khác và hệ thống sẽ tự nộp khi hết 60 phút.";
   } else {
     els.subjectDescription.textContent = subject.description;
-    document.getElementById("quizSubtitle").textContent = "Chọn đáp án rồi nộp bài để xem điểm. Phím 1–4 chọn đáp án, ← → chuyển câu.";
+    document.getElementById("quizSubtitle").textContent = "Chọn đáp án rồi nộp bài để xem điểm. Phím 1–4 chọn đáp án, ← → chuyển câu, Enter nộp bài.";
   }
 }
 
@@ -1189,14 +1189,24 @@ els.nextBtn.addEventListener("click", () => {
   showCurrentQuestion();
 });
 
-// Left/Right arrows act like "Câu trước"/"Câu sau", and 1-4 pick the options top to bottom as
-// shown, except while typing in a field or reviewing a past attempt. On a focused radio the
-// arrows would otherwise change the chosen answer.
+// Left/Right arrows act like "Câu trước"/"Câu sau", 1-4 pick the options top to bottom as
+// shown, and Enter submits, except while typing in a field or reviewing a past attempt. On a
+// focused radio the arrows would otherwise change the chosen answer, and on a focused button
+// Enter would press that button instead.
 document.addEventListener("keydown", (event) => {
   if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
   if (state.reviewId !== null) return;
   const target = event.target;
   if (target.matches?.("textarea, select, [contenteditable], input:not([type='radio'])")) return;
+  if (event.key === "Enter") {
+    if (state.submitted || !state.questions.length) return;
+    event.preventDefault();
+    // Enter is easy to hit by accident, so it asks first; Enter again in the dialog confirms.
+    const blank = state.questions.length - Object.keys(state.answers).length;
+    if (!confirm(blank ? `Nộp bài? Còn ${blank} câu chưa chọn.` : "Nộp bài?")) return;
+    submitQuiz(false);
+    return;
+  }
   if (/^[1-9]$/.test(event.key)) {
     const option = els.questionHost.querySelectorAll(".option input")[Number(event.key) - 1];
     if (!option || option.disabled) return;

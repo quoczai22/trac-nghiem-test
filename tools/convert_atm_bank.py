@@ -1,6 +1,6 @@
 """Convert the reviewed ATM JSON bank to the static quiz page's data format.
 
-Usage: python tools/convert_atm_bank.py path/to/an_toan_mang_500_cau.json
+Usage: python tools/convert_atm_bank.py path/to/an_toan_mang_chon_loc.json
 """
 
 import json
@@ -31,8 +31,8 @@ def main() -> None:
             "source": item["source"],
         })
 
-    if len(questions) != 500:
-        raise ValueError(f"Expected 500 questions, found {len(questions)}")
+    if not questions:
+        raise ValueError("The ATM question bank is empty")
     data = {
         "title": "Ngân hàng trắc nghiệm An toàn mạng máy tính",
         "count": len(questions),

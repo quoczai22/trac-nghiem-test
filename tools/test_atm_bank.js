@@ -7,8 +7,9 @@ const root = path.resolve(__dirname, "..");
 const dataContext = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(root, "subjects/an-toan-mang/questions.js"), "utf8"), dataContext);
 const bank = dataContext.window.__QUIZ_DATA__.questions;
-assert.equal(bank.length, 500);
+assert.equal(bank.length, 316);
 assert.equal(bank.filter((question) => question.style === "application").length, 60);
+assert.equal(new Set(bank.map((question) => question.family)).size, 220);
 assert.equal(new Set(bank.map((question) => question.question)).size, bank.length);
 
 const counts = bank.reduce((result, question) => {
@@ -17,7 +18,7 @@ const counts = bank.reduce((result, question) => {
   result[question.chapter] = (result[question.chapter] || 0) + 1;
   return result;
 }, {});
-assert.deepEqual(counts, { 1: 50, 2: 100, 3: 100, 4: 100, 5: 100, 6: 50 });
+assert.deepEqual(counts, { 1: 28, 2: 67, 3: 63, 4: 63, 5: 66, 6: 29 });
 
 const app = fs.readFileSync(path.join(root, "subjects/quiz/app.js"), "utf8");
 const start = app.indexOf("function pickBalancedAtmQuestions(count)");
@@ -28,11 +29,11 @@ const picker = vm.runInNewContext(
   { state: { bank }, shuffleArray: (items) => [...items].reverse() }
 );
 
-for (const count of [10, 20, 40, 50, 100, 500]) {
+for (const count of [10, 20, 40, 50, 100, bank.length]) {
   const selected = picker(count);
   assert.equal(selected.length, count);
   assert.equal(new Set(selected.map((question) => question.id)).size, count);
-  if (count < 500) {
+  if (count < bank.length) {
     assert.equal(new Set(selected.map((question) => question.family)).size, count);
     const expected = [1, 2, 2, 2, 2, 1].map((weight) => (count * weight) / 10);
     for (let chapter = 1; chapter <= 6; chapter += 1) {
@@ -63,7 +64,7 @@ const sourceEnd = app.indexOf("const state =", sourceStart);
 for (const id of ["anh-van-3", "an-toan-mang"]) {
   sourceContext.subject = { id, title: id };
   const result = vm.runInNewContext(`${app.slice(sourceStart, sourceEnd)}; getQuizDataSource()`, sourceContext);
-  assert.equal(result.questions.length, id === "an-toan-mang" ? 500 : sourceContext.window.__SUBJECT_DEFAULT_DATA__["anh-van-3"].questions.length);
+  assert.equal(result.questions.length, id === "an-toan-mang" ? bank.length : sourceContext.window.__SUBJECT_DEFAULT_DATA__["anh-van-3"].questions.length);
   assert.equal(result, sourceContext.window.__SUBJECT_DEFAULT_DATA__[id]);
 }
 

@@ -577,6 +577,33 @@ button.history-item:hover,
   background: var(--blue-soft);
 }
 
+.history-row {
+  position: relative;
+}
+
+.history-row .history-item {
+  padding-right: 56px;
+}
+
+.history-delete {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: white;
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.history-delete:hover {
+  border-color: #f0acb8;
+  background: var(--red-soft);
+}
+
 .history-clear {
   margin-top: 10px;
   width: 100%;

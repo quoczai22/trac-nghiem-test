@@ -585,15 +585,18 @@ function renderHistory() {
       const attrs = item.review ? `type="button" data-attempt-id="${item.id}"` : "";
       const active = item.id === state.reviewId ? " active" : "";
       return `
-        <${tag} ${attrs} class="history-item${active}">
-          <div class="history-main">
-            <span>Lần ${state.history.length - index}</span>
-            <span class="history-score">${item.score10.toFixed(2)}</span>
-          </div>
-          <div class="history-meta">${item.correct}/${item.total} đúng · ${formatTime(item.usedMs)} · ${mode}</div>
-          <div class="history-meta">${formatDateTime(item.submittedAt)} · Sai ${item.wrong}, trống ${item.blank}</div>
-          <div class="history-meta">${item.review ? "Bấm để xem lại câu hỏi" : "Lần này nộp trước khi có xem lại"}</div>
-        </${tag}>
+        <div class="history-row">
+          <${tag} ${attrs} class="history-item${active}">
+            <div class="history-main">
+              <span>Lần ${state.history.length - index}</span>
+              <span class="history-score">${item.score10.toFixed(2)}</span>
+            </div>
+            <div class="history-meta">${item.correct}/${item.total} đúng · ${formatTime(item.usedMs)} · ${mode}</div>
+            <div class="history-meta">${formatDateTime(item.submittedAt)} · Sai ${item.wrong}, trống ${item.blank}</div>
+            <div class="history-meta">${item.review ? "Bấm để xem lại câu hỏi" : "Lần này nộp trước khi có xem lại"}</div>
+          </${tag}>
+          <button type="button" class="history-delete" data-delete-id="${item.id}" aria-label="Xóa lần ${state.history.length - index}">Xóa</button>
+        </div>
       `;
     })
     .join("");
@@ -1124,9 +1127,22 @@ els.clearHistoryBtn.addEventListener("click", () => {
 });
 
 els.historyList.addEventListener("click", (event) => {
+  const remove = event.target.closest("[data-delete-id]");
+  if (remove) {
+    deleteAttempt(Number(remove.dataset.deleteId));
+    return;
+  }
   const item = event.target.closest("[data-attempt-id]");
   if (item) openReview(Number(item.dataset.attemptId));
 });
+
+function deleteAttempt(attemptId) {
+  if (!confirm("Xóa lần nộp này khỏi lịch sử?")) return;
+  if (state.reviewId === attemptId) closeReview();
+  state.history = state.history.filter((item) => item.id !== attemptId);
+  saveHistory();
+  renderHistory();
+}
 
 els.reviewWrongOnlyBtn.addEventListener("click", () => {
   state.reviewWrongOnly = !state.reviewWrongOnly;

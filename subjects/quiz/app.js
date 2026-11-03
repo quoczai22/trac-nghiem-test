@@ -670,11 +670,15 @@ function renderNavigator() {
       saveState();
       renderQuestions();
       renderNavigator();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      showCurrentQuestion();
     });
 
     els.questionNavigator.appendChild(button);
   });
+}
+
+function showCurrentQuestion() {
+  els.questionHost.scrollIntoView({ block: "start", behavior: "instant" });
 }
 
 function renderResult() {
@@ -929,7 +933,7 @@ function submitQuiz(auto = false) {
   renderResult();
   renderQuestions();
   renderNavigator();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  els.resultPanel.scrollIntoView({ block: "start", behavior: "instant" });
 }
 
 els.newRandomBtn.addEventListener("click", createNewRandomQuiz);
@@ -964,7 +968,7 @@ els.prevBtn.addEventListener("click", () => {
   saveState();
   renderQuestions();
   renderNavigator();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  showCurrentQuestion();
 });
 
 els.nextBtn.addEventListener("click", () => {
@@ -972,7 +976,7 @@ els.nextBtn.addEventListener("click", () => {
   saveState();
   renderQuestions();
   renderNavigator();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  showCurrentQuestion();
 });
 
 els.jumpBtn.addEventListener("click", () => {
@@ -985,7 +989,7 @@ els.jumpBtn.addEventListener("click", () => {
     saveState();
     renderQuestions();
     renderNavigator();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    showCurrentQuestion();
   }
 });
 

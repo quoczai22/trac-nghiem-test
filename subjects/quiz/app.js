@@ -912,7 +912,7 @@ function applyPresentationMode(data) {
     document.getElementById("quizSubtitle").textContent = "Mặc định mở đề 40 câu, nhưng bạn vẫn có thể tạo đề khác và hệ thống sẽ tự nộp khi hết 60 phút.";
   } else {
     els.subjectDescription.textContent = subject.description;
-    document.getElementById("quizSubtitle").textContent = "Chọn đáp án rồi nộp bài để xem điểm. Phím 1–4 chọn đáp án, ← → chuyển câu, Enter nộp bài.";
+    document.getElementById("quizSubtitle").textContent = "Chọn đáp án rồi nộp bài để xem điểm. Phím 1–4 chọn đáp án, ← → ↑ ↓ chuyển câu, Enter nộp bài.";
   }
 }
 
@@ -1214,11 +1214,40 @@ document.addEventListener("keydown", (event) => {
     option.click();
     return;
   }
+  if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+    event.preventDefault();
+    moveNavigatorRow(event.key === "ArrowUp" ? -1 : 1);
+    return;
+  }
   if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
   const button = event.key === "ArrowLeft" ? els.prevBtn : els.nextBtn;
   event.preventDefault();
   if (!button.disabled) button.click();
+  revealCurrentInNavigator();
 });
+
+// Up/Down move one row in the "Đi nhanh tới câu" grid. The column count depends on the
+// sidebar width, so it is read from the rendered buttons rather than assumed.
+function moveNavigatorRow(direction) {
+  const buttons = [...els.questionNavigator.querySelectorAll(".nav-q")];
+  const current = buttons.findIndex((button) => button.classList.contains("current"));
+  if (current < 0) return;
+  const columns = buttons.filter((button) => button.offsetTop === buttons[0].offsetTop).length;
+  const target = buttons[current + direction * columns];
+  if (!target) return;
+  target.click();
+  revealCurrentInNavigator();
+}
+
+// Scroll only the grid, not the page, so the highlighted number stays in view.
+function revealCurrentInNavigator() {
+  const current = els.questionNavigator.querySelector(".nav-q.current");
+  if (!current) return;
+  const grid = els.questionNavigator;
+  const top = current.offsetTop - grid.offsetTop;
+  if (top < grid.scrollTop) grid.scrollTop = top;
+  else if (top + current.offsetHeight > grid.scrollTop + grid.clientHeight) grid.scrollTop = top + current.offsetHeight - grid.clientHeight;
+}
 
 els.jumpBtn.addEventListener("click", () => {
   const target = Number(els.jumpInput.value);

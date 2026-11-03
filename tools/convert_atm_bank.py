@@ -61,7 +61,9 @@ def main() -> None:
     bank = json.loads(source.read_text(encoding="utf-8"))
     letters = "ABCD"
     questions = []
-    items = [apply_override(item) for item in bank["questions"] if item["id"] not in REMOVE_IDS] + supplement_items()
+    items = [apply_override(item) for item in bank["questions"]] + supplement_items()
+    # Filtering after the merge keeps supplement ids stable when a supplement item is dropped.
+    items = [item for item in items if item["id"] not in REMOVE_IDS]
     items.sort(key=lambda item: int(item["chapter"]))
     for item in items:
         options = item["options"]

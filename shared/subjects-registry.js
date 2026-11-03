@@ -22,7 +22,7 @@
       id: "an-toan-mang",
       title: "An toàn mạng máy tính",
       icon: "🔒",
-      description: "440 câu luyện tập theo đề cương 6 chương, có câu viết tắt và câu về chuẩn; tạo đề 50 câu, lưu kết quả làm bài.",
+      description: "426 câu luyện tập theo đề cương 6 chương, có câu viết tắt và câu về chuẩn; tạo đề 50 câu, lưu kết quả làm bài.",
       units: Array.from({ length: 6 }, (_, index) => ({ id: String(index + 1), label: `Chương ${index + 1}` })),
       kind: "local",
       href: "./subjects/quiz/index.html?subject=an-toan-mang",

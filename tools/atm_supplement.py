@@ -11,6 +11,19 @@ from atm_direct import DIRECT
 # Template-generated chapter 6 items whose options were generic or ambiguous;
 # the standards questions below replace them.
 REMOVE_IDS = {"gen_423", "gen_426", "gen_428", "gen_429", "gen_432", "gen_435", "gen_438", "gen_458"}
+# Chapter 2 malware types the slides never teach (the decks cover only Trojan/backdoor and virus).
+REMOVE_IDS |= {"gen_059", "gen_060", "reviewed_atm_178",  # rootkit
+               "gen_077", "gen_078", "reviewed_atm_83", "reviewed_atm_108",  # ransomware
+               "gen_080", "gen_081", "reviewed_atm_121",  # botnet
+               "gen_083", "gen_084",  # logic bomb
+               "reviewed_atm_156", "reviewed_atm_198", "reviewed_atm_115"}  # cryptojacking, fileless, "malware"
+# Repeats of a concept another kept question already asks (sandbox, hash, quarantine/isolation).
+REMOVE_IDS |= {"gen_107", "reviewed_atm_162", "gen_119", "gen_125", "gen_122"}
+# Chapter 3 items built on labels that are not in the slides (Rule order, Change review, ACL).
+REMOVE_IDS |= {"gen_185", "gen_188", "gen_191", "reviewed_atm_114"}
+# Same fact and answer as another kept question in a different family, so both could share one exam.
+REMOVE_IDS |= {"gen_029", "gen_062", "gen_065", "gen_074", "gen_086", "reviewed_atm_150", "reviewed_atm_19",
+               "rev_c4_053", "rev_c4_054", "gen_305", "gen_374", "extra_1", "extra_2"}
 
 # Template items rewritten in place because a "wrong" option was also true or the
 # labels were not from the slides. Each entry: id -> (question, correct, wrong1, wrong2, wrong3).
@@ -411,4 +424,68 @@ QUESTIONS = [
     (6, "6.7", S, None, "Theo slide, Luật An ninh mạng 2025 (116/2025/QH15) thay thế:",
      "Luật ATTT mạng 2015 và Luật ANM 2018", "Chỉ Nghị định 13/2023 về dữ liệu cá nhân",
      "Luật Giao dịch điện tử 2005", "Bộ luật Hình sự 2015", B6N),
+
+    # Ports: only the ones the slides name in their own text (Bài 1 exercises,
+    # Bài 2 Trojan slides, Bài 3 policy matrix), not the 70-row Trojan port table.
+    (1, "1.6", R, "port_smtp", "Theo bài tập Bài 1, muốn bắt gói tin email (SMTP) thì lọc TCP ở cổng nào?",
+     "25", "80", "443", "21", B1),
+    (1, "1.6", R, "port_http", "Theo bài tập Bài 1, duyệt web thông thường (HTTP) dùng cổng TCP nào?",
+     "80", "25", "443", "21", B1),
+    (1, "1.6", R, "port_https", "HTTPS dùng cổng TCP mặc định nào?",
+     "443", "80", "25", "8080", B1),
+    (1, "1.6", R, None, "Theo slide Bài 1, công cụ Port scan dùng để làm gì?",
+     "Tìm các cổng TCP/UDP đang mở trên máy",
+     "Chặn mọi cổng không cần thiết trên tường lửa", "Mã hóa dữ liệu đi qua từng cổng mạng", "Đổi số hiệu cổng của dịch vụ web", B1),
+    (1, "1.6", R, None, "Theo bài tập Bài 1, lệnh Windows nào liệt kê kết nối và cổng đang mở kèm PID tiến trình?",
+     "netstat -ano", "ipconfig /all", "ping -t", "tracert", B1),
+    (2, "2.2", R, "port_bo", "Theo slide, Back Orifice, Trojan đầu tiên trên máy tính, dùng cổng xâm nhập nào?",
+     "31337", "21", "443", "12345", B2),
+    (2, "2.2", R, "port_ftp", "Theo slide, FTP Trojan mở cổng nào trên máy bị nhiễm để người khác tải dữ liệu?",
+     "21", "23", "25", "80", B2),
+    (2, "2.2", R, None, "Theo slide phòng chống Trojan, công cụ nào giúp xem chương trình nào đang mở cổng nào?",
+     "TCPView, CurrPorts", "Back Orifice, NetBus", "Barri, Kuang", "KGB Spy, DJI RAT", B2),
+    (3, "3.4", R, "port_https", "Trong ma trận chính sách mẫu của slide Bài 3, Internet được vào WAF qua dịch vụ nào?",
+     "HTTPS/443", "HTTP/80", "SMTP/25", "FTP/21", B3N),
+
+    # Bài 3 topics that had no questions yet.
+    (3, "3.1", R, None, "Theo slide, tường lửa đóng vai trò gì giữa hai loại mạng?",
+     "Rào chắn giữa mạng tin cậy và mạng không tin cậy",
+     "Bộ chuyển tiếp mọi gói tin không cần kiểm tra", "Máy chủ cấp địa chỉ IP cho mạng nội bộ", "Thiết bị tăng tốc đường truyền Internet", B3),
+    (3, "3.1", R, None, "Theo slide, nhóm nào đều là chức năng chính của tường lửa?",
+     "Kiểm soát dịch vụ, hướng, người dùng, hành vi",
+     "Cấp phát IP, phân giải tên miền, gửi email", "Mã hóa ổ cứng, sao lưu, khôi phục dữ liệu", "Diệt virus, vá lỗi, cập nhật hệ điều hành", B3),
+    (3, "3.1", R, None, "Theo slide, sản phẩm nào là tường lửa phần cứng?",
+     "Cisco ASA", "IPCOP", "ISA Server Firewall", "Wireshark", B3),
+    (3, "3.3", R, None, "Theo slide, kiến trúc tường lửa kết hợp gồm những mô hình nào?",
+     "Screened Host, Screened Subnet, Multi-homed Firewall",
+     "Packet Filtering, Circuit Gateway, Application", "Standalone, Distributed, Hybrid IDPS", "WEP, WPA, WPA2", B3),
+    (3, "3.3", R, None, "Multi-homed firewall là tường lửa như thế nào?",
+     "Có nhiều cổng mạng, nối và tách nhiều vùng như LAN, DMZ, Internet",
+     "Cài phần mềm tường lửa trên nhiều máy trạm cùng lúc để bảo vệ từng máy", "Chỉ có một cổng mạng duy nhất", "Chạy hoàn toàn trên dịch vụ đám mây", B3),
+    (3, "3.3", R, None, "Kiến trúc tường lửa đơn lẻ có đặc điểm gì?",
+     "Chỉ một thiết bị đảm nhận toàn bộ việc lọc và bảo vệ",
+     "Nhiều tường lửa phối hợp với nhau qua một mặt phẳng quản lý chung", "Tường lửa đặt trong từng pod Kubernetes", "Không cần chính sách bảo mật nào", B3),
+    (3, "3.3", R, None, "Theo slide, hybrid mesh firewall là gì?",
+     "Thuật ngữ thị trường chỉ nền tảng quản lý thống nhất nhiều loại firewall",
+     "Một giao thức tiêu chuẩn mới do IEEE ban hành để thay thế mô hình TCP/IP", "Tường lửa chỉ dùng cho mạng không dây mesh", "Thuật toán mã hóa gói tin của tường lửa", B3N),
+    (3, "3.3", R, None, "Theo slide, nhược điểm của hybrid mesh firewall là gì?",
+     "Phụ thuộc nhà cung cấp; lộ tài khoản quản trị trung tâm thì ảnh hưởng rộng",
+     "Không thể dùng cho môi trường hybrid hoặc multi-cloud vì thiếu chuẩn chung", "Không hỗ trợ tường lửa phần cứng", "Bắt buộc tắt hết ghi log", B3N),
+    (3, "3.2", R, None, "Theo slide, Kubernetes NetworkPolicy chỉ có tác dụng khi nào?",
+     "Khi CNI của cụm hỗ trợ thực thi NetworkPolicy",
+     "Khi cụm có ít hơn ba node và chạy trên một máy chủ vật lý", "Khi mọi pod dùng chung một địa chỉ IP", "Khi đã tắt tường lửa ngoại vi", B3N),
+    (3, "3.2", R, None, "Theo slide, eBPF (ví dụ Cilium) thực thi chính sách tường lửa ở đâu?",
+     "Ngay trong Linux kernel", "Trên router biên của ISP", "Trong BIOS của máy chủ", "Trên máy chủ RADIUS", B3N),
+    (3, "3.2", R, None, "Theo slide, vì sao TLS 1.3 và QUIC làm tường lửa khó kiểm tra lưu lượng hơn?",
+     "Mã hóa thêm thông tin nên thiết bị trung gian thấy ít hơn",
+     "Hai giao thức này không dùng địa chỉ IP nên tường lửa không định tuyến được", "Chúng chỉ chạy trên mạng nội bộ", "Chúng tắt hoàn toàn cổng 443", B3N),
+    (3, "3.2", R, None, "Theo slide, vì sao không nên luôn bật giải mã TLS trên tường lửa?",
+     "Tăng tải, ảnh hưởng quyền riêng tư, có thể vi phạm yêu cầu bảo mật",
+     "Vì giải mã TLS làm mất địa chỉ IP nguồn và cổng đích của mọi gói tin đi qua", "Vì TLS không thể bị giải mã ở bất kỳ đâu", "Vì giải mã TLS bắt buộc phải tắt NAT", B3N),
+    (3, "3.2", R, None, "Theo slide, nhận định \"AI tự động chặn mọi mối đe dọa chưa biết\" được đánh giá thế nào?",
+     "Sai; AI chỉ nên bổ trợ luật, chữ ký, sandbox và chuyên gia",
+     "Đúng; AI đã thay thế hoàn toàn luật, chữ ký và người phân tích trong tường lửa", "Đúng với mọi tường lửa đời mới", "Chỉ đúng khi bật giải mã TLS", B3N),
+    (3, "3.4", R, None, "Theo slide, ngân hàng chỉ mua NGFW mới nhưng vẫn cho máy chủ giao tiếp tự do thì rủi ro nào còn nguyên?",
+     "Di chuyển ngang giữa các máy chủ",
+     "Mất kết nối Internet của toàn bộ chi nhánh", "Không truy cập được HTTPS", "Hết địa chỉ IP nội bộ", B3N),
 ]

@@ -26,6 +26,7 @@ def main() -> None:
             "options": dict(zip(letters, options)),
             "answer": letters[answer],
             "family": item["family"],
+            "style": item.get("style", "review"),
             "section": item["section"],
             "source": item["source"],
         })

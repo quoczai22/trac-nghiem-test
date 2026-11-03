@@ -8,9 +8,12 @@ const dataContext = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(root, "subjects/an-toan-mang/questions.js"), "utf8"), dataContext);
 const bank = dataContext.window.__QUIZ_DATA__.questions;
 assert.equal(bank.length, 500);
+assert.equal(bank.filter((question) => question.style === "application").length, 60);
+assert.equal(new Set(bank.map((question) => question.question)).size, bank.length);
 
 const counts = bank.reduce((result, question) => {
   assert.ok(question.options[question.answer], question.id);
+  assert.equal(new Set(Object.values(question.options)).size, 4, question.id);
   result[question.chapter] = (result[question.chapter] || 0) + 1;
   return result;
 }, {});
@@ -35,6 +38,8 @@ for (const count of [10, 20, 40, 50, 100, 500]) {
     for (let chapter = 1; chapter <= 6; chapter += 1) {
       assert.equal(selected.filter((question) => Number(question.chapter) === chapter).length, expected[chapter - 1]);
     }
+    const expectedApplications = { 10: 4, 20: 10, 40: 20, 50: 24, 100: 50 };
+    assert.equal(selected.filter((question) => question.style === "application").length, expectedApplications[count]);
   }
 }
 

@@ -881,7 +881,11 @@ function pickBalancedAtmQuestions(count) {
   const selected = [];
   const selectedFamilies = new Set();
   for (let chapter = 1; chapter <= 6; chapter += 1) {
-    const pool = shuffleArray(state.bank.filter((question) => Number(question.chapter) === chapter));
+    const chapterQuestions = state.bank.filter((question) => Number(question.chapter) === chapter);
+    const applicationPool = shuffleArray(chapterQuestions.filter((question) => question.style === "application"));
+    const reviewPool = shuffleArray(chapterQuestions.filter((question) => question.style !== "application"));
+    const applicationTarget = Math.min(Math.floor(targets[chapter - 1] / 2), applicationPool.length);
+    const pool = [...applicationPool.slice(0, applicationTarget), ...reviewPool, ...applicationPool.slice(applicationTarget)];
     let picked = 0;
     for (const question of pool) {
       const family = question.family || question.id || question.question;

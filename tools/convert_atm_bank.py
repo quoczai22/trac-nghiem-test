@@ -1,11 +1,48 @@
 """Convert the reviewed ATM JSON bank to the static quiz page's data format.
 
 Usage: python tools/convert_atm_bank.py path/to/an_toan_mang_chon_loc.json
+
+The acronym/standards supplement in tools/atm_supplement.py is merged in, and
+the weak items it lists in REMOVE_IDS are dropped.
 """
 
+import hashlib
 import json
+import random
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from atm_supplement import QUESTIONS as SUPPLEMENT, REMOVE_IDS  # noqa: E402
+
+
+def supplement_items() -> list:
+    # Each block of four questions uses every answer position once, so A-D stay balanced.
+    rng = random.Random(int(hashlib.sha256(b"atm-supplement").hexdigest(), 16))
+    positions = []
+    while len(positions) < len(SUPPLEMENT):
+        block = [0, 1, 2, 3]
+        rng.shuffle(block)
+        positions.extend(block)
+    items = []
+    for index, (chapter, section, style, family, question, correct, *wrong, source) in enumerate(SUPPLEMENT, 1):
+        prefix = {"acronym": "abbr", "standard": "std"}.get(style, "rev")
+        item_id = f"{prefix}_c{chapter}_{index:03d}"
+        rng.shuffle(wrong)
+        options = list(wrong)
+        options.insert(positions[index - 1], correct)
+        items.append({
+            "id": item_id,
+            "chapter": chapter,
+            "section": section,
+            "question": question,
+            "options": options,
+            "answer": options.index(correct),
+            "family": family or item_id,
+            "style": style,
+            "source": source,
+        })
+    return items
 
 
 def main() -> None:
@@ -14,7 +51,9 @@ def main() -> None:
     bank = json.loads(source.read_text(encoding="utf-8"))
     letters = "ABCD"
     questions = []
-    for item in bank["questions"]:
+    items = [item for item in bank["questions"] if item["id"] not in REMOVE_IDS] + supplement_items()
+    items.sort(key=lambda item: int(item["chapter"]))
+    for item in items:
         options = item["options"]
         answer = item["answer"]
         if len(options) != 4 or not 0 <= answer < 4:

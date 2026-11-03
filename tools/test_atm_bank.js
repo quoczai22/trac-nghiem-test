@@ -7,9 +7,11 @@ const root = path.resolve(__dirname, "..");
 const dataContext = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(root, "subjects/an-toan-mang/questions.js"), "utf8"), dataContext);
 const bank = dataContext.window.__QUIZ_DATA__.questions;
-assert.equal(bank.length, 316);
+assert.equal(bank.length, 440);
 assert.equal(bank.filter((question) => question.style === "application").length, 60);
-assert.equal(new Set(bank.map((question) => question.family)).size, 220);
+assert.equal(bank.filter((question) => question.style === "acronym").length, 75);
+assert.equal(bank.filter((question) => question.style === "standard").length, 45);
+assert.equal(new Set(bank.map((question) => question.family)).size, 310);
 assert.equal(new Set(bank.map((question) => question.question)).size, bank.length);
 
 const counts = bank.reduce((result, question) => {
@@ -18,7 +20,7 @@ const counts = bank.reduce((result, question) => {
   result[question.chapter] = (result[question.chapter] || 0) + 1;
   return result;
 }, {});
-assert.deepEqual(counts, { 1: 28, 2: 67, 3: 63, 4: 63, 5: 66, 6: 29 });
+assert.deepEqual(counts, { 1: 36, 2: 74, 3: 83, 4: 84, 5: 99, 6: 64 });
 
 const app = fs.readFileSync(path.join(root, "subjects/quiz/app.js"), "utf8");
 const start = app.indexOf("function pickBalancedAtmQuestions(count)");
@@ -41,6 +43,8 @@ for (const count of [10, 20, 40, 50, 100, bank.length]) {
     }
     const expectedApplications = { 10: 4, 20: 10, 40: 20, 50: 24, 100: 50 };
     assert.equal(selected.filter((question) => question.style === "application").length, expectedApplications[count]);
+    const expectedAcronyms = { 10: 0, 20: 4, 40: 10, 50: 10, 100: 20 };
+    assert.equal(selected.filter((question) => question.style === "acronym").length, expectedAcronyms[count]);
   }
 }
 

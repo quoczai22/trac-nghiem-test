@@ -883,9 +883,27 @@ function pickBalancedAtmQuestions(count) {
   for (let chapter = 1; chapter <= 6; chapter += 1) {
     const chapterQuestions = state.bank.filter((question) => Number(question.chapter) === chapter);
     const applicationPool = shuffleArray(chapterQuestions.filter((question) => question.style === "application"));
-    const reviewPool = shuffleArray(chapterQuestions.filter((question) => question.style !== "application"));
+    const acronymFamilies = new Set();
+    const acronymPool = shuffleArray(chapterQuestions.filter((question) => question.style === "acronym"))
+      .map((question) => {
+        const family = question.family || question.id;
+        const repeat = acronymFamilies.has(family);
+        acronymFamilies.add(family);
+        return { question, repeat };
+      })
+      .sort((left, right) => Number(left.repeat) - Number(right.repeat))
+      .map((entry) => entry.question);
+    const reviewPool = shuffleArray(chapterQuestions.filter((question) => !["application", "acronym"].includes(question.style)));
     const applicationTarget = Math.min(Math.floor(targets[chapter - 1] / 2), applicationPool.length);
-    const pool = [...applicationPool.slice(0, applicationTarget), ...reviewPool, ...applicationPool.slice(applicationTarget)];
+    // About one in five questions asks for an acronym, mirroring past exams of the same department.
+    const acronymTarget = Math.min(Math.round(targets[chapter - 1] / 5), acronymPool.length);
+    const pool = [
+      ...applicationPool.slice(0, applicationTarget),
+      ...acronymPool.slice(0, acronymTarget),
+      ...reviewPool,
+      ...applicationPool.slice(applicationTarget),
+      ...acronymPool.slice(acronymTarget),
+    ];
     let picked = 0;
     for (const question of pool) {
       const family = question.family || question.id || question.question;

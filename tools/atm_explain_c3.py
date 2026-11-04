@@ -1,9 +1,4 @@
 EXPLAIN = {
-    "gen_134": ("ACL trên router chặn gói theo cổng đích 23 là lọc gói (packet filtering): chỉ xét thông tin header như IP, cổng, giao thức.", {
-        "A": "Circuit-level gateway giám sát bắt tay TCP của phiên, không chỉ xét cổng của từng gói.",
-        "B": "Application proxy xét nội dung tầng ứng dụng, không phải ACL trên router.",
-        "C": "Stateful inspection theo dõi trạng thái phiên; ACL tĩnh chặn cổng 23 không cần trạng thái.",
-    }),
     "gen_135": ("Lọc gói xét IP nguồn/đích (thông tin tầng mạng) nên slide xếp nó ở tầng mạng.", {
         "B": "Tầng ứng dụng là của application proxy.",
         "C": "Slide gắn tầng giao vận (phiên TCP) với circuit-level gateway.",
@@ -13,11 +8,6 @@ EXPLAIN = {
         "A": "SIF vẫn xét cả cổng; không xét cổng là sai với mọi loại lọc gói.",
         "C": "SIF hoạt động ở tầng mạng/giao vận, không ở tầng vật lý.",
         "D": "SIF chặn được gói từ Internet không thuộc phiên nào.",
-    }),
-    "gen_140": ("Xác nhận phiên TCP hợp lệ (bắt tay) rồi mới chuyển tiếp là cách làm của circuit-level gateway.", {
-        "B": "Stateful inspection theo dõi trạng thái từng gói trong phiên, không đứng ra xác nhận phiên rồi chuyển tiếp.",
-        "C": "Lọc gói chỉ xét header từng gói, không xác nhận phiên.",
-        "D": "Application proxy kiểm tra nội dung ứng dụng.",
     }),
     "gen_141": ("Circuit-level gateway giám sát quá trình bắt tay TCP giữa các gói để quyết định phiên có hợp lệ.", {
         "A": "Nội dung lệnh HTTP là việc của tường lửa tầng ứng dụng.",
@@ -29,60 +19,30 @@ EXPLAIN = {
         "C": "Mọi tường lửa đều cần cấu hình luật.",
         "D": "Nó hoạt động ở tầng ứng dụng, không phải tầng vật lý.",
     }),
-    "gen_146": ("\"Appliance\" là thiết bị chuyên dụng riêng, nên phân theo hình thức đây là tường lửa phần cứng.", {
-        "B": "\"Biên\" là cách phân theo vị trí; câu hỏi nhấn vào việc dùng một appliance, tức phân theo hình thức triển khai.",
-        "C": "Tường lửa nội bộ đặt giữa các vùng bên trong LAN, không ở ranh giới Internet.",
-        "D": "Tường lửa máy chủ là phần mềm cài trên chính một máy.",
-    }),
     "gen_147": ("Tường lửa phần cứng là thiết bị riêng đặt trên đường truyền, bảo vệ cả mạng phía sau nó.", {
         "A": "Chỉ bảo vệ máy đã cài là tường lửa phần mềm trên máy.",
         "B": "Tường lửa phần cứng lọc được theo cổng.",
         "C": "Chạy trên máy trạm là tường lửa phần mềm.",
-    }),
-    "gen_149": ("Luật trên chính server chỉ nhận cổng quản trị từ subnet tin cậy là tường lửa máy chủ (host-based).", {
-        "A": "Tường lửa nội bộ đặt giữa các vùng mạng, không nằm trên một server.",
-        "B": "Tường lửa phần cứng là thiết bị riêng, không phải luật trên server.",
-        "D": "Tường lửa biên đặt ở ranh giới Internet.",
     }),
     "gen_150": ("Host-based firewall chạy trên một máy và chỉ bảo vệ chính máy đó.", {
         "A": "Bảo vệ cả LAN là tường lửa biên/phần cứng.",
         "B": "Nó không bảo vệ các thiết bị Wi-Fi khác.",
         "D": "Nó không giới hạn ở DMZ; máy nào cài thì bảo vệ máy đó.",
     }),
-    "gen_152": ("Gateway kiểm tra mọi kết nối từ Internet vào văn phòng nằm ở ranh giới, tức tường lửa biên.", {
-        "A": "Phần cứng là cách phân theo hình thức; tình huống nhấn vào vị trí ở ranh giới.",
-        "B": "Tường lửa máy chủ chỉ bảo vệ một máy.",
-        "C": "Tường lửa nội bộ đặt giữa các vùng bên trong, không phải cổng ra Internet.",
-    }),
     "gen_153": ("Tường lửa biên đặt giữa mạng nội bộ và Internet để kiểm soát lưu lượng ra vào.", {
         "A": "Đặt trong từng máy là tường lửa máy chủ.",
         "B": "Tường lửa không đặt giữa CPU và bộ nhớ.",
         "D": "Tủ điện không phải vị trí mạng.",
-    }),
-    "gen_155": ("Chặn VLAN người dùng vào thẳng VLAN cơ sở dữ liệu là lọc giữa các vùng bên trong, tức tường lửa nội bộ.", {
-        "A": "Tường lửa máy chủ nằm trên một máy, không chia VLAN.",
-        "C": "Phần cứng là hình thức; tình huống nói về vị trí giữa các vùng nội bộ.",
-        "D": "Tường lửa biên ở ranh giới Internet, không phải giữa hai VLAN.",
     }),
     "gen_156": ("Tường lửa giữa các vùng nội bộ chặn kẻ đã vào LAN đi tiếp sang vùng khác (di chuyển ngang).", {
         "A": "Thêm lớp kiểm tra không làm Internet nhanh hơn.",
         "B": "Nó bổ sung chứ không thay tường lửa biên.",
         "C": "Tường lửa không quyết định số IP cần cấp.",
     }),
-    "gen_158": ("Chỉ một router có ACL đứng trước cả mạng nội bộ là kiến trúc screening router.", {
-        "A": "Screened subnet có hai lớp lọc kẹp một DMZ.",
-        "B": "Screened host có thêm bastion host phía sau router.",
-        "D": "Dual-homed host là máy có hai card mạng, không phải router ACL.",
-    }),
     "gen_159": ("Screening router chỉ có một lớp lọc; vượt qua nó là vào thẳng mạng nội bộ.", {
         "A": "Đây là kiến trúc đơn giản nhất, không cần nhiều máy chủ hay vùng.",
         "B": "Router lọc gói lọc được theo IP.",
         "D": "Kiến trúc này không có DMZ.",
-    }),
-    "gen_161": ("Máy proxy có một card mạng ra ngoài và một vào trong là dual-homed host.", {
-        "B": "Screened subnet là hai lớp lọc kẹp DMZ.",
-        "C": "Screened host là router lọc cộng bastion host.",
-        "D": "Screening router là một router lọc gói.",
     }),
     "gen_162": ("Dual-homed host là máy có hai card mạng, một nối mạng ngoài, một nối mạng trong, và không định tuyến thẳng giữa hai bên.", {
         "A": "\"Dual\" là hai card mạng, không phải hai hệ điều hành.",
@@ -94,11 +54,6 @@ EXPLAIN = {
         "B": "Một router duy nhất là screening router.",
         "C": "Một máy nhiều card nối nhiều vùng là multi-homed.",
     }),
-    "gen_167": ("Web công khai đặt trong DMZ kẹp giữa hai lớp lọc là kiến trúc screened subnet.", {
-        "A": "Screening router chỉ có một lớp lọc, không có DMZ.",
-        "B": "Dual-homed host là một máy hai card mạng.",
-        "D": "Screened host không có vùng đệm riêng giữa hai lớp lọc.",
-    }),
     "gen_168": ("Hai lớp lọc của screened subnet tạo ra vùng DMZ ở giữa để đặt máy chủ công khai.", {
         "B": "VLAN quản trị không phải vùng mà kiến trúc này tạo ra.",
         "C": "Mạng không dây không liên quan kiến trúc này.",
@@ -109,40 +64,20 @@ EXPLAIN = {
         "B": "Máy trạm kế toán thuộc mạng nội bộ.",
         "D": "Máy chủ quản lý tài khoản nội bộ không được mở ra Internet.",
     }),
-    "gen_173": ("Máy nhảy chuyên dụng được gia cố, là điểm duy nhất cho SSH từ ngoài vào, chính là bastion host.", {
-        "A": "DMZ là một vùng mạng, không phải một máy cụ thể.",
-        "B": "Mạng ngoài là phía Internet không tin cậy.",
-        "C": "Mạng nội bộ là vùng được bảo vệ, không phải máy trung gian.",
-    }),
     "gen_174": ("Bastion host là máy được gia cố kỹ, chạy rất ít dịch vụ, vì nó đối mặt trực tiếp với tấn công từ ngoài.", {
         "A": "Router chỉ xét IP và cổng là screening router.",
         "B": "Máy trạm của quản trị viên không phải bastion host.",
         "D": "Máy lưu sao lưu không phải bastion host.",
-    }),
-    "gen_176": ("Máy nhân sự nằm sau các lớp kiểm soát biên là thuộc mạng nội bộ.", {
-        "A": "Bastion host là máy chịu tấn công trực tiếp ở biên.",
-        "C": "Mạng ngoài là phía Internet.",
-        "D": "DMZ chứa máy chủ công khai, không chứa máy nhân sự.",
     }),
     "gen_177": ("Không mở máy nội bộ ra Internet để giảm bề mặt tấn công; chỉ dịch vụ công khai mới đặt ở DMZ.", {
         "B": "Internet vẫn dùng TCP bình thường.",
         "C": "Máy nội bộ vẫn có địa chỉ MAC.",
         "D": "Lý do là bảo mật, không phải tốc độ.",
     }),
-    "gen_179": ("Yêu cầu từ Internet trước khi qua chính sách biên vẫn đang ở mạng ngoài.", {
-        "B": "DMZ nằm sau ít nhất một lớp lọc biên.",
-        "C": "Mạng nội bộ nằm sau các lớp kiểm soát.",
-        "D": "Bastion host là một máy, không phải vùng mạng.",
-    }),
     "gen_180": ("Lưu lượng từ Internet mặc định không tin cậy; tường lửa chỉ cho qua các luồng được phép rõ ràng.", {
         "A": "Nhà mạng không kiểm tra an ninh thay cho doanh nghiệp.",
         "C": "Cho qua hết thì ghi log cũng không ngăn được tấn công.",
         "D": "Chờ người dùng báo sự cố là đã quá muộn.",
-    }),
-    "gen_182": ("Luật cuối cùng chặn mọi thứ chưa khớp luật nào là default deny (từ chối mặc định).", {
-        "A": "Rule order nói về thứ tự xét luật, không phải luật chặn cuối cùng.",
-        "B": "Change review là duyệt thay đổi luật.",
-        "D": "Least privilege nói việc mở vừa đủ, còn luật chặn mọi thứ chưa khớp có tên riêng là default deny.",
     }),
     "gen_183": ("Default deny chặn mọi luồng không khớp một luật cho phép nào.", {
         "B": "Cho qua mọi luồng không khớp luật chặn là default allow, ngược lại.",
@@ -164,35 +99,15 @@ EXPLAIN = {
         "B": "Đổi tên thiết bị không ảnh hưởng luật.",
         "C": "Thời gian hết hạn phiên không giúp tìm luật sai.",
     }),
-    "gen_194": ("Kiểm soát luồng từ Internet đi vào web DMZ là lọc chiều vào (inbound filtering).", {
-        "B": "Outbound là luồng từ trong đi ra.",
-        "C": "East-west là luồng giữa các vùng bên trong.",
-        "D": "Ghi log là chức năng ghi nhận, không phải hướng lọc.",
-    }),
     "gen_195": ("Inbound filtering kiểm soát luồng từ mạng ngoài đi vào mạng nội bộ.", {
         "A": "Từ nội bộ ra Internet là outbound.",
         "B": "Giữa hai tiến trình trên một máy không qua tường lửa mạng.",
         "D": "Luồng CPU – ổ cứng không phải lưu lượng mạng.",
     }),
-    "gen_197": ("Chặn máy trạm gửi SMTP thẳng ra Internet là lọc chiều ra (outbound filtering).", {
-        "A": "Ghi log không chặn luồng.",
-        "C": "East-west là giữa các vùng bên trong, còn đây là đi ra Internet.",
-        "D": "Inbound là chiều từ ngoài vào.",
-    }),
     "gen_198": ("Outbound filtering ngăn máy nhiễm mã độc đẩy dữ liệu ra ngoài hoặc liên lạc với máy điều khiển.", {
         "A": "Quét cổng từ Internet vào là việc của lọc chiều vào.",
         "B": "Gõ sai mật khẩu là chuyện xác thực.",
         "C": "Mất điện không liên quan lọc lưu lượng.",
-    }),
-    "gen_200": ("Chặn VLAN khách vào VLAN máy chủ là lọc giữa các vùng bên trong, tức east-west filtering.", {
-        "A": "Outbound là đi ra Internet.",
-        "C": "Ghi log không chặn luồng.",
-        "D": "Inbound là từ Internet vào.",
-    }),
-    "gen_203": ("Bản ghi nguồn, đích, cổng và hành động drop là nhật ký của tường lửa (logging).", {
-        "A": "Outbound là hướng lọc, không phải bản ghi.",
-        "B": "Inbound là hướng lọc, không phải bản ghi.",
-        "D": "East-west là hướng lọc, không phải bản ghi.",
     }),
     "gen_206": ("Chỉ máy 10.0.0.5 được vào, máy khác thì không: luật phân biệt theo người gửi, tức địa chỉ IP nguồn.", {
         "A": "IP đích là firewall, giống nhau với mọi máy gửi tới.",
@@ -214,25 +129,10 @@ EXPLAIN = {
         "B": "WAF chỉ bảo vệ ứng dụng web, không quản lý phiên duyệt web của cả LAN.",
         "D": "ACL tĩnh không biết gói nào là trả lời của phiên nào.",
     }),
-    "gen_221": ("Chặn kết nối từ Internet tới cơ sở dữ liệu theo IP/cổng là việc của tường lửa mạng.", {
-        "A": "NAT đổi địa chỉ, không phải công cụ đặt chính sách chặn.",
-        "C": "Proxy web trung chuyển việc duyệt web của người dùng.",
-        "D": "WAF bảo vệ ứng dụng web, không phải cơ sở dữ liệu.",
-    }),
-    "gen_224": ("Người dùng nội bộ duyệt web qua một máy trung gian là proxy web.", {
-        "A": "WAF đứng trước máy chủ web để bảo vệ nó, không phục vụ người dùng duyệt web.",
-        "B": "NAT chỉ đổi địa chỉ, không phải máy trung gian xử lý yêu cầu web.",
-        "C": "Tường lửa mạng lọc theo luật, không trung chuyển yêu cầu.",
-    }),
-    "gen_227": ("Nhiều máy LAN dùng chung một IP công khai là NAT (dịch địa chỉ mạng).", {
-        "A": "Tường lửa mạng lọc lưu lượng, không đổi địa chỉ.",
-        "B": "Proxy web trung chuyển web, khác cơ chế dịch địa chỉ.",
-        "C": "WAF bảo vệ ứng dụng web.",
-    }),
-    "case_21": ("Cho gói phản hồi của phiên đã thiết lập và chặn gói không thuộc phiên nào là stateful inspection.", {
-        "A": "IDS thụ động chỉ cảnh báo, không chặn.",
-        "B": "Chỉ xét địa chỉ đích thì không biết gói thuộc phiên nào.",
-        "D": "NAT đổi địa chỉ, không phải cơ chế kiểm tra phiên.",
+    "gen_227": ("NAT (Network Address Translation) dịch nhiều địa chỉ nội bộ sang một địa chỉ IP công khai khi ra Internet.", {
+        "A": "VPN tạo đường hầm mã hóa giữa hai điểm, không phải để nhiều máy dùng chung một IP công khai.",
+        "B": "Packet filtering chặn hoặc cho qua gói theo IP, cổng, giao thức; nó không đổi địa chỉ.",
+        "C": "WAF bảo vệ ứng dụng web, không dịch địa chỉ."
     }),
     "case_22": ("Kiểm tra lệnh HTTP và nội dung yêu cầu cần tường lửa tầng ứng dụng (application proxy).", {
         "A": "Router không ACL không lọc gì.",
@@ -249,20 +149,10 @@ EXPLAIN = {
         "B": "Mạng có router lọc, nên không phải dual-homed không router.",
         "D": "Screened subnet phải có vùng đệm (DMZ) giữa hai lớp lọc.",
     }),
-    "case_25": ("Tường lửa dừng ở luật khớp đầu tiên; IP xấu khớp luật cho phép mọi nguồn ở trên nên được cho qua.", {
-        "A": "IDS không tự xóa máy khỏi mạng.",
-        "B": "Tường lửa không tự chuyển gói sang mã hóa.",
-        "C": "Luật chặn phía sau không bao giờ được xét vì luật trên đã khớp.",
-    }),
     "case_26": ("Mở đúng luật cụ thể (TCP 443 vào web DMZ) rồi đặt default deny ở cuối để chặn mọi thứ khác.", {
         "A": "Gộp chung một VLAN làm mất phân vùng.",
         "C": "Allow any-any ở đầu thì mọi thứ đều được qua.",
         "D": "Tắt log và mở mọi cổng ngược hẳn yêu cầu.",
-    }),
-    "case_27": ("Dữ liệu đi từ trong ra ngoài qua cổng lạ nên cần lọc chiều ra (outbound).", {
-        "A": "RAM không ảnh hưởng luồng mạng.",
-        "B": "SSID WLAN không liên quan máy trạm gửi dữ liệu ra ngoài.",
-        "C": "Inbound chỉ xét luồng từ ngoài vào, bỏ qua luồng đi ra.",
     }),
     "case_28": ("SQL injection nằm trong tham số HTTP; WAF chuyên kiểm tra yêu cầu web để chặn loại tấn công này.", {
         "A": "NAT chỉ đổi địa chỉ, không đọc yêu cầu HTTP.",
@@ -283,11 +173,6 @@ EXPLAIN = {
         "A": "RADIUS là máy chủ xác thực.",
         "C": "IDS thụ động chỉ phát hiện và cảnh báo, không chặn theo luật.",
         "D": "Keylogger là mã độc ghi phím.",
-    }),
-    "reviewed_atm_92": ("Screened subnet tạo DMZ để web công khai tách khỏi vùng cơ sở dữ liệu.", {
-        "A": "LAN phẳng để mọi máy chung một vùng.",
-        "B": "Nối thẳng vào DB làm lộ DB.",
-        "D": "Bỏ bộ lọc biên làm mất lớp bảo vệ.",
     }),
     "abbr_c3_016": ("DMZ là Demilitarized Zone, vùng phi quân sự, tức vùng đệm giữa Internet và mạng nội bộ.", {
         "B": "Không phải Dynamic Management Zone.",
@@ -379,11 +264,6 @@ EXPLAIN = {
         "B": "ISP tới router biên là luồng north-south.",
         "D": "Doanh nghiệp ra Internet là north-south.",
     }),
-    "rev_c3_034": ("Từ chối mặc định: luồng nào chưa được cho phép rõ ràng thì bị chặn.", {
-        "A": "Cho phép mọi luồng là mặc định cho phép, ngược lại.",
-        "C": "Nguyên tắc áp dụng cả hai chiều, không riêng inbound.",
-        "D": "Luồng hợp lệ đã được cho phép thì vẫn đi qua.",
-    }),
     "rev_c3_035": ("Slide ghi proxy firewall chấm dứt rồi tạo lại kết nối, nên tăng độ trễ.", {
         "A": "Proxy kiểm tra được nội dung ứng dụng; đó là ưu điểm của nó.",
         "B": "Hạn chế slide nêu là độ trễ, không phải theo dõi phiên.",
@@ -463,5 +343,66 @@ EXPLAIN = {
         "A": "Số địa chỉ IP không liên quan.",
         "B": "HTTPS vẫn truy cập bình thường.",
         "D": "Kết nối Internet không bị ảnh hưởng.",
+    }),
+    # Design questions from atm_design_c3.py.
+    "des_c3_01": ("Slide nêu nguyên tắc không tin cậy theo vị trí: thiết bị trong LAN hoặc đã VPN không đương nhiên an toàn, mỗi truy cập vẫn phải được kiểm tra.", {
+        "B": "Tin máy chỉ vì có IP nội bộ chính là tin theo vị trí, điều slide bác bỏ.",
+        "C": "Slide nói rõ đã VPN cũng không đương nhiên an toàn.",
+        "D": "Slide nhấn mạnh biên mạng không còn là một đường ranh duy nhất; chỉ đặt ở biên là không đủ.",
+    }),
+    "des_c3_02": ("Tách mặt phẳng quản trị: không quản trị firewall từ VLAN người dùng, bật MFA, phân quyền theo vai trò, dùng máy quản trị chuyên dụng.", {
+        "A": "Quản trị từ bất kỳ máy LAN nào là đúng điều slide cấm.",
+        "C": "Slide yêu cầu quan sát liên tục và giám sát thay đổi chính sách, không tắt log.",
+        "D": "Dùng chung tài khoản đi ngược phân quyền theo vai trò và MFA.",
+    }),
+    "des_c3_03": ("Policy as Code: chính sách được viết dưới dạng mã, lưu phiên bản, kiểm tra trước khi triển khai và tích hợp CI/CD.", {
+        "A": "Không lưu lịch sử là ngược với việc lưu phiên bản.",
+        "B": "Policy as Code là cách quản lý luật, không phải ngôn ngữ thay thế luật lọc gói.",
+        "D": "Policy as Code nhấn mạnh kiểm tra trước triển khai; AI tự triển khai không kiểm tra là sai.",
+    }),
+    "des_c3_04": ("Slide ghi rõ hai thiết bị không tự động là HA: còn cần cấu hình HA, dự phòng đường truyền, sao lưu cấu hình và kiểm thử failover.", {
+        "A": "Slide nói ngược lại: 2 thiết bị KHÔNG tự động là HA.",
+        "B": "Cùng hãng không làm hai thiết bị tự thành HA.",
+        "C": "HA áp dụng cho cả tường lửa phần cứng tại chỗ, không riêng đám mây.",
+    }),
+    "des_c3_05": ("Microsegmentation chia nhỏ mạng và lọc lưu lượng giữa từng máy chủ, dịch vụ (east–west) để kẻ tấn công khó di chuyển ngang.", {
+        "B": "Chia băng thông là QoS, không phải microsegmentation.",
+        "C": "Mã hóa lưu lượng ra Internet là việc của TLS/VPN.",
+        "D": "Gộp thành mạng phẳng làm di chuyển ngang dễ hơn, ngược với mục đích.",
+    }),
+    "des_c3_06": ("Slide định nghĩa north–south là lưu lượng giữa doanh nghiệp và bên ngoài; east–west là bên trong.", {
+        "A": "Giữa server, VLAN, VM bên trong là east–west.",
+        "C": "Giữa hai tiến trình trên một máy không đi qua mạng nên không phải north–south.",
+        "D": "North–south gồm mọi lưu lượng ra vào doanh nghiệp, không riêng lưu lượng quản trị.",
+    }),
+    "des_c3_07": ("Bước 6 của quy trình: xây dựng ma trận chính sách, tránh Any–Any–Allow, ghi rõ lý do và thời hạn từng luật.", {
+        "A": "Internet → WAF qua HTTPS/443 là luật mẫu được cho phép trong slide.",
+        "B": "Từ chối và ghi log ở cuối là luật mặc định đúng.",
+        "D": "Chặn VLAN IoT tới VLAN Server là luật mẫu đúng trong ma trận của slide.",
+    }),
+    "des_c3_08": ("Bước 9: kiểm thử 2 chiều, xác nhận luồng hợp lệ vẫn chạy VÀ luồng trái phép thật sự bị chặn.", {
+        "A": "Đo tốc độ đường truyền không kiểm tra chính sách cho phép/từ chối.",
+        "B": "Hỗ trợ IPv4/IPv6 không phải nội dung của bước kiểm thử 2 chiều.",
+        "C": "Đăng nhập đồng thời không liên quan việc kiểm tra luật.",
+    }),
+    "des_c3_09": ("Quy trình 10 bước bắt đầu bằng kiểm kê tài sản: thiết bị, SaaS, tài khoản cloud, API, container.", {
+        "B": "Xây dựng ma trận chính sách là bước 6.",
+        "C": "Triển khai theo giai đoạn là bước 8.",
+        "D": "Vận hành liên tục là bước cuối (bước 10).",
+    }),
+    "des_c3_10": ("Slide giải thích: địa chỉ IP không chứng minh được người dùng là ai hay thiết bị có an toàn, nên luật theo ngữ cảnh chặt hơn.", {
+        "A": "Luật theo IP vẫn chặn hoặc cho phép được cổng 443.",
+        "C": "Luật theo ngữ cảnh trong slide vẫn \"Cho phép và ghi log\".",
+        "D": "Luật theo IP dùng cho mọi loại mạng, không riêng mạng không dây.",
+    }),
+    "des_c3_11": ("Slide khuyên không kéo lưu lượng SaaS về trụ sở: dùng FWaaS gần người dùng, ZTNA cho ứng dụng nội bộ, NGFW trụ sở lo tài nguyên tại chỗ.", {
+        "A": "Slide nói rõ KHÔNG nên buộc lưu lượng SaaS quay về trụ sở.",
+        "B": "Tắt tường lửa bỏ mất lớp bảo vệ.",
+        "D": "Lưu lượng SaaS từ nhà có thể không đi qua NGFW trụ sở, nên chỉ NGFW là không đủ.",
+    }),
+    "des_c3_12": ("Slide cảnh báo tường lửa chỉ là MỘT lớp bảo vệ, không thay thế patch management, EDR, IAM, backup, đào tạo người dùng.", {
+        "A": "NGFW không làm thay vá lỗi, EDR, IAM hay sao lưu.",
+        "B": "Giải mã TLS chỉ giúp thấy nội dung, không thay các lớp bảo vệ khác.",
+        "C": "Tường lửa dùng cho mọi loại mạng, và câu trả lời đúng là không vì nó chỉ là một lớp.",
     }),
 }

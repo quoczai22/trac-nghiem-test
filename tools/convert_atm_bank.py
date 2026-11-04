@@ -4,7 +4,8 @@ Usage: python tools/convert_atm_bank.py path/to/an_toan_mang_chon_loc.json
 
 The acronym/standards supplement in tools/atm_supplement.py is merged in, the
 weak items it lists in REMOVE_IDS are dropped, and the items in OVERRIDES are
-rewritten. Explanations from tools/atm_explain.py are attached last.
+rewritten. Chapter 3 design questions from tools/atm_design_c3.py are
+appended. Explanations from tools/atm_explain.py are attached last.
 """
 
 import hashlib
@@ -15,6 +16,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from atm_explain import EXPLAIN  # noqa: E402
+from atm_design_c3 import QUESTIONS as DESIGN_C3, SOURCE as DESIGN_C3_SOURCE  # noqa: E402
 from atm_supplement import OVERRIDES, QUESTIONS as SUPPLEMENT, REMOVE_IDS  # noqa: E402
 
 
@@ -56,13 +58,22 @@ def supplement_items() -> list:
     return items
 
 
+def design_items() -> list:
+    letters = "ABCD"
+    return [{
+        "id": item_id, "chapter": 3, "section": section, "question": question,
+        "options": options, "answer": letters.index(answer), "family": family or item_id,
+        "style": "review", "source": DESIGN_C3_SOURCE,
+    } for item_id, section, family, question, options, answer in DESIGN_C3]
+
+
 def main() -> None:
     source = Path(sys.argv[1]).resolve()
     target = Path(__file__).resolve().parents[1] / "subjects" / "an-toan-mang" / "questions.js"
     bank = json.loads(source.read_text(encoding="utf-8"))
     letters = "ABCD"
     questions = []
-    items = [apply_override(item) for item in bank["questions"]] + supplement_items()
+    items = [apply_override(item) for item in bank["questions"]] + supplement_items() + design_items()
     # Filtering after the merge keeps supplement ids stable when a supplement item is dropped.
     items = [item for item in items if item["id"] not in REMOVE_IDS]
     items.sort(key=lambda item: int(item["chapter"]))

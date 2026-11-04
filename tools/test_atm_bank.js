@@ -7,11 +7,11 @@ const root = path.resolve(__dirname, "..");
 const dataContext = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(root, "subjects/an-toan-mang/questions.js"), "utf8"), dataContext);
 const bank = dataContext.window.__QUIZ_DATA__.questions;
-assert.equal(bank.length, 426);
-assert.equal(bank.filter((question) => question.style === "application").length, 60);
+assert.equal(bank.length, 414);
+assert.equal(bank.filter((question) => question.style === "application").length, 57);
 assert.equal(bank.filter((question) => question.style === "acronym").length, 75);
 assert.equal(bank.filter((question) => question.style === "standard").length, 45);
-assert.equal(new Set(bank.map((question) => question.family)).size, 308);
+assert.equal(new Set(bank.map((question) => question.family)).size, 311);
 assert.equal(new Set(bank.map((question) => question.question)).size, bank.length);
 
 const counts = bank.reduce((result, question) => {
@@ -22,7 +22,7 @@ const counts = bank.reduce((result, question) => {
   result[question.chapter] = (result[question.chapter] || 0) + 1;
   return result;
 }, {});
-assert.deepEqual(counts, { 1: 40, 2: 52, 3: 93, 4: 81, 5: 98, 6: 62 });
+assert.deepEqual(counts, { 1: 40, 2: 52, 3: 81, 4: 81, 5: 98, 6: 62 });
 
 const app = fs.readFileSync(path.join(root, "subjects/quiz/app.js"), "utf8");
 const start = app.indexOf("function pickBalancedAtmQuestions(count)");

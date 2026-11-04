@@ -21,6 +21,13 @@ REMOVE_IDS |= {"gen_059", "gen_060", "reviewed_atm_178",  # rootkit
 REMOVE_IDS |= {"gen_107", "reviewed_atm_162", "gen_119", "gen_125", "gen_122"}
 # Chapter 3 items built on labels that are not in the slides (Rule order, Change review, ACL).
 REMOVE_IDS |= {"gen_185", "gen_188", "gen_191", "reviewed_atm_114"}
+# Chapter 3 cleanup: scenario items whose answer is a label the slides never use
+# ("Mạng ngoài", "Mạng nội bộ", "Logging firewall", "Network firewall", "Proxy web",
+# "Tường lửa máy chủ", ACL), and items that ask the same fact as a kept direct question.
+REMOVE_IDS |= {"gen_176", "gen_179", "gen_203", "gen_221", "gen_224", "gen_149", "gen_134", "gen_158",
+               "gen_140", "gen_146", "gen_152", "gen_155", "gen_161", "gen_167", "gen_173", "gen_182",
+               "gen_194", "gen_197", "gen_200", "reviewed_atm_92", "rev_c3_034",
+               "case_21", "case_25", "case_27"}
 # Same fact and answer as another kept question in a different family, so both could share one exam.
 REMOVE_IDS |= {"gen_029", "gen_062", "gen_065", "gen_074", "gen_086", "reviewed_atm_150", "reviewed_atm_19",
                "rev_c4_053", "rev_c4_054", "gen_305", "gen_374", "extra_1", "extra_2"}
@@ -37,6 +44,8 @@ OVERRIDES = {
                 "Cổng đích", "Địa chỉ IP đích", "Địa chỉ IP nguồn", "Địa chỉ MAC nguồn"),
     "gen_215": ("LAN được duyệt web bên ngoài; gói trả lời vào được nhưng kết nối do Internet khởi tạo bị chặn, không cần luật mở chiều ngược. Loại tường lửa nào làm được việc này?",
                 "Stateful inspection firewall", "Packet filtering không lưu trạng thái", "WAF chỉ bảo vệ ứng dụng web", "Screening router dùng ACL tĩnh"),
+    "gen_227": ("Kỹ thuật nào cho nhiều máy trong LAN cùng ra Internet bằng một địa chỉ IP công khai?",
+                "NAT", "VPN", "Packet filtering", "WAF"),
     "gen_240": ("Vì sao đã có firewall vẫn nên triển khai thêm IDS/IPS?",
                 "Firewall lọc theo luật, không phân tích dấu hiệu tấn công",
                 "Firewall không có khả năng chặn bất kỳ cổng dịch vụ nào",

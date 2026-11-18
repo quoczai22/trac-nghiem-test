@@ -863,6 +863,9 @@ function renderQuestions() {
   if (clo) {
     questionClo.textContent = `Chuẩn đầu ra: ${clo}`;
     questionClo.classList.remove("hidden");
+  } else if (subject.id === "english-for-it" && question.bookPage) {
+    questionClo.textContent = `English For Tech, trang ${question.bookPage}`;
+    questionClo.classList.remove("hidden");
   }
 
   const selected = state.answers[actualIndex];
@@ -950,10 +953,10 @@ async function loadQuiz() {
   }
   const initialQuestionSet = data.fixedExam
     ? data.questions
-    : pickRandomQuestions(Math.min(["anh-van-3", "an-toan-mang"].includes(subject.id) ? 50 : 20, data.count || 20)).map(withShuffledOptions);
+    : pickRandomQuestions(Math.min(["anh-van-3", "an-toan-mang", "english-for-it"].includes(subject.id) ? 50 : 20, data.count || 20)).map(withShuffledOptions);
   state.questions = savedQuestionSetValid ? savedQuestions : initialQuestionSet;
   if (!savedQuestionSetValid && !data.fixedExam) markSeen(state.questions);
-  if (["anh-van-3", "an-toan-mang"].includes(subject.id) && els.randomCount && !els.randomCount.dataset.defaultReady) {
+  if (["anh-van-3", "an-toan-mang", "english-for-it"].includes(subject.id) && els.randomCount && !els.randomCount.dataset.defaultReady) {
     els.randomCount.value = "50";
     els.randomCount.dataset.defaultReady = "true";
   }

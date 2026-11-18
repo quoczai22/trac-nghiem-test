@@ -22,7 +22,7 @@
       id: "english-for-it",
       title: "English for IT",
       icon: "IT",
-      description: "475 câu trắc nghiệm theo 7 bài English For Tech, có đáp án và trang sách.",
+      description: "167 câu tiếng Anh theo 7 bài English For Tech, có đáp án và trang sách.",
       units: Array.from({ length: 7 }, (_, index) => ({ id: String(index + 1), label: `Unit ${index + 1}` })),
       kind: "local",
       href: "./subjects/quiz/index.html?subject=english-for-it",

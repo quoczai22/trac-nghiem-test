@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đang tải đề...</title>
-    <link rel="stylesheet" href="./styles.css?v=2026-11-04h" />
+    <link rel="stylesheet" href="./styles.css?v=2026-11-19c" />
   </head>
   <body>
     <div class="app-shell">
@@ -110,6 +110,7 @@
     <template id="questionTemplate">
       <article class="question-card">
         <div class="question-head"><span class="chapter-badge"></span><span class="question-index"></span></div>
+        <div class="reading-passage hidden"></div>
         <h3 class="question-text"></h3>
         <p class="question-clo hidden"></p>
         <div class="options"></div>
@@ -118,7 +119,7 @@
     </template>
 
     <!-- Bump ?v= whenever these files change; GitHub Pages lets browsers cache them for 10 minutes. -->
-    <script src="../../shared/subjects-registry.js?v=2026-11-04h"></script>
+    <script src="../../shared/subjects-registry.js?v=2026-11-19b"></script>
     <script>window.__SUBJECT_DEFAULT_DATA__ = {};</script>
     <script src="../anh-van-3/questions.js?v=2026-11-04h"></script>
     <script>window.__SUBJECT_DEFAULT_DATA__["anh-van-3"] = window.__QUIZ_DATA__;</script>
@@ -126,8 +127,10 @@
     <script src="../anh-van-3/exam-50.js?v=2026-11-04h"></script>
     <script src="../an-toan-mang/questions.js?v=2026-11-04h"></script>
     <script>window.__SUBJECT_DEFAULT_DATA__["an-toan-mang"] = window.__QUIZ_DATA__;</script>
-    <script src="../english-for-it/questions.js?v=2026-11-19a"></script>
+    <script src="../english-for-it/questions.js?v=2026-11-19c"></script>
     <script>window.__SUBJECT_DEFAULT_DATA__["english-for-it"] = window.__QUIZ_DATA__;</script>
-    <script src="./app.js?v=2026-11-04h"></script>
+    <script src="../english-for-it/review-questions.js?v=2026-11-19b"></script>
+    <script>window.__SUBJECT_DEFAULT_DATA__["english-for-it-review"] = window.__QUIZ_DATA__;</script>
+    <script src="./app.js?v=2026-11-19c"></script>
   </body>
 </html>

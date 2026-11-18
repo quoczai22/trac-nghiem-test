@@ -197,6 +197,13 @@ function formatChapterBadge(chapter) {
   return subject.units.find((unit) => unit.id === value)?.label || `Chương ${chapter}`;
 }
 
+function showReadingPassage(fragment, question) {
+  if (!question.passage) return;
+  const passage = fragment.querySelector(".reading-passage");
+  passage.textContent = question.passage;
+  passage.classList.remove("hidden");
+}
+
 function inferClo(question) {
   if (question?.clo) return question.clo;
   if (subject.id !== "anh-van-3") return "";
@@ -581,7 +588,7 @@ function recordAttempt(auto = false) {
     auto,
     ...stats,
     review: {
-      questions: state.questions.map(({ id, chapter, question, options, answer }) => ({ id, chapter, question, options, answer })),
+      questions: state.questions.map(({ id, chapter, question, passage, passageAdapted, bookPage, options, answer }) => ({ id, chapter, question, passage, passageAdapted, bookPage, options, answer })),
       answers: { ...state.answers },
     },
   };
@@ -665,6 +672,12 @@ function renderReview() {
     fragment.querySelector(".chapter-badge").textContent = formatChapterBadge(question.chapter);
     fragment.querySelector(".question-index").textContent = `Câu ${idx + 1} / ${questions.length}`;
     fragment.querySelector(".question-text").textContent = prettifyText(question.question);
+    showReadingPassage(fragment, question);
+    if (subject.id.startsWith("english-for-it") && question.bookPage) {
+      const source = fragment.querySelector(".question-clo");
+      source.textContent = `English For Tech, trang ${question.bookPage}`;
+      source.classList.remove("hidden");
+    }
 
     const optionsWrap = fragment.querySelector(".options");
     for (const [key, value] of Object.entries(question.options)) {
@@ -859,12 +872,15 @@ function renderQuestions() {
   chapterBadge.textContent = formatChapterBadge(question.chapter);
   questionIndex.textContent = `Câu ${actualIndex + 1} / ${state.questions.length}`;
   questionText.textContent = prettifyText(question.question);
+  showReadingPassage(fragment, question);
   const clo = inferClo(question);
   if (clo) {
     questionClo.textContent = `Chuẩn đầu ra: ${clo}`;
     questionClo.classList.remove("hidden");
-  } else if (subject.id === "english-for-it" && question.bookPage) {
-    questionClo.textContent = `English For Tech, trang ${question.bookPage}`;
+  } else if (subject.id.startsWith("english-for-it") && question.bookPage) {
+    questionClo.textContent = question.passageAdapted
+      ? `English For Tech, trang ${question.bookPage} · Đoạn đọc biên soạn theo sách`
+      : `English For Tech, trang ${question.bookPage}`;
     questionClo.classList.remove("hidden");
   }
 
@@ -953,10 +969,10 @@ async function loadQuiz() {
   }
   const initialQuestionSet = data.fixedExam
     ? data.questions
-    : pickRandomQuestions(Math.min(["anh-van-3", "an-toan-mang", "english-for-it"].includes(subject.id) ? 50 : 20, data.count || 20)).map(withShuffledOptions);
+    : pickRandomQuestions(Math.min(["anh-van-3", "an-toan-mang"].includes(subject.id) || subject.id.startsWith("english-for-it") ? 50 : 20, data.count || 20)).map(withShuffledOptions);
   state.questions = savedQuestionSetValid ? savedQuestions : initialQuestionSet;
   if (!savedQuestionSetValid && !data.fixedExam) markSeen(state.questions);
-  if (["anh-van-3", "an-toan-mang", "english-for-it"].includes(subject.id) && els.randomCount && !els.randomCount.dataset.defaultReady) {
+  if ((["anh-van-3", "an-toan-mang"].includes(subject.id) || subject.id.startsWith("english-for-it")) && els.randomCount && !els.randomCount.dataset.defaultReady) {
     els.randomCount.value = "50";
     els.randomCount.dataset.defaultReady = "true";
   }
@@ -1012,11 +1028,46 @@ function pickRandomQuestions(count) {
   if (subject.id === "an-toan-mang") {
     return pickBalancedAtmQuestions(safeCount);
   }
+  if (subject.id === "english-for-it") {
+    return pickEnglishForItQuestions(safeCount);
+  }
   if (subject.id !== "anh-van-3") {
     const pool = freshFirst(shuffleArray(state.bank));
     return pool.slice(0, safeCount);
   }
   return pickBalancedAv3Questions(safeCount);
+}
+
+function pickEnglishForItQuestions(count, unitId = null) {
+  const pool = unitId
+    ? state.bank.filter((question) => String(question.chapter) === unitId)
+    : state.bank;
+  const safeCount = Math.min(count, pool.length);
+  const grouped = new Map();
+  const singles = [];
+
+  pool.forEach((question) => {
+    if (!question.passageGroup) {
+      singles.push(question);
+      return;
+    }
+    if (!grouped.has(question.passageGroup)) grouped.set(question.passageGroup, []);
+    grouped.get(question.passageGroup).push(question);
+  });
+
+  const blocks = shuffleArray([...grouped.values()]).sort((left, right) =>
+    (seenRounds[familyKey(left[0])] ?? -1) - (seenRounds[familyKey(right[0])] ?? -1));
+  if (safeCount === pool.length) {
+    return shuffleArray([...blocks, ...singles.map((question) => [question])]).flat();
+  }
+
+  const passageTarget = Math.min(safeCount >= 40 ? 2 : 1, blocks.length, Math.floor(safeCount / 3));
+  const chosenPassages = blocks.slice(0, passageTarget);
+  const passageCount = chosenPassages.reduce((total, block) => total + block.length, 0);
+  const chosenSingles = freshFirst(shuffleArray(singles))
+    .slice(0, safeCount - passageCount)
+    .map((question) => [question]);
+  return shuffleArray([...chosenPassages, ...chosenSingles]).flat();
 }
 
 function pickBalancedAtmQuestions(count) {
@@ -1081,6 +1132,10 @@ function createNewRandomQuiz() {
   // With a unit chip selected, the new exam comes from that unit's whole bank. AV3 always
   // mixes, because its reading questions must stay grouped with their passage.
   const unitSelected = subject.units.some((unit) => unit.id === state.filter);
+  if (unitSelected && subject.id === "english-for-it") {
+    startQuiz(pickEnglishForItQuestions(count, state.filter), state.filter);
+    return;
+  }
   if (unitSelected && subject.id !== "anh-van-3") {
     startQuiz(pickUnitQuestions(state.filter, count), state.filter);
     return;

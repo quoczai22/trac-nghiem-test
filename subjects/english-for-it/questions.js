@@ -1,5 +1,5 @@
 window.__QUIZ_DATA__ = {
-  "title": "English for IT - English For Tech",
+  "title": "English for IT - Trọng tâm có bài đọc",
   "count": 167,
   "questions": [
     {
@@ -276,19 +276,6 @@ window.__QUIZ_DATA__ = {
       "bookPage": 23
     },
     {
-      "id": "EIT-046",
-      "chapter": "1",
-      "question": "The reason why so many companies _____ looking for DevOps engineers is that they are the people that help shorten the development time, produce more high-quality software and optimize communication between developers, testers and system administrators.",
-      "options": {
-        "A": "am",
-        "B": "is",
-        "C": "are",
-        "D": "do"
-      },
-      "answer": "C",
-      "bookPage": 14
-    },
-    {
       "id": "EIT-049",
       "chapter": "1",
       "question": "Because web development is evolving so quickly, web developers have to keep up with the industry changes and learn how to compete on the job _____.",
@@ -341,19 +328,6 @@ window.__QUIZ_DATA__ = {
       "bookPage": 13
     },
     {
-      "id": "EIT-059",
-      "chapter": "1",
-      "question": "You will have to learn a broad range of technologies from scratch including programming _____, operating systems, cloud computing, networking, continuous delivery and continuous Integration etc.",
-      "options": {
-        "A": "websites",
-        "B": "models",
-        "C": "languages",
-        "D": "applications"
-      },
-      "answer": "C",
-      "bookPage": 14
-    },
-    {
       "id": "EIT-060",
       "chapter": "1",
       "question": "In a nutshell, a blockchain is a decentralized distributed ledger that helps _____ various transactions.",
@@ -365,19 +339,6 @@ window.__QUIZ_DATA__ = {
       },
       "answer": "D",
       "bookPage": 15
-    },
-    {
-      "id": "EIT-064",
-      "chapter": "1",
-      "question": "An IT professional who oversees code releases and deployments and optimizes _____ process.",
-      "options": {
-        "A": "introducing",
-        "B": "blockchain",
-        "C": "application",
-        "D": "development"
-      },
-      "answer": "D",
-      "bookPage": 12
     },
     {
       "id": "EIT-065",
@@ -731,32 +692,6 @@ window.__QUIZ_DATA__ = {
       "bookPage": 37
     },
     {
-      "id": "EIT-127",
-      "chapter": "2",
-      "question": "Even if you didn’t, _____ mentality and startup culture are very popular topics in the tech world.",
-      "options": {
-        "A": "company",
-        "B": "startup",
-        "C": "problem",
-        "D": "biggest"
-      },
-      "answer": "B",
-      "bookPage": 33
-    },
-    {
-      "id": "EIT-129",
-      "chapter": "2",
-      "question": "Incubators help _____ discover an idea and create a business plan for executing that idea.",
-      "options": {
-        "A": "expenses",
-        "B": "business",
-        "C": "customer",
-        "D": "startups"
-      },
-      "answer": "D",
-      "bookPage": 36
-    },
-    {
       "id": "EIT-134",
       "chapter": "2",
       "question": "A _____ or a manager can assign a test to a candidate in just 2 clicks.",
@@ -794,19 +729,6 @@ window.__QUIZ_DATA__ = {
       },
       "answer": "A",
       "bookPage": 36
-    },
-    {
-      "id": "EIT-148",
-      "chapter": "2",
-      "question": "We have successfully identified a major _____ for our customer.",
-      "options": {
-        "A": "pain point",
-        "B": "venture capital",
-        "C": "scale up",
-        "D": "pitch deck"
-      },
-      "answer": "A",
-      "bookPage": 51
     },
     {
       "id": "EIT-149",
@@ -1095,19 +1017,6 @@ window.__QUIZ_DATA__ = {
       "bookPage": 60
     },
     {
-      "id": "EIT-206",
-      "chapter": "3",
-      "question": "The _____ don't \"walk off the job\" or need training.",
-      "options": {
-        "A": "fields",
-        "B": "robots",
-        "C": "trend",
-        "D": "issues"
-      },
-      "answer": "B",
-      "bookPage": 59
-    },
-    {
       "id": "EIT-207",
       "chapter": "3",
       "question": "Other times, we make predictions based on our feelings or intuition as opposed to factual _____.",
@@ -1121,19 +1030,6 @@ window.__QUIZ_DATA__ = {
       "bookPage": 60
     },
     {
-      "id": "EIT-209",
-      "chapter": "3",
-      "question": "The best way to tackle complex _____ is to break them down step-by-step until you get to the root cause of the problem.",
-      "options": {
-        "A": "workers",
-        "B": "robots",
-        "C": "issues",
-        "D": "predictions"
-      },
-      "answer": "C",
-      "bookPage": 63
-    },
-    {
       "id": "EIT-213",
       "chapter": "3",
       "question": "The healthcare _____, in particular, has been a major early adopter of VR.",
@@ -1145,19 +1041,6 @@ window.__QUIZ_DATA__ = {
       },
       "answer": "A",
       "bookPage": 57
-    },
-    {
-      "id": "EIT-215",
-      "chapter": "3",
-      "question": "Sometimes we make _____ because we have evidence for it.",
-      "options": {
-        "A": "kiosks",
-        "B": "businesses",
-        "C": "predictions",
-        "D": "development"
-      },
-      "answer": "C",
-      "bookPage": 60
     },
     {
       "id": "EIT-219",
@@ -1329,19 +1212,6 @@ window.__QUIZ_DATA__ = {
       "bookPage": 83
     },
     {
-      "id": "EIT-258",
-      "chapter": "4",
-      "question": "Many people say that Python is the _____ language for beginners to learn because of its straightforward syntax.",
-      "options": {
-        "A": "worse",
-        "B": "better",
-        "C": "best",
-        "D": "more"
-      },
-      "answer": "C",
-      "bookPage": 72
-    },
-    {
       "id": "EIT-259",
       "chapter": "4",
       "question": "According to data shared by Apple CEO Tim Cook, Android users switch to the iPhone _____ often than iPhone users bail on Apple’s platform.",
@@ -1431,32 +1301,6 @@ window.__QUIZ_DATA__ = {
       },
       "answer": "B",
       "bookPage": 71
-    },
-    {
-      "id": "EIT-282",
-      "chapter": "4",
-      "question": "PHP is the traditional _____ of the web.",
-      "options": {
-        "A": "popular",
-        "B": "platform",
-        "C": "software",
-        "D": "language"
-      },
-      "answer": "D",
-      "bookPage": 72
-    },
-    {
-      "id": "EIT-288",
-      "chapter": "4",
-      "question": "You can also use it on the _____ with runtimes such as Node and Deno.",
-      "options": {
-        "A": "software",
-        "B": "language",
-        "C": "phrases",
-        "D": "backend"
-      },
-      "answer": "D",
-      "bookPage": 73
     },
     {
       "id": "EIT-296",
@@ -1652,45 +1496,6 @@ window.__QUIZ_DATA__ = {
       },
       "answer": "D",
       "bookPage": 91
-    },
-    {
-      "id": "EIT-332",
-      "chapter": "5",
-      "question": "Now, developers can simply fork an existing _____ and as soon as they feel like sharing the results of their work, create a pull request and let the authors of the original repo know that they’ve just made an improvement to their project.",
-      "options": {
-        "A": "GitHub",
-        "B": "repo",
-        "C": "fork",
-        "D": "team"
-      },
-      "answer": "B",
-      "bookPage": 90
-    },
-    {
-      "id": "EIT-334",
-      "chapter": "5",
-      "question": "With Git you can also keep track of all the _____ you’ve made to your code and push commits when you’re done working on a particular feature.",
-      "options": {
-        "A": "changes",
-        "B": "request",
-        "C": "Trello",
-        "D": "software"
-      },
-      "answer": "A",
-      "bookPage": 90
-    },
-    {
-      "id": "EIT-338",
-      "chapter": "5",
-      "question": "As you may know, Git is a version control _____ that facilitates code revisions and streamlines development processes.",
-      "options": {
-        "A": "system",
-        "B": "merge",
-        "C": "working",
-        "D": "GitLab"
-      },
-      "answer": "A",
-      "bookPage": 90
     },
     {
       "id": "EIT-345",
@@ -1927,45 +1732,6 @@ window.__QUIZ_DATA__ = {
       "bookPage": 106
     },
     {
-      "id": "EIT-394",
-      "chapter": "6",
-      "question": "The goal of a summary is to make the _____ searchable and uniquely identifiable.",
-      "options": {
-        "A": "report",
-        "B": "release",
-        "C": "mobile",
-        "D": "setback"
-      },
-      "answer": "A",
-      "bookPage": 113
-    },
-    {
-      "id": "EIT-395",
-      "chapter": "6",
-      "question": "Last but not least, after you’re done with the steps to _____, include the environment setup and configuration information, such as OS, system build and platform etc.",
-      "options": {
-        "A": "messages",
-        "B": "reproduce",
-        "C": "deadline",
-        "D": "screenshot"
-      },
-      "answer": "B",
-      "bookPage": 114
-    },
-    {
-      "id": "EIT-396",
-      "chapter": "6",
-      "question": "This will help you write clearer _____ cases.",
-      "options": {
-        "A": "fix",
-        "B": "things",
-        "C": "test",
-        "D": "bug"
-      },
-      "answer": "C",
-      "bookPage": 104
-    },
-    {
       "id": "EIT-400",
       "chapter": "6",
       "question": "Apart from the scope of _____ it is also helpful to define your key deliverables, testing objectives and time constraints.",
@@ -2109,19 +1875,6 @@ window.__QUIZ_DATA__ = {
       "bookPage": 126
     },
     {
-      "id": "EIT-453",
-      "chapter": "7",
-      "question": "Is it Scrum, _____ or Kanban or a combination of all?",
-      "options": {
-        "A": "Sprint",
-        "B": "Agile",
-        "C": "Board",
-        "D": "Cache"
-      },
-      "answer": "B",
-      "bookPage": 120
-    },
-    {
       "id": "EIT-455",
       "chapter": "7",
       "question": "_____ prioritizes the importance of making all team members feel responsible for the results of their work.",
@@ -2133,19 +1886,6 @@ window.__QUIZ_DATA__ = {
       },
       "answer": "A",
       "bookPage": 123
-    },
-    {
-      "id": "EIT-461",
-      "chapter": "7",
-      "question": "The word comes from Japanese and means “visual _____”.",
-      "options": {
-        "A": "allows",
-        "B": "system",
-        "C": "board",
-        "D": "sprint"
-      },
-      "answer": "C",
-      "bookPage": 132
     },
     {
       "id": "EIT-467",
@@ -2161,14 +1901,337 @@ window.__QUIZ_DATA__ = {
       "bookPage": 122
     },
     {
-      "id": "EIT-472",
-      "chapter": "7",
-      "question": "_____ is based around the idea of sprints which typically last under 30 days during which the team needs to produce a working demo.",
+      "id": "EIT-P1-1",
+      "chapter": "1",
+      "question": "Choose the best word or phrase for blank (1).",
+      "passage": "DevOps engineers help (1) _____ development time and improve communication between developers, testers and system administrators. Beginners in this field learn programming languages, operating systems, cloud computing and (2) _____. They need to understand a broad range of (3) _____ before working with code releases and deployments.",
+      "passageGroup": "EIT-P1",
+      "passageAdapted": true,
       "options": {
-        "A": "Work",
-        "B": "Sprint",
-        "C": "Scrum",
-        "D": "Resume"
+        "A": "shorten",
+        "B": "collect",
+        "C": "qualify",
+        "D": "specialize"
+      },
+      "answer": "A",
+      "bookPage": 14
+    },
+    {
+      "id": "EIT-P1-2",
+      "chapter": "1",
+      "question": "Choose the best word or phrase for blank (2).",
+      "passage": "DevOps engineers help (1) _____ development time and improve communication between developers, testers and system administrators. Beginners in this field learn programming languages, operating systems, cloud computing and (2) _____. They need to understand a broad range of (3) _____ before working with code releases and deployments.",
+      "passageGroup": "EIT-P1",
+      "passageAdapted": true,
+      "options": {
+        "A": "transactions",
+        "B": "networking",
+        "C": "stakeholders",
+        "D": "pitching"
+      },
+      "answer": "B",
+      "bookPage": 14
+    },
+    {
+      "id": "EIT-P1-3",
+      "chapter": "1",
+      "question": "Choose the best word or phrase for blank (3).",
+      "passage": "DevOps engineers help (1) _____ development time and improve communication between developers, testers and system administrators. Beginners in this field learn programming languages, operating systems, cloud computing and (2) _____. They need to understand a broad range of (3) _____ before working with code releases and deployments.",
+      "passageGroup": "EIT-P1",
+      "passageAdapted": true,
+      "options": {
+        "A": "technologies",
+        "B": "customers",
+        "C": "transactions",
+        "D": "buttons"
+      },
+      "answer": "A",
+      "bookPage": 14
+    },
+    {
+      "id": "EIT-P2-1",
+      "chapter": "2",
+      "question": "Choose the best word or phrase for blank (1).",
+      "passage": "A startup begins with an idea that solves a customer (1) _____. The team should ask whether its solution is elegant and (2) _____. As the company grows, it needs people with the right skills and a shared vision. An incubator can provide mentorship, equipment and (3) _____ opportunities.",
+      "passageGroup": "EIT-P2",
+      "passageAdapted": true,
+      "options": {
+        "A": "pitch deck",
+        "B": "pain point",
+        "C": "shareholder",
+        "D": "budget"
+      },
+      "answer": "B",
+      "bookPage": 34
+    },
+    {
+      "id": "EIT-P2-2",
+      "chapter": "2",
+      "question": "Choose the best word or phrase for blank (2).",
+      "passage": "A startup begins with an idea that solves a customer (1) _____. The team should ask whether its solution is elegant and (2) _____. As the company grows, it needs people with the right skills and a shared vision. An incubator can provide mentorship, equipment and (3) _____ opportunities.",
+      "passageGroup": "EIT-P2",
+      "passageAdapted": true,
+      "options": {
+        "A": "concise",
+        "B": "prospective",
+        "C": "scalable",
+        "D": "annual"
+      },
+      "answer": "C",
+      "bookPage": 34
+    },
+    {
+      "id": "EIT-P2-3",
+      "chapter": "2",
+      "question": "Choose the best word or phrase for blank (3).",
+      "passage": "A startup begins with an idea that solves a customer (1) _____. The team should ask whether its solution is elegant and (2) _____. As the company grows, it needs people with the right skills and a shared vision. An incubator can provide mentorship, equipment and (3) _____ opportunities.",
+      "passageGroup": "EIT-P2",
+      "passageAdapted": true,
+      "options": {
+        "A": "networking",
+        "B": "debugging",
+        "C": "testing",
+        "D": "coding"
+      },
+      "answer": "A",
+      "bookPage": 34
+    },
+    {
+      "id": "EIT-P3-1",
+      "chapter": "3",
+      "question": "Choose the best word or phrase for blank (1).",
+      "passage": "AI can gather user data and track user (1) _____. Businesses can turn this data into predictions and use them to improve their (2) _____. The reading notes that AI may remove some low-skilled jobs, but it may also create more (3) _____ jobs.",
+      "passageGroup": "EIT-P3",
+      "passageAdapted": true,
+      "options": {
+        "A": "behavior",
+        "B": "architecture",
+        "C": "software",
+        "D": "hardware"
+      },
+      "answer": "A",
+      "bookPage": 56
+    },
+    {
+      "id": "EIT-P3-2",
+      "chapter": "3",
+      "question": "Choose the best word or phrase for blank (2).",
+      "passage": "AI can gather user data and track user (1) _____. Businesses can turn this data into predictions and use them to improve their (2) _____. The reading notes that AI may remove some low-skilled jobs, but it may also create more (3) _____ jobs.",
+      "passageGroup": "EIT-P3",
+      "passageAdapted": true,
+      "options": {
+        "A": "interface",
+        "B": "strategy",
+        "C": "profile",
+        "D": "simulation"
+      },
+      "answer": "B",
+      "bookPage": 56
+    },
+    {
+      "id": "EIT-P3-3",
+      "chapter": "3",
+      "question": "Choose the best word or phrase for blank (3).",
+      "passage": "AI can gather user data and track user (1) _____. Businesses can turn this data into predictions and use them to improve their (2) _____. The reading notes that AI may remove some low-skilled jobs, but it may also create more (3) _____ jobs.",
+      "passageGroup": "EIT-P3",
+      "passageAdapted": true,
+      "options": {
+        "A": "low-skilled",
+        "B": "high-skilled",
+        "C": "obsolete",
+        "D": "virtual"
+      },
+      "answer": "B",
+      "bookPage": 56
+    },
+    {
+      "id": "EIT-P4-1",
+      "chapter": "4",
+      "question": "Choose the best word or phrase for blank (1).",
+      "passage": "Python is often recommended for beginners because its (1) _____ is straightforward. It is also used in Machine Learning and Artificial Intelligence. Java is common in large (2) _____ projects and backend applications. PHP has traditionally been a language of the (3) _____.",
+      "passageGroup": "EIT-P4",
+      "passageAdapted": true,
+      "options": {
+        "A": "syntax",
+        "B": "terminal",
+        "C": "runtime",
+        "D": "platform"
+      },
+      "answer": "A",
+      "bookPage": 72
+    },
+    {
+      "id": "EIT-P4-2",
+      "chapter": "4",
+      "question": "Choose the best word or phrase for blank (2).",
+      "passage": "Python is often recommended for beginners because its (1) _____ is straightforward. It is also used in Machine Learning and Artificial Intelligence. Java is common in large (2) _____ projects and backend applications. PHP has traditionally been a language of the (3) _____.",
+      "passageGroup": "EIT-P4",
+      "passageAdapted": true,
+      "options": {
+        "A": "enterprise",
+        "B": "mobile",
+        "C": "gaming",
+        "D": "freelance"
+      },
+      "answer": "A",
+      "bookPage": 72
+    },
+    {
+      "id": "EIT-P4-3",
+      "chapter": "4",
+      "question": "Choose the best word or phrase for blank (3).",
+      "passage": "Python is often recommended for beginners because its (1) _____ is straightforward. It is also used in Machine Learning and Artificial Intelligence. Java is common in large (2) _____ projects and backend applications. PHP has traditionally been a language of the (3) _____.",
+      "passageGroup": "EIT-P4",
+      "passageAdapted": true,
+      "options": {
+        "A": "desktop",
+        "B": "web",
+        "C": "cloud",
+        "D": "server"
+      },
+      "answer": "B",
+      "bookPage": 72
+    },
+    {
+      "id": "EIT-P5-1",
+      "chapter": "5",
+      "question": "Choose the best word or phrase for blank (1).",
+      "passage": "Git is a (1) _____ system that tracks changes to source code. GitHub is different: it is a (2) _____ service for repositories. To contribute to an open-source project, developers can fork a repo and create a (3) _____ to share their changes with the original authors.",
+      "passageGroup": "EIT-P5",
+      "passageAdapted": true,
+      "options": {
+        "A": "version control",
+        "B": "runtime",
+        "C": "testing",
+        "D": "cloud"
+      },
+      "answer": "A",
+      "bookPage": 90
+    },
+    {
+      "id": "EIT-P5-2",
+      "chapter": "5",
+      "question": "Choose the best word or phrase for blank (2).",
+      "passage": "Git is a (1) _____ system that tracks changes to source code. GitHub is different: it is a (2) _____ service for repositories. To contribute to an open-source project, developers can fork a repo and create a (3) _____ to share their changes with the original authors.",
+      "passageGroup": "EIT-P5",
+      "passageAdapted": true,
+      "options": {
+        "A": "programming",
+        "B": "hosting",
+        "C": "design",
+        "D": "testing"
+      },
+      "answer": "B",
+      "bookPage": 90
+    },
+    {
+      "id": "EIT-P5-3",
+      "chapter": "5",
+      "question": "Choose the best word or phrase for blank (3).",
+      "passage": "Git is a (1) _____ system that tracks changes to source code. GitHub is different: it is a (2) _____ service for repositories. To contribute to an open-source project, developers can fork a repo and create a (3) _____ to share their changes with the original authors.",
+      "passageGroup": "EIT-P5",
+      "passageAdapted": true,
+      "options": {
+        "A": "branch",
+        "B": "commit",
+        "C": "pull request",
+        "D": "repository"
+      },
+      "answer": "C",
+      "bookPage": 90
+    },
+    {
+      "id": "EIT-P6-1",
+      "chapter": "6",
+      "question": "Choose the best word or phrase for blank (1).",
+      "passage": "A clear bug report describes the problem and lists steps to (1) _____ it. It can include a screenshot and a clickable (2) _____. The testing team should define its objectives and write clear test (3) _____. This helps developers understand what went wrong.",
+      "passageGroup": "EIT-P6",
+      "passageAdapted": true,
+      "options": {
+        "A": "reproduce",
+        "B": "compile",
+        "C": "deploy",
+        "D": "merge"
+      },
+      "answer": "A",
+      "bookPage": 104
+    },
+    {
+      "id": "EIT-P6-2",
+      "chapter": "6",
+      "question": "Choose the best word or phrase for blank (2).",
+      "passage": "A clear bug report describes the problem and lists steps to (1) _____ it. It can include a screenshot and a clickable (2) _____. The testing team should define its objectives and write clear test (3) _____. This helps developers understand what went wrong.",
+      "passageGroup": "EIT-P6",
+      "passageAdapted": true,
+      "options": {
+        "A": "branch",
+        "B": "URL",
+        "C": "commit",
+        "D": "database"
+      },
+      "answer": "B",
+      "bookPage": 104
+    },
+    {
+      "id": "EIT-P6-3",
+      "chapter": "6",
+      "question": "Choose the best word or phrase for blank (3).",
+      "passage": "A clear bug report describes the problem and lists steps to (1) _____ it. It can include a screenshot and a clickable (2) _____. The testing team should define its objectives and write clear test (3) _____. This helps developers understand what went wrong.",
+      "passageGroup": "EIT-P6",
+      "passageAdapted": true,
+      "options": {
+        "A": "cases",
+        "B": "branches",
+        "C": "repositories",
+        "D": "sprints"
+      },
+      "answer": "A",
+      "bookPage": 104
+    },
+    {
+      "id": "EIT-P7-1",
+      "chapter": "7",
+      "question": "Choose the best word or phrase for blank (1).",
+      "passage": "Agile is flexible because it relies on (1) _____ and lets teams adjust their work. Kanban uses a visual (2) _____ to show what has been accomplished and where setbacks remain. Scrum organizes work into (3) _____ that usually last less than 30 days and lead to a working demo.",
+      "passageGroup": "EIT-P7",
+      "passageAdapted": true,
+      "options": {
+        "A": "iterations",
+        "B": "queries",
+        "C": "tickets",
+        "D": "repos"
+      },
+      "answer": "A",
+      "bookPage": 122
+    },
+    {
+      "id": "EIT-P7-2",
+      "chapter": "7",
+      "question": "Choose the best word or phrase for blank (2).",
+      "passage": "Agile is flexible because it relies on (1) _____ and lets teams adjust their work. Kanban uses a visual (2) _____ to show what has been accomplished and where setbacks remain. Scrum organizes work into (3) _____ that usually last less than 30 days and lead to a working demo.",
+      "passageGroup": "EIT-P7",
+      "passageAdapted": true,
+      "options": {
+        "A": "terminal",
+        "B": "board",
+        "C": "database",
+        "D": "report"
+      },
+      "answer": "B",
+      "bookPage": 122
+    },
+    {
+      "id": "EIT-P7-3",
+      "chapter": "7",
+      "question": "Choose the best word or phrase for blank (3).",
+      "passage": "Agile is flexible because it relies on (1) _____ and lets teams adjust their work. Kanban uses a visual (2) _____ to show what has been accomplished and where setbacks remain. Scrum organizes work into (3) _____ that usually last less than 30 days and lead to a working demo.",
+      "passageGroup": "EIT-P7",
+      "passageAdapted": true,
+      "options": {
+        "A": "commits",
+        "B": "releases",
+        "C": "sprints",
+        "D": "features"
       },
       "answer": "C",
       "bookPage": 122

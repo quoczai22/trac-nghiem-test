@@ -20,12 +20,21 @@
     },
     {
       id: "english-for-it",
-      title: "English for IT",
+      title: "English for IT - Trọng tâm",
       icon: "IT",
-      description: "167 câu tiếng Anh theo 7 bài English For Tech, có đáp án và trang sách.",
+      description: "167 câu tiếng Anh đã lọc theo trọng tâm 7 Unit, có đáp án và trang sách.",
       units: Array.from({ length: 7 }, (_, index) => ({ id: String(index + 1), label: `Unit ${index + 1}` })),
       kind: "local",
       href: "./subjects/quiz/index.html?subject=english-for-it",
+    },
+    {
+      id: "english-for-it-review",
+      title: "English for IT - Ôn rộng",
+      icon: "IT",
+      description: "475 câu ôn rộng theo sách, gồm cả câu hỏi tiếng Việt và câu bổ trợ.",
+      units: Array.from({ length: 7 }, (_, index) => ({ id: String(index + 1), label: `Unit ${index + 1}` })),
+      kind: "local",
+      href: "./subjects/quiz/index.html?subject=english-for-it-review",
     },
     {
       id: "an-toan-mang",

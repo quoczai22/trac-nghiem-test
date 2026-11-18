@@ -1,9 +1,16 @@
 # English for IT question bank
 
-The public bank is `questions.js`. It contains 167 English-only, four-option
-questions selected from the seven units of *English For Tech*. Each question
-includes the printed book page (`bookPage`). The original source JSON remains
-local; the textbook PDF is not shipped with the site.
+There are two public banks from the seven units of *English For Tech*:
+
+- `questions.js`: 167 English-only, four-option questions for focused practice,
+  including seven adapted reading passages with three linked blanks each.
+- `review-questions.js`: the original 475-question broad review bank, including
+  Vietnamese prompts and supplemental questions.
+
+The focused quiz selects complete passage groups and keeps their blanks
+consecutive. Each question includes the printed book page (`bookPage`). The source JSON
+remains local; the textbook PDF is not shipped with the site. The two quiz
+entries have separate saved progress and history.
 
 Selection favors each unit's stated grammar topic and IT vocabulary. Repeated
 reverse glossary questions, incidental filler-word clozes, off-topic terms, and

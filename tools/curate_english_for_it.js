@@ -12,40 +12,38 @@ const selected = {
   1: [
     4, 5, 6, 7, 9, 10,
     11, 12, 13, 14, 15, 16, 18, 20, 22, 24, 26, 28, 30, 32,
-    41, 46, 49, 50, 55, 58, 59, 60, 64, 65, 66, 67, 73,
+    41, 49, 50, 55, 58, 60, 65, 66, 67, 73,
   ],
   2: [
     77, 78, 80,
     84, 85, 86, 87, 88, 92, 94, 96, 98, 100, 102, 104, 106, 108,
-    115, 117, 118, 120, 125, 126, 127, 129, 134, 138, 143,
-    148, 149, 156,
+    115, 117, 118, 120, 125, 126, 134, 138, 143, 149, 156,
   ],
   3: [
     166, 167, 168, 169, 170,
     171, 172, 173, 174, 176, 178, 180, 182, 184, 188, 190,
-    194, 196, 200, 202, 206, 207, 209,
-    213, 215, 219, 225,
+    194, 196, 200, 202, 207, 213, 219, 225,
   ],
   4: [
     234, 235, 237, 238,
     239, 240, 241, 243, 245, 247, 253,
-    258, 259, 261, 263, 268, 275, 277, 281, 282, 288,
+    259, 261, 263, 268, 275, 277, 281,
   ],
   5: [
     296, 297, 298,
     302, 303, 304, 306, 308, 312, 314, 318,
-    324, 326, 327, 328, 332, 334, 338,
+    324, 326, 327, 328,
   ],
   6: [
     345, 346, 347, 348, 349, 350, 351,
     352, 358, 360, 362, 364, 367,
     376, 377, 378, 381,
-    385, 394, 395, 396, 400, 403, 404,
+    385, 400, 403, 404,
   ],
   7: [
     414, 415,
     422, 424, 426, 438,
-    443, 444, 453, 455, 461, 467, 472,
+    443, 444, 455, 467,
   ],
 };
 
@@ -81,6 +79,81 @@ const englishPrompts = {
   414: "What is the past form of 'have to' in the book's table?",
   415: "What is the future form of 'have to' in the book's table?",
 };
+
+// Short passages are adapted from the indicated reading pages; every blank
+// tests a term or construction taught on that page.
+const passages = [
+  {
+    unit: 1,
+    bookPage: 14,
+    text: "DevOps engineers help (1) _____ development time and improve communication between developers, testers and system administrators. Beginners in this field learn programming languages, operating systems, cloud computing and (2) _____. They need to understand a broad range of (3) _____ before working with code releases and deployments.",
+    blanks: [
+      { options: { A: "shorten", B: "collect", C: "qualify", D: "specialize" }, answer: "A" },
+      { options: { A: "transactions", B: "networking", C: "stakeholders", D: "pitching" }, answer: "B" },
+      { options: { A: "technologies", B: "customers", C: "transactions", D: "buttons" }, answer: "A" },
+    ],
+  },
+  {
+    unit: 2,
+    bookPage: 34,
+    text: "A startup begins with an idea that solves a customer (1) _____. The team should ask whether its solution is elegant and (2) _____. As the company grows, it needs people with the right skills and a shared vision. An incubator can provide mentorship, equipment and (3) _____ opportunities.",
+    blanks: [
+      { options: { A: "pitch deck", B: "pain point", C: "shareholder", D: "budget" }, answer: "B" },
+      { options: { A: "concise", B: "prospective", C: "scalable", D: "annual" }, answer: "C" },
+      { options: { A: "networking", B: "debugging", C: "testing", D: "coding" }, answer: "A" },
+    ],
+  },
+  {
+    unit: 3,
+    bookPage: 56,
+    text: "AI can gather user data and track user (1) _____. Businesses can turn this data into predictions and use them to improve their (2) _____. The reading notes that AI may remove some low-skilled jobs, but it may also create more (3) _____ jobs.",
+    blanks: [
+      { options: { A: "behavior", B: "architecture", C: "software", D: "hardware" }, answer: "A" },
+      { options: { A: "interface", B: "strategy", C: "profile", D: "simulation" }, answer: "B" },
+      { options: { A: "low-skilled", B: "high-skilled", C: "obsolete", D: "virtual" }, answer: "B" },
+    ],
+  },
+  {
+    unit: 4,
+    bookPage: 72,
+    text: "Python is often recommended for beginners because its (1) _____ is straightforward. It is also used in Machine Learning and Artificial Intelligence. Java is common in large (2) _____ projects and backend applications. PHP has traditionally been a language of the (3) _____.",
+    blanks: [
+      { options: { A: "syntax", B: "terminal", C: "runtime", D: "platform" }, answer: "A" },
+      { options: { A: "enterprise", B: "mobile", C: "gaming", D: "freelance" }, answer: "A" },
+      { options: { A: "desktop", B: "web", C: "cloud", D: "server" }, answer: "B" },
+    ],
+  },
+  {
+    unit: 5,
+    bookPage: 90,
+    text: "Git is a (1) _____ system that tracks changes to source code. GitHub is different: it is a (2) _____ service for repositories. To contribute to an open-source project, developers can fork a repo and create a (3) _____ to share their changes with the original authors.",
+    blanks: [
+      { options: { A: "version control", B: "runtime", C: "testing", D: "cloud" }, answer: "A" },
+      { options: { A: "programming", B: "hosting", C: "design", D: "testing" }, answer: "B" },
+      { options: { A: "branch", B: "commit", C: "pull request", D: "repository" }, answer: "C" },
+    ],
+  },
+  {
+    unit: 6,
+    bookPage: 104,
+    text: "A clear bug report describes the problem and lists steps to (1) _____ it. It can include a screenshot and a clickable (2) _____. The testing team should define its objectives and write clear test (3) _____. This helps developers understand what went wrong.",
+    blanks: [
+      { options: { A: "reproduce", B: "compile", C: "deploy", D: "merge" }, answer: "A" },
+      { options: { A: "branch", B: "URL", C: "commit", D: "database" }, answer: "B" },
+      { options: { A: "cases", B: "branches", C: "repositories", D: "sprints" }, answer: "A" },
+    ],
+  },
+  {
+    unit: 7,
+    bookPage: 122,
+    text: "Agile is flexible because it relies on (1) _____ and lets teams adjust their work. Kanban uses a visual (2) _____ to show what has been accomplished and where setbacks remain. Scrum organizes work into (3) _____ that usually last less than 30 days and lead to a working demo.",
+    blanks: [
+      { options: { A: "iterations", B: "queries", C: "tickets", D: "repos" }, answer: "A" },
+      { options: { A: "terminal", B: "board", C: "database", D: "report" }, answer: "B" },
+      { options: { A: "commits", B: "releases", C: "sprints", D: "features" }, answer: "C" },
+    ],
+  },
+];
 
 const source = JSON.parse(fs.readFileSync(sourcePath, "utf8"));
 const byId = new Map(source.questions.map((question) => [Number(question.id.split("-")[1]), question]));
@@ -127,15 +200,59 @@ for (const [unit, numbers] of Object.entries(selected)) {
   }
 }
 
-if (questions.length !== ids.size) {
+for (const passage of passages) {
+  passage.blanks.forEach((blank, index) => {
+    if (!passage.text.includes(`(${index + 1}) _____`) || !blank.options[blank.answer]) {
+      throw new Error(`Invalid passage blank in Unit ${passage.unit}.`);
+    }
+    questions.push({
+      id: `EIT-P${passage.unit}-${index + 1}`,
+      chapter: String(passage.unit),
+      question: `Choose the best word or phrase for blank (${index + 1}).`,
+      passage: passage.text,
+      passageGroup: `EIT-P${passage.unit}`,
+      passageAdapted: true,
+      options: blank.options,
+      answer: blank.answer,
+      bookPage: passage.bookPage,
+    });
+  });
+}
+
+if (questions.length !== 167 || new Set(questions.map((question) => question.id)).size !== questions.length || ids.size + passages.length * 3 !== questions.length) {
   throw new Error("The selected question IDs are not unique.");
 }
 
 const data = {
-  title: "English for IT - English For Tech",
+  title: "English for IT - Trọng tâm có bài đọc",
   count: questions.length,
   questions,
 };
 const outputPath = path.join(__dirname, "..", "subjects", "english-for-it", "questions.js");
 fs.writeFileSync(outputPath, `window.__QUIZ_DATA__ = ${JSON.stringify(data, null, 2)};\n`, "utf8");
 console.log(`Wrote ${questions.length} English-only questions: ${Object.entries(selected).map(([unit, list]) => `Unit ${unit}: ${list.length}`).join(", ")}`);
+
+if (source.questions.length !== 475) {
+  throw new Error(`Expected 475 source questions, found ${source.questions.length}.`);
+}
+const reviewQuestions = source.questions.map((original) => {
+  if (!original.id || !original.question || !["A", "B", "C", "D"].every((letter) => original.options?.[letter]?.trim()) || !original.options[original.answer] || !Number.isInteger(original.book_page)) {
+    throw new Error(`Incomplete review question ${original.id}.`);
+  }
+  return {
+    id: original.id,
+    chapter: String(original.unit),
+    question: original.question,
+    options: original.options,
+    answer: original.answer,
+    bookPage: original.book_page,
+  };
+});
+const reviewData = {
+  title: "English for IT - Ôn rộng",
+  count: reviewQuestions.length,
+  questions: reviewQuestions,
+};
+const reviewPath = path.join(__dirname, "..", "subjects", "english-for-it", "review-questions.js");
+fs.writeFileSync(reviewPath, `window.__QUIZ_DATA__ = ${JSON.stringify(reviewData, null, 2)};\n`, "utf8");
+console.log(`Wrote ${reviewQuestions.length} broad-review questions.`);
